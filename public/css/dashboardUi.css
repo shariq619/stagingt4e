@@ -1,0 +1,269 @@
+/**********************************************
+
+    DASHBOARD DESIGN CHANGE CSS
+
+**********************************************/
+
+.leftSideMenu ul.nav.nav-pills li {
+    border-bottom: solid 1px #0000007a !important;
+    margin: 0 !important;
+}
+
+.leftSideMenu ul.nav.nav-pills li a.nav-link.active {
+    background: #007bff;
+    margin: 0;
+}
+.courseBorder {
+    border-bottom: solid 1px #c2c7d0;
+    margin-bottom: 15px;
+}
+
+.courseListInfo.courseBorder {
+    padding: 0 !important;
+}
+
+.courseBorder h4 {
+    font-weight: 600 !important;
+    color: #343a40 !important;
+    font-size: 17px !important;
+}
+.infoBoxDashboard,
+.boxShadowBorder {
+    padding: 6px;
+    border: solid 0.5px #c2c7d0;
+    border-radius: 8px;
+    box-shadow: #0000003b 0px 0px 10px 0px;
+}
+.boxShadowBorder {
+    margin-top: 20px;
+}
+.upcomingCourse .courseListInfo h4 {
+    font-size: 20px;
+    color: #343a40;
+    font-weight: 600;
+}
+
+.upcomingCourse .courseListInfo a {
+    font-size: 16px;
+}
+
+.upcomingCourse .courseListInfo {
+    margin-bottom: 15px;
+}
+.upcomingCourse {
+    padding: 20px 10px;
+    border-radius: 10px;
+    box-shadow: #77777757 0px 4px 10px 0px;
+    margin-top: 20px;
+}
+.courseInfo span {
+    font-size: 15px;
+    line-height: 15px !important;
+}
+
+.carFormWrapper input.form-control,
+.carFormWrapper select.form-control,
+.carFormWrapper .file-input,
+.carFormWrapper textarea {
+    box-shadow: 0px 0px 10px 0px #00000029 !important;
+    border: 1px solid #ced4da;
+}
+
+.tableWrapper td {
+    font-size: 16px;
+}
+
+.notificationWrapper a.dropdown-item {
+    white-space: normal;
+    font-size: 14px;
+}
+.leftSideMenu li.nav-item.menu-is-opening.menu-open > a.nav-link.active,
+.leftSideMenu li.menu-open > a.nav-link.active {
+    background: transparent !important;
+    box-shadow: unset !important;
+}
+
+.leftSideMenu
+    li.nav-item.menu-is-opening.menu-open
+    ul.nav.nav-treeview
+    a.nav-link.active,
+.leftSideMenu li.menu-open ul.nav.nav-treeview a.nav-link.active {
+    color: #fff !important;
+}
+th.sticky,
+td.sticky {
+    position: sticky;
+    background: #e5e5e5;
+    left: 0;
+}
+.tableSticky tr > th {
+    min-width: 150px !important;
+}
+.tableSticky tbody tr td:first-child {
+    width: 200px;
+    min-width: 200px;
+}
+.tableShadow {
+    box-shadow: #00000033 0px 0px 10px 0px;
+}
+.tableShadow .otsTaskInner h3 {
+    font-size: 20px;
+    font-weight: 800;
+}
+.assemtnTd .examBtn select {
+    height: 30px;
+    margin-right: 5px;
+    padding: 3px 10px;
+}
+#bulkUpdateForm table tbody tr {
+    border-bottom: solid #000000;
+    border-bottom-style: double;
+}
+#bulkUpdateForm table tbody tr:last-child {
+    border-bottom: solid #dee2e6;
+    border-bottom-style: solid;
+}
+
+.trainer-my-courses.tableSticky {
+    overflow: hidden;
+    overflow-x: scroll;
+}
+h2.callout.callout-success a.badgeCst:hover {
+    color: #000;
+}
+h2.callout.callout-success a.badgeCst {
+    text-decoration: none !important;
+    font-size: 23px;
+    font-weight: 500;
+    color: #000;
+}
+
+.usersDataTable table tr td img {
+    min-width: 100px !important;
+    width: 100px !important;
+    height: 100px !important;
+    object-fit: cover;
+}
+
+/**********************************************
+
+    MEDIA QUERY CSS
+
+**********************************************/
+
+@media (max-width: 1500px) {
+    #trainer-my-courses .taskHeading h4 {
+        font-size: 17px;
+    }
+    .tableShadow h4 {
+        font-size: 18px;
+    }
+    .tableWrapper .btnCust {
+        width: 100%;
+        margin-bottom: 4px;
+    }
+    .tableWrapper td {
+        font-size: 14px;
+    }
+    .applicationBtnSize {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .tableFs td,
+    .tableFs td a,
+    .tableFs td p {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .card-tools.userDashboard .formUser {
+        flex-basis: 75%;
+        max-width: 75%;
+    }
+
+    .card-tools.userDashboard .addUserBtn {
+        flex-basis: 25%;
+        max-width: 25%;
+    }
+
+    .card-tools.userDashboard .formUser .input-group.input-group-sm {
+        min-width: auto !important;
+        width: auto !important;
+    }
+
+    .card-tools.userDashboard .formUser .filterByRole select.form-control {
+        min-width: auto !important;
+        width: auto !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .card-tools.userDashboard .formUser .input-group.input-group-sm {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+    .tableWrapper tr td:first-child,
+    .tableWrapper tr td:nth-child(2) {
+        min-width: auto;
+    }
+
+    .tableWrapper td {
+        font-size: 15px;
+        min-width: 200px;
+    }
+    .main-header ul.navbar-nav a.brand-link {
+        min-width: 100px;
+        width: 100px;
+    }
+
+    .main-header.navbar-light .navbar-nav .nav-link {
+        padding: 10px 8px;
+        font-size: 14px;
+    }
+    .card-tools.userDashboard {
+        flex-direction: column-reverse;
+        align-items: start !important;
+    }
+
+    .card-tools.userDashboard .formUser {
+        flex-basis: 100%;
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .card-tools.userDashboard .addUserBtn {
+        flex-basis: 100%;
+        max-width: 100%;
+        width: 100%;
+        text-align: left !important;
+    }
+
+    .card-tools.userDashboard .formUser .input-group.input-group-sm,
+    .card-tools.userDashboard .formUser .filterByRole {
+        flex: 1;
+    }
+    .card-tools.userDashboard .formUser {
+        flex-direction: column;
+    }
+
+    .card-tools.userDashboard .formUser .filterByRole {
+        margin-left: 0 !important;
+        min-width: 100%;
+    }
+
+    .card-tools.userDashboard .formUser .filterByRole select.form-control {
+        min-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .card-tools.userDashboard .formUser .filterByRole .form-group {
+        min-width: 75% !important;
+        width: 75% !important;
+    }
+
+    .card-tools.userDashboard .formUser .filterByRole > .form-group {
+        min-width: 75% !important;
+        width: 75% !important;
+    }
+}

@@ -1,0 +1,1 @@
+@include('frontend.categories.inc.'.$category->slug,['category'=>$category])

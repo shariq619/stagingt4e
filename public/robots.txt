@@ -1,0 +1,32 @@
+User-agent: *
+# Allow essential content
+Allow: /wp-content/uploads/
+Allow: /wp-admin/admin-ajax.php
+
+# Disallow sensitive or irrelevant areas
+Disallow: /wp-admin/
+Disallow: /cgi-bin/
+Disallow: /trackback/
+Disallow: /feed/
+Disallow: /comments/
+Disallow: /wp-json/
+Disallow: /?s=
+Disallow: /?p=
+Disallow: /xmlrpc.php
+Disallow: /wp-content/plugins/
+Disallow: /wp-content/cache/
+Disallow: /wp-content/wflogs/
+Disallow: /wp-content/uploads/wc-logs/
+
+# Prevent duplicate content indexing
+Disallow: /*?replytocom
+Disallow: /*add-to-cart=*
+Disallow: /*orderby=*
+Disallow: /*filter=*
+Disallow: /*preview=true*
+
+# Sitemap for better indexing
+Sitemap: https://training4employment.co.uk/sitemap.xml
+
+# Crawl-delay for better server performance
+Crawl-delay: 2
