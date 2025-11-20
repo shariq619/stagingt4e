@@ -1011,7 +1011,7 @@
 
 
 <div id="rowCtxMenu" class="ctx-menu">
-    <a href="#" data-action="tick-customer">Assign Tickbox For All Delegates Related To Customer</a>
+    <a href="#" class="d-none" data-action="tick-customer">Assign Tickbox For All Delegates Related To Customer</a>
     <a href="#" data-action="reassign">Reassign to Other Course</a>
 </div>
 
@@ -1154,7 +1154,7 @@
 
                     const ctxMenuHtml = disabledRow ? '' :
                         '<div class="ctx-menu">' +
-                        '<a href="#" data-action="tick-customer">Assign Tickbox For All Delegates Related To Customer</a>' +
+                        '<a href="#" class="d-none" data-action="tick-customer">Assign Tickbox For All Delegates Related To Customer</a>' +
                         '<a href="#" data-action="reassign">Reassign to Other Course</a>' +
                         '</div>';
 
