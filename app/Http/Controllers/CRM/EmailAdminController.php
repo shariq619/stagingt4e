@@ -420,30 +420,24 @@ class EmailAdminController extends Controller
 
     public function uploadAsset(UploadAssetRequest $request)
     {
-        $folder = 'email-assets';
-
-        $directoryPath = storage_path("app/public/{$folder}");
-        if (!is_dir($directoryPath)) {
-            mkdir($directoryPath, 0777, true);
-        }
-
-        $file = $request->file('file');
+        $file         = $request->file('file');
         $originalName = $file->getClientOriginalName();
-        $mime = $file->getClientMimeType();
-        $bytes = $file->getSize();
+        $mime         = $file->getClientMimeType();
+        $bytes        = $file->getSize();
 
-        $path = $file->store($folder, ['disk' => 'public']);
-        $url = Storage::disk('public')->url($path);
+        $path = $file->store('email-assets', ['disk' => 'public']);
+        $url  = Storage::disk('public')->url($path);
 
-        $kb = $bytes > 0 ? round($bytes / 1024) . ' KB' : "{$bytes} bytes";
+        $kb = $bytes > 0 ? round($bytes / 1024) . ' KB' : $bytes . ' bytes';
 
         return response()->json([
-            'name' => $originalName,
-            'url'  => $url,
-            'size' => $kb,
-            'path' => $path,
-            'mime' => $mime,
-            'disk' => 'public'
+            'name'          => basename($path),
+            'original_name' => $originalName,
+            'url'           => $url,
+            'path'          => $path,
+            'size'          => $kb,
+            'mime'          => $mime,
+            'disk'          => 'public',
         ], 201);
     }
 

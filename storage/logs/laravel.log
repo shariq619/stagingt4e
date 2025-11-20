@@ -346,3 +346,13 @@ Did you mean one of these?
 #38 C:\\laragon\\www\\jetbrains\\public\\index.php(52): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
 #39 {main}
 "} 
+[2025-11-20 10:16:53] local.DEBUG: Message-ID: <8c041dfd1b53cfaef1e2a6b3157c2658@swift.generated>
+Date: Thu, 20 Nov 2025 10:16:53 +0000
+Subject: Test SMTP mail
+From: Training 4 Employment Learner Hub <info@t4e-hub.co.uk>
+To: YOUR_GMAIL_ADDRESS@gmail.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+Test from Laravel SMTP  
