@@ -373,7 +373,7 @@ abstract class BaseUserDirectoryController extends Controller
                 }
 
                 $user->image = $imageName;
-                $user->profilePhoto->image = $imageName;
+                $user->profilePhoto->profile_photo = $imageName;
 
                 if (array_key_exists('start_date', $data)) {
                     $user->start_date = $data['start_date'];
