@@ -560,7 +560,7 @@
                             <label class="layout-label">Layout HTML (wrapper)</label>
                             @php
                                 $logo = url('crm/assets/img/logo.png');
-                            @endphpF                            <textarea value="@{{content}}" class="layout-textarea" id="layout_html" placeholder="<div style='font-family:sans-serif;color:#1f2937;font-size:14px;line-height:1.5'>
+                            @endphp                           <textarea value="@{{content}}" class="layout-textarea" id="layout_html" placeholder="<div style='font-family:sans-serif;color:#1f2937;font-size:14px;line-height:1.5'>
                                 @{{content}}
                                 <hr style='border:0;border-top:1px solid #e5e7eb;margin:24px 0'>
                                 <div style='font-size:12px;color:#6b7280;line-height:1.4;text-align:center'>
