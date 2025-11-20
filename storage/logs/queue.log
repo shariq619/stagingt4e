@@ -3218,3 +3218,7 @@
 [2025-11-19 16:31:01][2041] Processed:  App\Listeners\DispatchNewsletterCampaignListener
 [2025-11-19 16:32:01][2042] Processing: App\Jobs\DeliverNewsletterJob
 [2025-11-19 16:32:01][2042] Processed:  App\Jobs\DeliverNewsletterJob
+[2025-11-20 08:45:01][2043] Processing: App\Listeners\DispatchNewsletterCampaignListener
+[2025-11-20 08:45:01][2043] Processed:  App\Listeners\DispatchNewsletterCampaignListener
+[2025-11-20 08:46:01][2044] Processing: App\Jobs\DeliverNewsletterJob
+[2025-11-20 08:46:02][2044] Processed:  App\Jobs\DeliverNewsletterJob
