@@ -1,5 +1,5 @@
 @extends('crm.layout.main')
-@section('title','Learner–Delegate Details')
+@section('title','Delegates Details')
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">

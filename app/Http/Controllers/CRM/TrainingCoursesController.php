@@ -353,9 +353,19 @@ class TrainingCoursesController extends Controller
         }
 
         $q = User::query()
-            ->whereIn('id', $ids->all())
-            ->whereNull('deleted_at')
-            ->select(['id', 'name', 'last_name', 'email', 'learner_status', 'created_at']);
+            ->leftJoin('users as parent', 'users.client_id', '=', 'parent.id')
+            ->whereIn('users.id', $ids->all())
+            ->whereNull('users.deleted_at')
+            ->select([
+                'users.id',
+                'users.name',
+                'users.last_name',
+                'users.email',
+                'users.learner_status',
+                'users.created_at',
+                'users.client_id',
+                DB::raw("CONCAT(parent.name, ' ', parent.last_name) AS client_name"),
+            ]);
 
         if ($search !== null && trim($search) !== '') {
             $s = trim($search);
@@ -506,7 +516,7 @@ class TrainingCoursesController extends Controller
                 'id'                            => $userId,
                 'date_added'                    => optional($u->created_at)->format('d-m-Y'),
                 'delegate_name'                 => trim(($u->name ?? '') . ' ' . ($u->last_name ?? '')) ?: ($u->name ?? '-'),
-                'customer'                      => ($u->email ?? '-'),
+                'customer'                      => ($u->client_name ?? '-'),
                 'status'                        => $status,
                 'cost'                          => round($baseNet, 2),
                 'invoice_id'                    => $invoiceId,
