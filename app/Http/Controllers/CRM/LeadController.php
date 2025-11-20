@@ -27,7 +27,7 @@ class LeadController extends Controller
     {
         $baseQuery = Lead::with(['creator:id,name'])->select('leads.*');
 
-        $kw = trim((string) $request->input('q', ''));
+        $kw = trim((string)$request->input('q', ''));
         if ($kw !== '') {
             $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $kw) . '%';
             $baseQuery->where(function ($w) use ($like) {
@@ -47,7 +47,7 @@ class LeadController extends Controller
         }
 
         $from = $request->input('date_from');
-        $to   = $request->input('date_to');
+        $to = $request->input('date_to');
 
         if ($from) {
             $baseQuery->whereDate('contact_date', '>=', $from);
@@ -59,7 +59,7 @@ class LeadController extends Controller
         $dataQuery = clone $baseQuery;
 
         if ($request->filled('status')) {
-            $status = (string) $request->input('status');
+            $status = (string)$request->input('status');
             $dataQuery->where('status', $status);
         }
 
@@ -70,7 +70,7 @@ class LeadController extends Controller
             ->groupBy('status')
             ->pluck('aggregate', 'status');
 
-        $kpiTotal = (int) array_sum($kpiStatusCounts->toArray());
+        $kpiTotal = (int)array_sum($kpiStatusCounts->toArray());
 
         return DataTables::eloquent($dataQuery)
             ->addColumn('created_by', fn(Lead $x) => $x->creator && $x->creator->name ? $x->creator->name : '-')
@@ -90,16 +90,16 @@ class LeadController extends Controller
             ->editColumn('notes', fn(Lead $x) => $x->notes ?: '-')
             ->addColumn('actions', function (Lead $x) {
                 return '<div class="btn-group">
-                <button class="btn btn-sm btn-soft btn-modern act-auto" data-id="'.$x->id.'">
+                <button class="btn btn-sm btn-soft btn-modern act-auto" data-id="' . $x->id . '">
                     <i class="bi bi-magic"></i><span>Auto</span>
                 </button>
-                <button class="btn btn-sm btn-soft btn-modern act-check" data-id="'.$x->id.'">
+                <button class="btn btn-sm btn-soft btn-modern act-check" data-id="' . $x->id . '">
                     <i class="bi bi-search"></i><span>Check</span>
                 </button>
-                <button class="btn btn-sm btn-soft btn-modern act-edit" data-id="'.$x->id.'">
+                <button class="btn btn-sm btn-soft btn-modern act-edit" data-id="' . $x->id . '">
                     <i class="bi bi-pencil-square"></i><span>Edit</span>
                 </button>
-                <button class="btn btn-sm btn-danger btn-modern act-del" data-id="'.$x->id.'">
+                <button class="btn btn-sm btn-danger btn-modern act-del" data-id="' . $x->id . '">
                     <i class="bi bi-trash"></i><span>Del</span>
                 </button>
             </div>';
@@ -263,17 +263,18 @@ class LeadController extends Controller
         return response()->json(['ok' => true, 'updated' => $n]);
     }
 
+
     public function bulkSendEmail(Request $request)
     {
         $data = $request->validate([
-            'scope'         => ['required', Rule::in(['single', 'selected', 'all_filtered'])],
-            'to'            => ['nullable', 'string'],
-            'subject'       => ['required', 'string', 'min:2', 'max:190'],
-            'html_body'     => ['required', 'string', 'min:1'],
-            'ids'           => ['array'],
-            'ids.*'         => ['integer', 'exists:leads,id'],
-            'filters'       => ['array'],
-            'attachments'   => ['nullable', 'array'],
+            'scope' => ['required', Rule::in(['single', 'selected', 'all_filtered'])],
+            'to' => ['nullable', 'string'],
+            'subject' => ['required', 'string', 'min:2', 'max:190'],
+            'html_body' => ['required', 'string', 'min:1'],
+            'ids' => ['array'],
+            'ids.*' => ['integer', 'exists:leads,id'],
+            'filters' => ['array'],
+            'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:5120'],
         ]);
 
@@ -289,6 +290,7 @@ class LeadController extends Controller
 
         if ($scope === 'single') {
             $addresses = $manualAddresses;
+
         } elseif ($scope === 'selected') {
             $ids = $data['ids'] ?? [];
             if (!count($ids)) {
@@ -301,11 +303,12 @@ class LeadController extends Controller
                 ->all();
 
             $addresses = array_merge($addresses, $manualAddresses);
+
         } elseif ($scope === 'all_filtered') {
             $filters = $data['filters'] ?? [];
             $baseQuery = Lead::with(['creator:id,name'])->select('leads.*');
 
-            $kw = isset($filters['q']) ? trim((string) $filters['q']) : '';
+            $kw = isset($filters['q']) ? trim((string)$filters['q']) : '';
             if ($kw !== '') {
                 $like = '%' . str_replace(['%', '_'], ['\%', '\_'], $kw) . '%';
                 $baseQuery->where(function ($w) use ($like) {
@@ -376,14 +379,20 @@ class LeadController extends Controller
         }
 
         try {
+            $users = User::whereIn('email', $addresses)->get()->keyBy('email');
+
             $delay = 10;
             foreach ($addresses as $addr) {
+                $recipientUserId = optional($users->get($addr))->id;
+
                 SendRawEmailJob::dispatch(
                     $addr,
                     $data['subject'],
                     $data['html_body'],
-                    $attachments
-                )->delay(now()->addSeconds( 5));
+                    $attachments,
+                    $recipientUserId
+                )->delay(now()->addSeconds($delay));
+
                 $delay++;
             }
 
@@ -391,7 +400,7 @@ class LeadController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => 'Email enqueue failed',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

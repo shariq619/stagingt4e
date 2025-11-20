@@ -167,7 +167,7 @@
                     <div class="input">
                         <input class="fx" name="work_email" data-f="work_email" placeholder="-"
                                type="email">
-                        <a class="mini-btn" href="#" data-mail="work_email">E</a>
+                        <a class="mini-btn d-none" href="#" data-mail="work_email">E</a>
                     </div>
                 </div>
                 <div class="rowline">

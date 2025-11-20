@@ -499,7 +499,7 @@ abstract class BaseUserDirectoryController extends Controller
             'attachments' => ['nullable', 'string'],
         ]);
 
-        $toRaw = trim($data['to'] ?? '');
+        $toRaw     = trim($data['to'] ?? '');
         $addresses = array_filter(array_map('trim', explode(',', $toRaw)));
 
         if (!count($addresses)) {
@@ -528,17 +528,18 @@ abstract class BaseUserDirectoryController extends Controller
         }
 
         try {
-            $i = 10;
+            $users = User::whereIn('email', $addresses)->get()->keyBy('email');
 
             foreach ($addresses as $addr) {
+                $recipientUserId = optional($users->get($addr))->id;
+
                 SendRawEmailJob::dispatch(
                     $addr,
                     $data['subject'],
                     $data['html_body'],
-                    $attachments
-                )->delay(now()->addSeconds( 5));
-
-                $i++;
+                    $attachments,
+                    $recipientUserId
+                )->delay(now()->addSeconds(5));
             }
 
             return response()->json(['ok' => true], 200);
