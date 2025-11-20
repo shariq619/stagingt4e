@@ -1,4 +1,4 @@
-@section('title', 'CRM - Course Detail')
+@section('title', 'Course Detail')
 <div class="tab-pane active" id="pills-course" role="tabpanel" aria-labelledby="pills-course-tab">
     <div class="table-responsive">
         <table class="table table-bordered">

@@ -1,5 +1,5 @@
 @extends('crm.layout.main')
-@section('title', 'CRM - Dashboard')
+@section('title', 'Dashboard')
 
 @push('css')
     <style>

@@ -339,19 +339,6 @@ abstract class BaseUserDirectoryController extends Controller
 
                 $imageName = $user->image;
 
-                if ($request->hasFile('image') && $request->file('image')->isValid()) {
-                    $uploadedFile = $request->file('image');
-                    $fileName = time() . '_' . $uploadedFile->getClientOriginalName();
-                    $dir = storage_path('app/public/profile_images');
-
-                    if (!is_dir($dir)) {
-                        mkdir($dir, 0775, true);
-                    }
-
-                    $uploadedFile->move($dir, $fileName);
-                    $imageName = 'storage/profile_images/' . $fileName;
-                }
-
                 $assign = [
                     'name', 'last_name', 'email', 'work_email', 'unknown_delegate_name',
                     'house_number', 'house_name', 'address', 'address2', 'town', 'county', 'country',
@@ -372,8 +359,30 @@ abstract class BaseUserDirectoryController extends Controller
                     }
                 }
 
+                if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                    $uploadedFile = $request->file('image');
+                    $fileName = time() . '_' . $uploadedFile->getClientOriginalName();
+                    $dir = storage_path('app/public/profile_images');
+
+                    if (!is_dir($dir)) {
+                        mkdir($dir, 0775, true);
+                    }
+
+                    $uploadedFile->move($dir, $fileName);
+                    $imageName = 'storage/profile_images/' . $fileName;
+                }
+
                 $user->image = $imageName;
-                $user->profilePhoto->profile_photo = $imageName;
+
+                if ($imageName) {
+                    $user->profilePhoto()->updateOrCreate(
+                        ['user_id' => $user->id],
+                        [
+                            'profile_photo' => $imageName,
+                            'status'        => 'In Progress',
+                        ]
+                    );
+                }
 
                 if (array_key_exists('start_date', $data)) {
                     $user->start_date = $data['start_date'];
