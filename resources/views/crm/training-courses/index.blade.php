@@ -950,8 +950,8 @@
                     {data: 'invoice_total', name: 'invoice_total', orderable: false, searchable: false},
                     {data: 'status_text', name: 'status'},
                     {data: 'customer', name: 'customer', orderable: false, searchable: false},
-                    {data: 'trainer_name', name: 'trainer.name'},
-                    {data: 'venue_name', name: 'venue.venue_name'}
+                    {data: 'trainer_name', name: 'trainer.name', orderable: false, searchable: false},
+                    {data: 'venue_name', name: 'venue.venue_name', orderable: false, searchable: false}
                 ],
                 drawCallback: function (s) {
                     if (s.json && typeof s.json.total !== 'undefined') {
