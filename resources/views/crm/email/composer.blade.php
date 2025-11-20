@@ -1,4 +1,5 @@
 @extends('crm.layout.main')
+@section('title', 'Email -Update')
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4/bootstrap-4.min.css">
