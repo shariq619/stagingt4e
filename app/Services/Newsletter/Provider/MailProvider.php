@@ -10,11 +10,6 @@ class MailProvider
     public function send($to, $subject, $htmlBody, $textBody, array $meta = [])
     {
         Mail::send([], [], function ($message) use ($to, $subject, $htmlBody, $textBody, $meta) {
-
-            if (!empty($meta['from_email'])) {
-                $message->from($meta['from_email'], $meta['from_name'] ?? null);
-            }
-
             $message->to($to)->subject($subject);
 
             if ($htmlBody) {
@@ -27,42 +22,45 @@ class MailProvider
 
             if (!empty($meta['cc']) && is_array($meta['cc'])) {
                 foreach ($meta['cc'] as $cc) {
-                    if ($cc) $message->cc($cc);
+                    if ($cc) {
+                        $message->cc($cc);
+                    }
                 }
             }
 
             if (!empty($meta['bcc']) && is_array($meta['bcc'])) {
                 foreach ($meta['bcc'] as $bcc) {
-                    if ($bcc) $message->bcc($bcc);
+                    if ($bcc) {
+                        $message->bcc($bcc);
+                    }
                 }
             }
 
             if (!empty($meta['attachments']) && is_array($meta['attachments'])) {
                 foreach ($meta['attachments'] as $att) {
+                    $filename = $att['original_name'] ?? ($att['name'] ?? 'attachment');
 
-                    $filename = $att['name'] ?? $att['original_name'] ?? 'attachment';
-
-                    if (!empty($att['disk']) && !empty($att['path']) && Storage::disk($att['disk'])->exists($att['path'])) {
+                    if (!empty($att['path']) && Storage::disk('public')->exists($att['path'])) {
                         $message->attach(
-                            Storage::disk($att['disk'])->path($att['path']),
+                            Storage::disk('public')->path($att['path']),
                             ['as' => $filename]
                         );
                         continue;
                     }
 
-                    if (!empty($att['path']) && Storage::exists($att['path'])) {
-                        $message->attach(
-                            Storage::path($att['path']),
-                            ['as' => $filename]
-                        );
-                        continue;
-                    }
-
-                    if (!empty($att['url'])) {
+                    if (!empty($att['url']) && preg_match('#^https?://#i', $att['url'])) {
                         $raw = @file_get_contents($att['url']);
                         if ($raw !== false) {
-                            $mime = $this->guessMime($filename);
+                            $mime = $this->guessMimeFromName($filename);
                             $message->attachData($raw, $filename, ['mime' => $mime]);
+                        }
+                        continue;
+                    }
+
+                    if (!empty($att['url']) && strpos($att['url'], '/storage/') === 0) {
+                        $localPath = public_path(ltrim($att['url'], '/'));
+                        if (is_file($localPath)) {
+                            $message->attach($localPath, ['as' => $filename]);
                         }
                     }
                 }
@@ -70,23 +68,31 @@ class MailProvider
         });
 
         return [
-            'provider' => 'smtp',
+            'provider'   => 'smtp',
             'message_id' => null,
         ];
     }
 
-    protected function guessMime($file)
+    protected function guessMimeFromName($filename)
     {
-        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 
-        return match ($ext) {
-            'jpg', 'jpeg' => 'image/jpeg',
-            'png'        => 'image/png',
-            'gif'        => 'image/gif',
-            'pdf'        => 'application/pdf',
-            'doc'        => 'application/msword',
-            'docx'       => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            default      => 'application/octet-stream',
-        };
+        switch ($ext) {
+            case 'jpg':
+            case 'jpeg':
+                return 'image/jpeg';
+            case 'png':
+                return 'image/png';
+            case 'gif':
+                return 'image/gif';
+            case 'pdf':
+                return 'application/pdf';
+            case 'doc':
+                return 'application/msword';
+            case 'docx':
+                return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+            default:
+                return 'application/octet-stream';
+        }
     }
 }

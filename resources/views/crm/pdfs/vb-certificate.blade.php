@@ -165,6 +165,8 @@
     $valid_until = $valid_until ?? $now->copy()->addYears(3)->subDay()->format('d-m-Y');
     $learner_id = $learner_id ?? null;
     $certificate_number = $certificate_number ?? ($now->format('jS F Y') . '-D' . str_pad((int)($learner_id ?? 0), 7, '0', STR_PAD_LEFT));
+                $logo = url('crm/assets/img/logo.png');
+
 @endphp
 <div class="wrap">
     <div class="bg"></div>
@@ -175,8 +177,9 @@
             Certificate Number:
             <span class="value">{{ $certificate_number }}</span>
         </div>
+
         <div class="brand">
-            <img src="{{ $logo_url ?? 'https://jetbrains.com/crm/assets/img/logo.png' }}" alt="Logo">
+            <img src="{{ $logo }}" alt="Logo">
         </div>
         <div class="certify">THIS IS TO CERTIFY THAT</div>
         <div class="learner">{{ $learner_name ?? '' }}</div>

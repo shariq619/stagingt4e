@@ -683,6 +683,9 @@
                         </div>
                         <textarea id="composer_text"></textarea>
                     </div>
+                    @php
+                        $logo = url('crm/assets/img/logo.png');
+                    @endphp
                     <div class="sec-title" style="margin-top:24px;">Layout Wrapper</div>
                     <div class="layout-wrapper-grid">
                         <div class="layout-col">
@@ -691,7 +694,7 @@
 @{{content}}
 <hr style='border:0;border-top:1px solid #e5e7eb;margin:24px 0'>
 <div style='font-size:12px;color:#6b7280;line-height:1.4;text-align:center'>
-    <img src='https://jetbrains.com/crm/assets/img/logo.png' alt='Training4Employment' style='max-width:140px;display:block;margin:0 auto 8px auto'>
+    <img src='{{ $logo }}' alt='Training4Employment' style='max-width:140px;display:block;margin:0 auto 8px auto'>
     Training4Employment · Automated Notification<br>
     Please do not reply directly to this email.
 </div>

@@ -916,7 +916,7 @@ class TrainingCoursesController extends Controller
                 'course_title' => $course ? ($course->name ?? '') : '',
                 'issued_on' => $issuedOn->format('d-m-Y'),
                 'valid_until' => $validTill->format('d-m-Y'),
-                'logo_url' => 'https://jetbrains.com/crm/assets/img/logo.png',
+                'logo_url' => url('crm/assets/img/logo.png'),
                 'signature_url' => null,
                 'managing_director' => 'Managing Director',
                 'company_name' => 'Training for Employment Ltd',

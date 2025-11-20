@@ -85,41 +85,42 @@ class EmailAdminController extends Controller
 
     public function storeTemplate(StoreTemplateRequest $request)
     {
-        $payload = $request->getPayload();
+        $payload  = $request->getPayload();
+        $logoUrl  = url('crm/assets/img/logo.png');
 
         $defaultLayoutHtml = <<<HTML
-        <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#ffffff;color:#1f2937;font-size:16px;line-height:1.5;padding:24px;">
-            <div style="max-width:1200px;margin:0 auto;">
-                <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.07);overflow:hidden;">
-                    <div style="padding:24px;">
-                        {{content}}
-                    </div>
-                    <div style="border-top:1px solid #e5e7eb;background:#f9fafb;padding:16px;text-align:center;">
-                        <div style="font-size:12px;line-height:1.4;color:#6b7280;font-weight:500;">
-                            <div>Training4Employment CRM</div>
-                            <div>Automated notification</div>
-                        </div>
-                        <div style="margin-top:12px;">
-                            <img src="https://jetbrains.com/crm/assets/img/logo.png"
-                                 alt="Training4Employment"
-                                 style="height:32px;opacity:0.8;"/>
-                        </div>
-                    </div>
+<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#ffffff;color:#1f2937;font-size:16px;line-height:1.5;padding:24px;">
+    <div style="max-width:1200px;margin:0 auto;">
+        <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.07);overflow:hidden;">
+            <div style="padding:24px;">
+                {{content}}
+            </div>
+            <div style="border-top:1px solid #e5e7eb;background:#f9fafb;padding:16px;text-align:center;">
+                <div style="font-size:12px;line-height:1.4;color:#6b7280;font-weight:500;">
+                    <div>Training4Employment CRM</div>
+                    <div>Automated notification</div>
                 </div>
-                <div style="text-align:center;font-size:11px;line-height:1.4;color:#9ca3af;margin-top:16px;">
-                    You are receiving this email because you interacted with Training4Employment services.
+                <div style="margin-top:12px;">
+                    <img src="{$logoUrl}"
+                         alt="Training4Employment"
+                         style="height:32px;opacity:0.8;"/>
                 </div>
             </div>
         </div>
-        HTML;
+        <div style="text-align:center;font-size:11px;line-height:1.4;color:#9ca3af;margin-top:16px;">
+            You are receiving this email because you interacted with Training4Employment services.
+        </div>
+    </div>
+</div>
+HTML;
 
         $defaultLayoutText = <<<TEXT
-        {{content}}
+{{content}}
 
-        --
-        Training4Employment CRM
-        Automated notification
-        TEXT;
+--
+Training4Employment CRM
+Automated notification
+TEXT;
 
         return DB::transaction(function () use ($payload, $defaultLayoutHtml, $defaultLayoutText) {
             $templateData = $payload['template'];
@@ -133,16 +134,16 @@ class EmailAdminController extends Controller
             }
 
             $user = Auth::user();
-            $versionMeta['created_by_name'] = $user ? ($user->name ?: 'System') : ($versionMeta['created_by_name'] ?? 'System');
+            $versionMeta['created_by_name']  = $user ? ($user->name ?: 'System') : ($versionMeta['created_by_name'] ?? 'System');
             $versionMeta['created_by_email'] = $user ? ($user->email ?: null) : ($versionMeta['created_by_email'] ?? null);
 
             $version = EmailTemplateVersion::create([
                 'template_id' => $template->id,
-                'version' => $payload['version']['version'],
-                'is_current' => $payload['version']['is_current'],
+                'version'     => $payload['version']['version'],
+                'is_current'  => $payload['version']['is_current'],
                 'layout_html' => $defaultLayoutHtml,
                 'layout_text' => $defaultLayoutText,
-                'meta' => $versionMeta,
+                'meta'        => $versionMeta,
                 'attachments' => $payload['version']['attachments'],
             ]);
 
@@ -154,10 +155,10 @@ class EmailAdminController extends Controller
 
             EmailTemplateTranslation::create([
                 'template_version_id' => $version->id,
-                'locale' => $payload['translation']['locale'],
-                'subject' => $payload['translation']['subject'],
-                'html_body' => $trHtml,
-                'text_body' => $trText,
+                'locale'              => $payload['translation']['locale'],
+                'subject'             => $payload['translation']['subject'],
+                'html_body'           => $trHtml,
+                'text_body'           => $trText,
             ]);
 
             return response()->json(

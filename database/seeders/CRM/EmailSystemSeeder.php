@@ -89,6 +89,8 @@ class EmailSystemSeeder extends Seeder
             $triggersByKey[$trigger->key] = $trigger;
         }
 
+        $logoUrl = url('crm/assets/img/logo.png');
+
         $layoutHtmlWrapper = <<<HTML
 <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background-color:#ffffff;color:#1f2937;font-size:16px;line-height:1.5;padding:24px;">
     <div style="max-width:600px;margin:0 auto;">
@@ -102,7 +104,7 @@ class EmailSystemSeeder extends Seeder
                     <div>Automated notification</div>
                 </div>
                 <div style="margin-top:12px;">
-                    <img src="https://jetbrains.com/crm/assets/img/logo.png"
+                    <img src="{$logoUrl}"
                          alt="Training4Employment"
                          style="height:32px;opacity:0.8;"/>
                 </div>
@@ -222,7 +224,6 @@ TEXT;
                 ],
             ];
         }
-
 
         foreach ($learnerStatuses as $statusText) {
             $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $statusText), '-'));
