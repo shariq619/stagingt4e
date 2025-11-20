@@ -23,35 +23,39 @@ class SendRawEmailJob implements ShouldQueue
     public string $subject;
     public string $html;
     public array $attachments;
-    public array $meta;
 
     public $tries = 3;
     public $timeout = 60;
 
-    public function __construct(
-        string $to,
-        string $subject,
-        string $html,
-        array $attachments = [],
-        array $meta = []
-    ) {
-        $this->to = $to;
-        $this->subject = $subject;
-        $this->html = $html;
+    public function __construct(string $to, string $subject, string $html, array $attachments = [])
+    {
+        $this->to          = $to;
+        $this->subject     = $subject;
+        $this->html        = $html;
         $this->attachments = $attachments;
-        $this->meta = $meta;
     }
 
     public function handle(): void
     {
+        $metaSeed = [
+            'type' => 'raw_send',
+        ];
+
         $send = EmailSend::create([
-            'recipient_email' => $this->to,
-            'subject'         => $this->subject,
-            'html_body'       => $this->html,
-            'text_body'       => null,
-            'status'          => 'pending',
-            'attempts'        => 0,
-            'meta'            => $this->meta,
+            'event_key'          => 'raw.send',
+            'event_course_id'    => null,
+            'recipient_email'    => $this->to,
+            'template_code'      => 'raw.send',
+            'template_version_id'=> null,
+            'locale'             => 'en',
+            'provider_key'       => 'smtp',
+            'status'             => 'pending',
+            'attempts'           => 0,
+            'subject'            => $this->subject,
+            'html_body'          => $this->html,
+            'text_body'          => null,
+            'context'            => null,
+            'meta'               => $metaSeed,
         ]);
 
         try {

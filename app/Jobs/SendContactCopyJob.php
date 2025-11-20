@@ -50,13 +50,20 @@ class SendContactCopyJob implements ShouldQueue
         ];
 
         $send = EmailSend::create([
-            'recipient_email' => $this->email,
-            'subject'         => $this->subject,
-            'html_body'       => $this->htmlBody,
-            'text_body'       => null,
-            'status'          => 'pending',
-            'attempts'        => 0,
-            'meta'            => $metaSeed,
+            'event_key'          => 'contact.copy',
+            'event_course_id'    => null,
+            'recipient_email'    => $this->email,
+            'template_code'      => 'contact.copy',
+            'template_version_id'=> null,
+            'locale'             => 'en',
+            'provider_key'       => 'smtp',
+            'status'             => 'pending',
+            'attempts'           => 0,
+            'subject'            => $this->subject,
+            'html_body'          => $this->htmlBody,
+            'text_body'          => null,
+            'context'            => null,
+            'meta'               => $metaSeed,
         ]);
 
         try {
