@@ -1,5 +1,5 @@
 @extends('crm.layout.main')
-@section('title', 'Email Management')
+@section('title', 'Emails Management')
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
@@ -2300,28 +2300,12 @@
                 });
                 $('#tpl_attach_list').off('click.tplattach').on('click.tplattach', function (e) {
                     if (!canOpenPicker(e.target)) return;
-
-                    var $form = $('#templateForm');
-                    if ($form.length && !$form.valid()) {
-                        toastErr('Please complete the required fields before adding attachments.');
-                        return;
-                    }
-
                     $('#tpl_asset').trigger('click');
                 });
-
                 $(document).on('click', '#tpl_attach_add_btn', function (e) {
                     e.preventDefault();
-
-                    var $form = $('#templateForm');
-                    if ($form.length && !$form.valid()) {
-                        toastErr('Please complete the required fields before adding attachments.');
-                        return;
-                    }
-
                     $('#tpl_asset').trigger('click');
                 });
-
 
                 $('#tpl_asset').off('change.tplup').on('change.tplup', function () {
                     var files = Array.from(this.files || []);
