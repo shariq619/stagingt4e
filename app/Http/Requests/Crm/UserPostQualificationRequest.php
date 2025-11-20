@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\crm;
+namespace App\Http\Requests\Crm;
 
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;

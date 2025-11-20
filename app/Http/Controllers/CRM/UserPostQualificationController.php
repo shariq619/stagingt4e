@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Qualification;
 use App\Http\Controllers\Controller;
 use App\Models\UserPostQualification;
-use App\Http\Requests\crm\UserPostQualificationRequest;
+use App\Http\Requests\Crm\UserPostQualificationRequest;
 
 class UserPostQualificationController extends Controller
 {
