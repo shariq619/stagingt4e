@@ -421,6 +421,16 @@
     });
 </script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.body.classList.add("page-readonly");
+        setTimeout(() => {
+            document.body.classList.remove("page-readonly");
+        }, 1000);
+    });
+</script>
+
+
 @stack('js')
 </body>
 </html>

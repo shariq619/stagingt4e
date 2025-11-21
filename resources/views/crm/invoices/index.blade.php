@@ -180,8 +180,6 @@
             justify-content: flex-end;
         }
 
-
-
         .btn {
             padding: .45rem .9rem;
             border-radius: 999px;
@@ -841,6 +839,12 @@
                 width: 100%;
             }
         }
+
+        .page-readonly {
+            pointer-events: none !important;
+            opacity: 0.7;
+        }
+
     </style>
 @endpush
 
