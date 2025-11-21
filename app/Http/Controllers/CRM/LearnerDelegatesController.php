@@ -243,36 +243,21 @@ class LearnerDelegatesController extends BaseUserDirectoryController
         }
 
         $meta = $send->meta ?? [];
-
-        if (is_string($meta)) {
-            $meta = json_decode($meta, true) ?? [];
-        } elseif (!is_array($meta)) {
+        if (!is_array($meta)) {
             $meta = (array) $meta;
         }
 
-        $attachmentsRaw = $meta['attachments'] ?? [];
-
-        $attachments = collect($attachmentsRaw)
-            ->map(function ($att) {
-                if (is_array($att)) {
-                    return $att;
-                }
-                if (is_object($att)) {
-                    return (array) $att;
-                }
-                return [];
-            })
-            ->all();
-
+        $attachments = $meta['attachments'] ?? [];
         $to  = [$send->recipient_email];
         $cc  = $meta['cc']  ?? [];
         $bcc = $meta['bcc'] ?? [];
 
-        $fromName      = $meta['from_name']        ?? 'Training 4 Employment';
-        $fromEmail     = $meta['from_email']       ?? 'bookings@training4employment.co.uk';
-        $creatorName   = $meta['created_by_name']  ?? null;
-        $creatorEmail  = $meta['created_by_email'] ?? null;
-        $course        = $send->course;
+        $fromName  = $meta['from_name']        ?? 'Training 4 Employment';
+        $fromEmail = $meta['from_email']       ?? 'bookings@training4employment.co.uk';
+        $creatorName  = $meta['created_by_name']  ?? null;
+        $creatorEmail = $meta['created_by_email'] ?? null;
+
+        $course = $send->course;
 
         return view('crm.learner_delegates.correspondence_view', [
             'delegate'      => $delegate,
@@ -289,4 +274,5 @@ class LearnerDelegatesController extends BaseUserDirectoryController
             'course'        => $course,
         ]);
     }
+
 }
