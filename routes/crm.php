@@ -148,7 +148,7 @@ Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], func
     });
 
     Route::prefix('payments')->controller(ProductInvoicePaymentsController::class)->group(function () {
-        Route::get('{ref}', 'receipt')->name('payments.receipt');
+        Route::get('{id}', 'receipt')->name('payments.receipt');
     });
 
     Route::prefix('lookups')->name('lookups.')->controller(LookupController::class)->group(function () {

@@ -22,18 +22,15 @@
         }
 
 
-
         .pr-wrap {
             background: var(--card-bg);
             border: 1px solid rgba(148, 163, 184, .45);
             border-radius: 18px;
             margin-top: .9rem;
-            box-shadow:
-                0 20px 45px rgba(15, 23, 42, .14),
-                0 0 0 1px rgba(255,255,255,.8);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, .14),
+            0 0 0 1px rgba(255, 255, 255, .8);
             overflow: hidden;
         }
-
 
 
         .pr-toolbar {
@@ -48,7 +45,6 @@
             z-index: 9;
             box-shadow: 0 6px 18px rgba(15, 23, 42, .08);
         }
-
 
 
         .btn {
@@ -105,7 +101,6 @@
         }
 
 
-
         .pr-body {
             padding: 1rem 1rem 1.1rem;
             background: radial-gradient(circle at top right, #eff6ff 0, #ffffff 45%, #f9fafb 100%);
@@ -141,7 +136,6 @@
         }
 
 
-
         .kv {
             display: grid;
             grid-template-columns: 150px 1fr auto;
@@ -156,16 +150,14 @@
         }
 
 
-
         .hl {
             border: 1px solid #d1d5db;
             border-radius: 16px;
             padding: .35rem .65rem;
             width: 100%;
             background: #f9fafb;
-            box-shadow:
-                inset 0 1px 0 #fff,
-                inset 0 -1px 0 #e4e7ec;
+            box-shadow: inset 0 1px 0 #fff,
+            inset 0 -1px 0 #e4e7ec;
             font-size: 12px;
             color: var(--ink);
             transition: all .16s ease-in-out;
@@ -175,16 +167,15 @@
             outline: none;
             background: #ffffff;
             border-color: var(--accent);
-            box-shadow:
-                0 0 0 3px rgba(17, 104, 230, .18),
-                0 4px 10px rgba(15, 23, 42, .08);
+            box-shadow: 0 0 0 3px rgba(17, 104, 230, .18),
+            0 4px 10px rgba(15, 23, 42, .08);
         }
 
         .hl[readonly] {
             background: linear-gradient(180deg, #e2e6ea 0%, #eef2f6 100%);
             border-color: #b7bec7;
             color: #374151;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,.4);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .4);
         }
 
         textarea.hl {
@@ -192,7 +183,6 @@
             resize: vertical;
             white-space: pre-line;
         }
-
 
 
         .pill {
@@ -221,7 +211,6 @@
             background: #fef9c3;
             border-color: #eab308;
         }
-
 
 
         .summary {
@@ -399,6 +388,72 @@
                 return toNum(n).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
             }
 
+            function currentUnallocated() {
+                return unallocatedEl ? toNum(unallocatedEl.textContent) : 0;
+            }
+
+            function setButtonsDisabled(state) {
+                if (btnSave) btnSave.disabled = state;
+                if (btnSaveExit) btnSaveExit.disabled = state;
+            }
+
+            function ensureAmountErrorElement() {
+                let err = document.getElementById('amount-error');
+                if (!err) {
+                    const wrap = amountInput.closest('.kv') || amountInput.parentElement;
+                    err = document.createElement('div');
+                    err.id = 'amount-error';
+                    err.className = 'invalid-feedback d-block';
+                    if (wrap) wrap.appendChild(err);
+                }
+                return err;
+            }
+
+            function clearAmountError() {
+                const err = document.getElementById('amount-error');
+                if (err) err.remove();
+                if (amountInput) amountInput.classList.remove('is-invalid');
+            }
+
+            function updateToolbarButtons() {
+                const unalloc = currentUnallocated();
+                const amt = amountInput ? toNum(amountInput.value) : 0;
+                const shouldDisable = (unalloc <= 0.00001) || (amt <= 0.00001) || (amt > unalloc + 0.00001);
+                setButtonsDisabled(shouldDisable);
+            }
+
+            function updateRemainingPreview() {
+                if (!amountInput) return;
+
+                const unalloc = currentUnallocated();
+                const amt = toNum(amountInput.value);
+                const remaining = Math.max(0, unalloc - amt);
+
+                let preview = document.getElementById('remaining-preview');
+                if (!preview) {
+                    const wrap = amountInput.closest('.kv') || amountInput.parentElement;
+                    preview = document.createElement('div');
+                    preview.id = 'remaining-preview';
+                    preview.className = 'form-note';
+                    if (wrap) wrap.appendChild(preview);
+                }
+                preview.textContent = 'Remaining after this payment: ' + fmt2(remaining);
+
+                clearAmountError();
+
+                if (amt <= 0.00001) {
+                    const err = ensureAmountErrorElement();
+                    amountInput.classList.add('is-invalid');
+                    err.textContent = 'Payment amount must be greater than zero.';
+                } else if (amt > unalloc + 0.00001) {
+                    const err = ensureAmountErrorElement();
+                    amountInput.classList.add('is-invalid');
+                    err.textContent = 'Amount cannot exceed the current unallocated (' + fmt2(unalloc) + ').';
+                }
+
+                updateToolbarButtons();
+            }
+
             function refreshAlloc() {
                 if (!inv) return;
                 fetch('/crm/invoices/' + inv + '/payments?t=' + Date.now(), {
@@ -411,8 +466,9 @@
                         if (allocatedEl) allocatedEl.textContent = fmt2(a);
                         if (unallocatedEl) unallocatedEl.textContent = fmt2(u);
                         if (amountInput) amountInput.value = fmt2(u);
-                    }).catch(() => {
-                });
+                        updateRemainingPreview();
+                    })
+                    .catch(() => {});
             }
 
             function csrf() {
@@ -424,8 +480,22 @@
 
             function submit(exitAfter) {
                 if (!form || !pid) return;
+
+                const unalloc = currentUnallocated();
+                const amt = amountInput ? toNum(amountInput.value) : 0;
+
+                // sirf inline error + disable buttons, swal nahi
+                if (amt <= 0.00001 || amt > unalloc + 0.00001) {
+                    updateRemainingPreview();
+                    amountInput && amountInput.focus();
+                    return;
+                }
+
                 const fd = new FormData(form);
                 fd.append('_method', 'PUT');
+
+                setButtonsDisabled(true);
+
                 Swal.fire({
                     title: 'Saving Payment...',
                     text: 'Please wait while we save your changes.',
@@ -436,6 +506,7 @@
                         Swal.showLoading();
                     }
                 });
+
                 fetch('/crm/invoice-payments/' + pid, {
                     method: 'POST',
                     headers: {
@@ -446,9 +517,7 @@
                     body: fd
                 })
                     .then(r => {
-                        if (!r.ok) return r.json().then(j => {
-                            throw j
-                        });
+                        if (!r.ok) return r.json().then(j => { throw j; });
                         return r.json();
                     })
                     .then(() => {
@@ -458,14 +527,13 @@
                             text: 'Your payment details have been updated.',
                             timer: 1500,
                             showConfirmButton: false
-                        })
-                            .then(() => {
-                                if (exitAfter && inv) {
-                                    window.location.href = '/crm/invoices/' + inv;
-                                } else {
-                                    refreshAlloc();
-                                }
-                            });
+                        }).then(() => {
+                            if (exitAfter && inv) {
+                                window.location.href = '/crm/invoices/' + inv;
+                            } else {
+                                refreshAlloc();
+                            }
+                        });
                     })
                     .catch(err => {
                         let msg = 'Failed to save payment.';
@@ -476,12 +544,23 @@
                             msg = err.message;
                         }
                         Swal.fire({icon: 'error', title: 'Error', text: msg});
+                    })
+                    .finally(() => {
+                        setButtonsDisabled(false);
+                        updateToolbarButtons();
                     });
             }
 
             if (btnSave) btnSave.addEventListener('click', () => submit(false));
             if (btnSaveExit) btnSaveExit.addEventListener('click', () => submit(true));
+
+            if (amountInput) {
+                amountInput.addEventListener('input', updateRemainingPreview);
+            }
+
             refreshAlloc();
+            updateRemainingPreview();
         });
     </script>
 @endpush
+

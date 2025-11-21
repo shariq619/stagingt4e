@@ -1356,16 +1356,23 @@
             }
 
             function fetchPayments() {
-                return $.get({url: '/crm/invoices/' + invoiceId() + '/payments', cache: false}).then(function (r) {
+                return $.get({
+                    url: '/crm/invoices/' + invoiceId() + '/payments',
+                    cache: false
+                }).then(function (r) {
                     var pays = (r && Array.isArray(r.payments)) ? r.payments : [];
                     var rows = '';
                     var total = 0;
+
                     if (pays.length) {
                         pays.forEach(function (p) {
                             const amt = parseFloat(p.amount) || 0;
                             if (!p.is_refunded) total += amt;
+
                             rows += `<tr data-id="${p.id}">
-                    <td><a href="/crm/payments/${p.payment_ref}">${p.payment_ref}</a></td>
+                    <td>
+                        <a href="${p.edit_url}">${p.payment_ref}</a>
+                    </td>
                     <td>${p.payment_date || ''}</td>
                     <td class="text-end">
                         ${amt.toFixed(2)}
@@ -1373,6 +1380,7 @@
                     </td>
                 </tr>`;
                         });
+
                         rows += `<tr class="fw-bold" style="font-size:1.1rem;border-top:3px solid #000;">
                 <td colspan="2" class="text-end">TOTAL</td>
                 <td class="text-end">${total.toFixed(2)}</td>
@@ -1380,11 +1388,14 @@
                     } else {
                         rows = `<tr><td colspan="3" class="text-center text-muted">No payments added</td></tr>`;
                     }
+
                     $('#payments-tbody').html(rows);
                     setAddPaymentState($('#invoice_balance').val() || 0, !!(r && r.fully_paid));
+
                     return r || {payments: [], allocated: total, fully_paid: false};
                 });
             }
+
 
 
             function recalcAllClient(allocatedNow) {

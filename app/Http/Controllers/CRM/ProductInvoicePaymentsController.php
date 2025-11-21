@@ -41,11 +41,10 @@ class ProductInvoicePaymentsController extends Controller
         ]);
     }
 
-    public function receipt($ref)
+    public function receipt($id)
     {
         $payment = ProductInvoicePayment::with(['invoice.user'])
-            ->where('payment_ref', $ref)
-            ->firstOrFail();
+            ->findOrFail($id);
 
         $invoice = $payment->invoice;
 
@@ -57,21 +56,21 @@ class ProductInvoicePaymentsController extends Controller
             ->where($active)
             ->sum('amount');
 
-        $gross = (float) ($invoice->total_gross ?? 0);
+        $gross  = (float) ($invoice->total_gross ?? 0);
         $unalloc = max(0, $gross - $allocated);
 
         return view('crm.invoices.payment_receipt', [
-            'invoice' => $invoice,
-            'payment' => $payment,
-            'types' => paymentTypes(),
-            'allocated' => number_format($allocated, 2, '.', ''),
-            'unallocated' => number_format($unalloc, 2, '.', ''),
-            'prefill' => [
+            'invoice'    => $invoice,
+            'payment'    => $payment,
+            'types'      => paymentTypes(),
+            'allocated'  => number_format($allocated, 2, '.', ''),
+            'unallocated'=> number_format($unalloc, 2, '.', ''),
+            'prefill'    => [
                 'payment_date' => optional($payment->payment_date)->format('Y-m-d\TH:i'),
                 'payment_type' => $payment->payment_type,
                 'payment_from' => $payment->payment_from,
-                'payment_ref' => $payment->payment_ref,
-                'amount' => number_format($payment->amount, 2, '.', ''),
+                'payment_ref'  => $payment->payment_ref,
+                'amount'       => number_format($payment->amount, 2, '.', ''),
             ],
         ]);
     }
@@ -104,7 +103,7 @@ class ProductInvoicePaymentsController extends Controller
                 'payment_from'  => $p->payment_from,
                 'amount'        => number_format($p->amount, 2, '.', ''),
                 'is_refunded'   => (bool) $p->is_refunded,
-                'edit_url'      => route('crm.payments.receipt', $p->payment_ref),
+                'edit_url'      => route('crm.payments.receipt', $p->id),
             ]),
             'allocated'   => number_format($allocated, 2, '.', ''),
             'unallocated' => number_format($unallocated, 2, '.', ''),

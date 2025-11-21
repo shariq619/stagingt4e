@@ -22,8 +22,6 @@
             font-size: 13px;
         }
 
-
-
         .pr-wrap {
             background: var(--card-bg);
             border: 1px solid rgba(148, 163, 184, .45);
@@ -34,8 +32,6 @@
                 0 0 0 1px rgba(255,255,255,.8);
             overflow: hidden;
         }
-
-
 
         .pr-toolbar {
             display: flex;
@@ -49,8 +45,6 @@
             z-index: 9;
             box-shadow: 0 6px 18px rgba(15, 23, 42, .08);
         }
-
-
 
         .btn {
             border-radius: 999px;
@@ -105,8 +99,6 @@
             transform: none;
         }
 
-
-
         .pr-body {
             padding: 1rem 1rem 1.1rem;
             background: radial-gradient(circle at top right, #eff6ff 0, #ffffff 45%, #f9fafb 100%);
@@ -141,8 +133,6 @@
             padding: .8rem .9rem;
         }
 
-
-
         .kv {
             display: grid;
             grid-template-columns: 150px 1fr auto;
@@ -155,8 +145,6 @@
             color: var(--muted);
             font-size: .9rem;
         }
-
-
 
         .hl {
             border: 1px solid #d1d5db;
@@ -200,8 +188,6 @@
             white-space: pre-line;
         }
 
-
-
         .pill {
             display: inline-flex;
             align-items: center;
@@ -229,8 +215,6 @@
             border-color: #eab308;
         }
 
-
-
         .summary {
             display: flex;
             justify-content: space-between;
@@ -244,8 +228,6 @@
             color: var(--muted);
         }
 
-
-
         .is-invalid {
             border-color: var(--danger) !important;
             box-shadow: 0 0 0 1px rgba(239, 68, 68, .35) !important;
@@ -257,8 +239,6 @@
             color: var(--danger);
             margin-top: .15rem;
         }
-
-
 
         @media (max-width: 992px) {
             .grid {
@@ -438,6 +418,13 @@
                 $btnSaveExit.prop('disabled', state);
             }
 
+            function updateToolbarButtons() {
+                const unalloc = currentUnallocated();
+                const amt = toNumber($amountInput.val());
+                const hasError = amt <= 0.00001 || amt > unalloc + 0.00001 || $amountInput.hasClass('is-invalid');
+                setButtonsDisabled(hasError);
+            }
+
             async function refreshBalances() {
                 const url = `/crm/invoices/${invId}/payments?t=${Date.now()}`;
                 const res = await fetch(url, {
@@ -452,8 +439,11 @@
                 $allocatedEl.text(fmt2(allocated));
                 $unallocatedEl.text(fmt2(unallocated));
                 $amountInput.val(fmt2(unallocated));
-                $amountInput.valid();
+                if (form.data('validator')) {
+                    $amountInput.valid();
+                }
                 updateRemainingPreview();
+                updateToolbarButtons();
                 return {allocated, unallocated};
             }
 
@@ -467,14 +457,15 @@
                     preview = document.createElement('div');
                     preview.id = 'remaining-preview';
                     preview.className = 'form-note';
-                    wrap.append(preview);
+                    wrap.append(preview[0] || preview);
                 }
                 preview.textContent = `Remaining after this payment: ${fmt2(remaining)}`;
-                if (amt > unalloc + 0.00001) {
+                if (amt <= 0.00001 || amt > unalloc + 0.00001) {
                     $amountInput.addClass('is-invalid');
                 } else {
                     $amountInput.removeClass('is-invalid');
                 }
+                updateToolbarButtons();
             }
 
             form.validate({
@@ -524,9 +515,11 @@
                 errorClass: 'invalid-feedback',
                 highlight: function (e) {
                     $(e).addClass('is-invalid');
+                    updateToolbarButtons();
                 },
                 unhighlight: function (e) {
                     $(e).removeClass('is-invalid');
+                    updateToolbarButtons();
                 },
                 errorPlacement: function (err, el) {
                     const wrap = $(el).closest('.hl-wrapper');
@@ -536,10 +529,16 @@
                     } else {
                         err.insertAfter(el);
                     }
+                    updateToolbarButtons();
                 }
             });
 
-            $amountInput.on('input', updateRemainingPreview);
+            $amountInput.on('input', function () {
+                updateRemainingPreview();
+                if (form.data('validator')) {
+                    $amountInput.valid();
+                }
+            });
 
             async function post(exitAfter) {
                 if (!form.valid()) {
@@ -576,14 +575,18 @@
                     });
                 } finally {
                     setButtonsDisabled(false);
+                    updateToolbarButtons();
                 }
             }
 
             document.getElementById('btnSave').addEventListener('click', () => post(false));
             document.getElementById('btnSaveExit').addEventListener('click', () => post(true));
+
             refreshBalances().catch(() => {
+                updateToolbarButtons();
             });
             updateRemainingPreview();
         })();
     </script>
+
 @endpush
