@@ -401,7 +401,6 @@
             line-height: 1;
         }
 
-
         .status-pill.sent {
             background: #dcfce7;
             color: #166534;
@@ -552,6 +551,7 @@
             var ROUTE_BUILD = @json(route('crm.newsletters.campaigns.build'));
             var ROUTE_DS_SELECT = @json(route('crm.newsletters.campaigns.select'));
             var ROUTE_DS_TABLE = @json(route('crm.newsletters.campaigns.table'));
+            var ROUTE_DS_CONTACTS = @json(route('crm.newsletters.campaigns.datasource.contacts'));
             var CSRF_TOKEN = '{{ csrf_token() }}';
 
             function getQueryParam(key) {
@@ -844,7 +844,6 @@
                             load(page + 1);
                         });
 
-                        // initial load
                         load(1);
                     }
                 });
@@ -992,6 +991,198 @@
                 });
             }
 
+            function isSelectableSource(ds) {
+                var s = String(ds || '');
+                return ['LearnerDelegates', 'Customers', 'Trainers', 'Resellers', 'Admins'].indexOf(s) !== -1;
+            }
+
+            function buildCampaignRequest(nid, grp, ds, emails) {
+                $.ajax({
+                    url: ROUTE_BUILD,
+                    method: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        newsletter_id: nid,
+                        group_name: grp,
+                        data_source: ds,
+                        recipient_emails: emails || []
+                    }),
+                    headers: {'X-CSRF-TOKEN': CSRF_TOKEN, Accept: 'application/json'}
+                })
+                    .done(function () {
+                        Swal.fire({icon: 'success', title: 'Campaign built', timer: 1300, showConfirmButton: false});
+                        groupTxt.val('');
+                        state.page = 1;
+                        loadCampaigns()
+                    })
+                    .fail(function (xhr) {
+                        var msg = 'Could not build campaign.';
+                        if (xhr && xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                        Swal.fire({icon: 'error', title: 'Build failed', text: msg})
+                    });
+            }
+
+            function openSourceRecipientPicker(nid, grp, ds) {
+                var selected = {};
+                var page = 1;
+                var per = 25;
+                var q = '';
+
+                Swal.fire({
+                    title: 'Select recipients',
+                    html:
+                        '<div class="ds-head">' +
+                        '<input id="rp_search" class="ds-search" placeholder="Search by name or email">' +
+                        '</div>' +
+                        '<div style="overflow:auto;max-height:60vh">' +
+                        '<table class="ds-table">' +
+                        '<thead><tr><th style="width:40px"><input type="checkbox" id="rp_check_all"></th><th>Name</th><th>Email</th></tr></thead>' +
+                        '<tbody id="rp_tbody"><tr><td colspan="3" style="text-align:center;padding:12px;">Loading…</td></tr></tbody>' +
+                        '</table>' +
+                        '</div>' +
+                        '<div id="rp_pager" style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">' +
+                        '<small id="rp_range"></small>' +
+                        '<div>' +
+                        '<button id="rp_prev" class="addr-add-btn" style="margin-right:4px;">Prev</button>' +
+                        '<button id="rp_next" class="addr-add-btn">Next</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div style="margin-top:10px;display:flex;justify-content:flex-end;gap:8px;">' +
+                        '<button id="rp_build" class="btn btn-sm btn-primary btn-newsletter">Build with selected</button>' +
+                        '</div>',
+                    width: 800,
+                    showConfirmButton: false,
+                    didOpen: function () {
+                        var tbodyEl = $('#rp_tbody');
+                        var rangeEl = $('#rp_range');
+                        var prevEl = $('#rp_prev');
+                        var nextEl = $('#rp_next');
+                        var searchEl = $('#rp_search');
+                        var checkAllEl = $('#rp_check_all');
+
+                        function renderRows(res) {
+                            var rows = $.isArray(res.data) ? res.data : [];
+                            var total = Number(res.total || rows.length || 0);
+                            var cur = Number(res.page || page);
+                            var pp = Number(res.per_page || per);
+                            var last = pp > 0 ? Math.max(1, Math.ceil(total / pp)) : 1;
+
+                            if (!rows.length) {
+                                tbodyEl.html('<tr><td colspan="3" style="text-align:center;padding:12px;">No recipients found</td></tr>');
+                            } else {
+                                var html = rows.map(function (r) {
+                                    var email = String(r.email || '');
+                                    var checked = selected[email] ? ' checked' : '';
+                                    return '<tr>' +
+                                        '<td><input type="checkbox" class="rp-check" data-email="' + escapeHtml(email) + '"' + checked + '></td>' +
+                                        '<td>' + escapeHtml(r.name || '') + '</td>' +
+                                        '<td>' + escapeHtml(email) + '</td>' +
+                                        '</tr>';
+                                }).join('');
+                                tbodyEl.html(html);
+                            }
+
+                            var start = total ? ((cur - 1) * pp + 1) : 0;
+                            var end = Math.min(cur * pp, total);
+                            rangeEl.text(start + '–' + end + ' of ' + total);
+
+                            prevEl.prop('disabled', cur <= 1);
+                            nextEl.prop('disabled', cur >= last);
+
+                            page = cur;
+                            per = pp;
+
+                            updateCheckAll();
+                        }
+
+                        function updateCheckAll() {
+                            var checks = tbodyEl.find('.rp-check');
+                            if (!checks.length) {
+                                checkAllEl.prop('checked', false).prop('indeterminate', false);
+                                return;
+                            }
+                            var total = checks.length;
+                            var checkedCount = 0;
+                            checks.each(function () {
+                                if ($(this).is(':checked')) checkedCount++;
+                            });
+                            if (checkedCount === 0) {
+                                checkAllEl.prop('checked', false).prop('indeterminate', false);
+                            } else if (checkedCount === total) {
+                                checkAllEl.prop('checked', true).prop('indeterminate', false);
+                            } else {
+                                checkAllEl.prop('checked', false).prop('indeterminate', true);
+                            }
+                        }
+
+                        function load(pageToLoad) {
+                            $.getJSON(
+                                ROUTE_DS_CONTACTS,
+                                {source: ds, page: pageToLoad, per_page: per, q: q},
+                                function (res) {
+                                    renderRows(res);
+                                }
+                            ).fail(function () {
+                                tbodyEl.html('<tr><td colspan="3" style="text-align:center;padding:12px;">Failed to load recipients</td></tr>');
+                                rangeEl.text('');
+                                prevEl.prop('disabled', true);
+                                nextEl.prop('disabled', true);
+                            });
+                        }
+
+                        prevEl.on('click', function () {
+                            if (page > 1) load(page - 1);
+                        });
+                        nextEl.on('click', function () {
+                            load(page + 1);
+                        });
+                        searchEl.on('input', function () {
+                            q = this.value || '';
+                            page = 1;
+                            load(page);
+                        });
+                        checkAllEl.on('change', function () {
+                            var checked = $(this).is(':checked');
+                            tbodyEl.find('.rp-check').each(function () {
+                                var em = $(this).data('email') || '';
+                                $(this).prop('checked', checked);
+                                if (em) {
+                                    if (checked) selected[em] = true;
+                                    else delete selected[em];
+                                }
+                            });
+                        });
+                        tbodyEl.on('change', '.rp-check', function () {
+                            var em = $(this).data('email') || '';
+                            if (!em) return;
+                            if ($(this).is(':checked')) selected[em] = true;
+                            else delete selected[em];
+                            updateCheckAll();
+                        });
+
+                        tbodyEl.on('click', 'tr', function (e) {
+                            if ($(e.target).is('input')) return;
+                            var cb = $(this).find('.rp-check');
+                            if (!cb.length) return;
+
+                            var checked = cb.is(':checked');
+                            cb.prop('checked', !checked).trigger('change');
+                        });
+                        $('#rp_build').on('click', function () {
+                            var emails = Object.keys(selected);
+                            if (!emails.length) {
+                                Swal.fire({icon: 'warning', title: 'No recipients selected', text: 'Please select at least one recipient.'});
+                                return;
+                            }
+                            Swal.close();
+                            buildCampaignRequest(nid, grp, ds, emails);
+                        });
+
+                        load(1);
+                    }
+                });
+            }
+
             btnBuild.on('click', function () {
                 var nid = (pick.val() || state.filters.newsletter || '').trim();
                 var grp = (groupTxt.val() || '').trim();
@@ -1014,22 +1205,26 @@
                     return;
                 }
 
-                $.ajax({
-                    url: ROUTE_BUILD,
-                    method: 'POST',
-                    contentType: 'application/json; charset=utf-8',
-                    data: JSON.stringify({newsletter_id: nid, group_name: grp, data_source: ds}),
-                    headers: {'X-CSRF-TOKEN': CSRF_TOKEN, Accept: 'application/json'}
-                })
-                    .done(function () {
-                        Swal.fire({icon: 'success', title: 'Campaign built', timer: 1300, showConfirmButton: false});
-                        groupTxt.val('');
-                        state.page = 1;
-                        loadCampaigns()
-                    })
-                    .fail(function () {
-                        Swal.fire({icon: 'error', title: 'Build failed', text: 'Could not build campaign.'})
+                if (isSelectableSource(ds)) {
+                    Swal.fire({
+                        title: 'Which recipients?',
+                        text: 'From ' + ds + ', include all or select specific recipients?',
+                        icon: 'question',
+                        showCancelButton: true,
+                        showDenyButton: true,
+                        confirmButtonText: 'All from ' + ds,
+                        denyButtonText: 'Select specific',
+                        cancelButtonText: 'Cancel'
+                    }).then(function (res) {
+                        if (res.isConfirmed) {
+                            buildCampaignRequest(nid, grp, ds, []);
+                        } else if (res.isDenied) {
+                            openSourceRecipientPicker(nid, grp, ds);
+                        }
                     });
+                } else {
+                    buildCampaignRequest(nid, grp, ds, []);
+                }
             });
 
             btnRefresh.on('click', function () {

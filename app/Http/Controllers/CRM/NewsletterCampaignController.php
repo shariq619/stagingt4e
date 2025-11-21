@@ -75,7 +75,7 @@ class NewsletterCampaignController extends Controller
     {
         $status  = (string) $r->get('status', '');
         $page    = max(1, (int) $r->get('page', 1));
-        $perPage = (int) $r->get('per_page', 50); // default 50
+        $perPage = (int) $r->get('per_page', 50);
 
         $q = $campaign->recipients()
             ->select('id', 'name', 'email', 'status', 'created_at', 'updated_at')
@@ -114,7 +114,6 @@ class NewsletterCampaignController extends Controller
         ];
     }
 
-
     public function build(Request $r)
     {
         $newsletterId = (int) $r->input('newsletter_id');
@@ -125,10 +124,26 @@ class NewsletterCampaignController extends Controller
 
         $dataSource = (string) $r->input('data_source', '');
 
-        $emails = collect($this->resolveRecipientsFromDataSource($dataSource, $newsletter))
-            ->filter()
+        $manualEmails = collect($r->input('recipient_emails', []))
+            ->map(fn ($e) => strtolower(trim((string) $e)))
+            ->filter(fn ($e) => $e !== '' && filter_var($e, FILTER_VALIDATE_EMAIL))
             ->unique()
             ->values();
+
+        if ($manualEmails->isNotEmpty()) {
+            $emails = $manualEmails;
+        } else {
+            if ($dataSource === '') {
+                return response()->json([
+                    'ok'      => false,
+                    'message' => 'No data source selected'
+                ], 422);
+            }
+            $emails = collect($this->resolveRecipientsFromDataSource($dataSource, $newsletter))
+                ->filter()
+                ->unique()
+                ->values();
+        }
 
         $campaign = NewsletterCampaign::create([
             'newsletter_id'    => $newsletter->id,
@@ -202,6 +217,64 @@ class NewsletterCampaignController extends Controller
             ->values();
     }
 
+    public function datasourceContacts(Request $r)
+    {
+        $source = (string) $r->get('source', '');
+        $page   = max(1, (int) $r->get('page', 1));
+        $per    = max(1, min(100, (int) $r->get('per_page', 25)));
+        $q      = trim((string) $r->get('q', ''));
+
+        $norm = strtolower(str_replace([' ', '_'], '', $source));
+
+        if ($norm === 'learnerdelegates') {
+            $query = User::role('Learner');
+        } elseif ($norm === 'customers') {
+            $query = User::role('Corporate Client');
+        } elseif ($norm === 'trainers') {
+            $query = User::role('trainer');
+        } elseif ($norm === 'resellers') {
+            $query = User::role('Reseller');
+        } elseif ($norm === 'admins') {
+            $query = User::role('Super Admin');
+        } else {
+            return [
+                'data'      => [],
+                'total'     => 0,
+                'page'      => $page,
+                'per_page'  => $per,
+                'last_page' => 1,
+            ];
+        }
+
+        $query->whereNotNull('email')->where('email', '<>', '');
+
+        if ($q !== '') {
+            $query->where(function ($qq) use ($q) {
+                $qq->where('name', 'like', '%' . $q . '%')
+                    ->orWhere('email', 'like', '%' . $q . '%');
+            });
+        }
+
+        $total = (clone $query)->count();
+        $rows = $query->orderBy('email')
+            ->forPage($page, $per)
+            ->get(['id', 'name', 'email'])
+            ->map(function ($u) {
+                return [
+                    'id'    => $u->id,
+                    'name'  => $u->name ?: '',
+                    'email' => $u->email,
+                ];
+            });
+
+        return [
+            'data'      => $rows,
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $per,
+            'last_page' => $per > 0 ? (int) ceil($total / $per) : 1,
+        ];
+    }
 
     public function send(NewsletterCampaign $campaign)
     {

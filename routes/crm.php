@@ -235,19 +235,26 @@ Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], func
         Route::get('/{newsletter}/json', 'show')->name('show');
     });
 
-    Route::prefix('newsletter-campaigns')->name('newsletters.campaigns.')->controller(NewsletterCampaignController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/list', 'list')->name('list');
-        Route::post('/build', 'build')->name('build');
-        Route::post('/{campaign}/send', 'send')->name('send');
-        Route::delete('/{campaign}', 'destroy')->name('destroy');
+    Route::prefix('newsletter-campaigns')
+        ->name('newsletters.campaigns.')
+        ->controller(NewsletterCampaignController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/list', 'list')->name('list');
+            Route::post('/build', 'build')->name('build');
+            Route::post('/{campaign}/send', 'send')->name('send');
+            Route::delete('/{campaign}', 'destroy')->name('destroy');
 
-        Route::get('/datasources/dictionary', 'datasourceDict')->name('dict');
-        Route::get('/datasources/select', 'datasourceSelect')->name('select');
-        Route::get('/datasources/table', 'datasourceTable')->name('table');
-        Route::post('/{newsletter}/send-test', 'sendTest')->name('send_test');
-        Route::get('/{campaign}/recipients', 'recipients')->name('recipients');
-    });
+            Route::get('/datasources/dictionary', 'datasourceDict')->name('dict');
+            Route::get('/datasources/select', 'datasourceSelect')->name('select');
+            Route::get('/datasources/table', 'datasourceTable')->name('table');
+
+            Route::get('/datasources/contacts', 'datasourceContacts')->name('datasource.contacts');
+
+            Route::post('/{newsletter}/send-test', 'sendTest')->name('send_test');
+            Route::get('/{campaign}/recipients', 'recipients')->name('recipients');
+        });
+
 
     Route::prefix('email')->name('email.')->controller(EmailUtilityController::class)->group(function () {
         Route::post('/templates/upload-asset', 'uploadAsset')->name('templates.upload-asset');
