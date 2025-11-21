@@ -285,6 +285,7 @@
                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <input type="hidden" id="invoice_id" value="{{ $invoice->id }}">
                 <input type="hidden" id="payment_id" value="{{ $payment->id }}">
+                <input type="hidden" id="original_amount" value="{{ $prefill['amount'] }}">
 
                 <div class="box">
                     <div class="box-h">Customer Details</div>
@@ -387,8 +388,10 @@
             const btnSave = document.getElementById('btnSave');
             const btnSaveExit = document.getElementById('btnSaveExit');
             const amountInput = document.querySelector('[name=amount]');
+            const originalAmountInput = document.getElementById('original_amount');
             const allocatedEl = document.getElementById('allocated');
             const unallocatedEl = document.getElementById('unallocated');
+            let originalAmount = originalAmountInput ? toNum(originalAmountInput.value) : 0;
 
             function toNum(v) {
                 const n = parseFloat((v || '').toString().replace(/,/g, ''));
@@ -429,7 +432,8 @@
             function updateToolbarButtons() {
                 const unalloc = currentUnallocated();
                 const amt = amountInput ? toNum(amountInput.value) : 0;
-                const shouldDisable = (unalloc <= 0.00001) || (amt <= 0.00001) || (amt > unalloc + 0.00001);
+                const maxAllowed = unalloc + originalAmount;
+                const shouldDisable = (amt <= 0.00001) || (amt > maxAllowed + 0.00001);
                 setButtonsDisabled(shouldDisable);
             }
 
@@ -438,7 +442,8 @@
 
                 const unalloc = currentUnallocated();
                 const amt = toNum(amountInput.value);
-                const remaining = Math.max(0, unalloc - amt);
+                const maxAllowed = unalloc + originalAmount;
+                const remaining = Math.max(0, maxAllowed - amt);
 
                 let preview = document.getElementById('remaining-preview');
                 if (!preview) {
@@ -456,10 +461,10 @@
                     const err = ensureAmountErrorElement();
                     amountInput.classList.add('is-invalid');
                     err.textContent = 'Amount must be at least 0.01';
-                } else if (amt > unalloc + 0.00001) {
+                } else if (amt > maxAllowed + 0.00001) {
                     const err = ensureAmountErrorElement();
                     amountInput.classList.add('is-invalid');
-                    err.textContent = 'Amount cannot exceed the current unallocated (' + fmt2(unalloc) + ').';
+                    err.textContent = 'Amount cannot exceed ' + fmt2(maxAllowed) + '.';
                 }
 
                 updateToolbarButtons();
@@ -471,15 +476,16 @@
                     headers: {'Accept': 'application/json'},
                     cache: 'no-store'
                 })
-                    .then(r => r.json())
-                    .then(j => {
-                        const a = toNum(j.allocated), u = toNum(j.unallocated);
+                    .then(function (r) { return r.json(); })
+                    .then(function (j) {
+                        const a = toNum(j.allocated);
+                        const u = toNum(j.unallocated);
                         if (allocatedEl) allocatedEl.textContent = fmt2(a);
                         if (unallocatedEl) unallocatedEl.textContent = fmt2(u);
-                        if (amountInput) amountInput.value = fmt2(u);
+                        if (amountInput && !pid) amountInput.value = fmt2(u);
                         updateRemainingPreview();
                     })
-                    .catch(() => {});
+                    .catch(function () {});
             }
 
             function csrf() {
@@ -494,10 +500,11 @@
 
                 const unalloc = currentUnallocated();
                 const amt = amountInput ? toNum(amountInput.value) : 0;
+                const maxAllowed = unalloc + originalAmount;
 
-                if (amt <= 0.00001 || amt > unalloc + 0.00001) {
+                if (amt <= 0.00001 || amt > maxAllowed + 0.00001) {
                     updateRemainingPreview();
-                    amountInput && amountInput.focus();
+                    if (amountInput) amountInput.focus();
                     return;
                 }
 
@@ -512,7 +519,7 @@
                     icon: 'info',
                     allowOutsideClick: false,
                     showConfirmButton: false,
-                    didOpen: () => {
+                    didOpen: function () {
                         Swal.showLoading();
                     }
                 });
@@ -526,18 +533,24 @@
                     },
                     body: fd
                 })
-                    .then(r => {
-                        if (!r.ok) return r.json().then(j => { throw j; });
+                    .then(function (r) {
+                        if (!r.ok) return r.json().then(function (j) { throw j; });
                         return r.json();
                     })
-                    .then(() => {
+                    .then(function () {
+                        const amt = amountInput ? toNum(amountInput.value) : 0;
+                        originalAmount = amt;
+                        if (originalAmountInput) {
+                            originalAmountInput.value = fmt2(amt);
+                        }
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Saved Successfully',
                             text: 'Your payment details have been updated.',
                             timer: 1500,
                             showConfirmButton: false
-                        }).then(() => {
+                        }).then(function () {
                             if (exitAfter && inv) {
                                 window.location.href = '/crm/invoices/' + inv;
                             } else {
@@ -545,24 +558,26 @@
                             }
                         });
                     })
-                    .catch(err => {
+                    .catch(function (err) {
                         let msg = 'Failed to save payment.';
                         if (err && err.errors) {
-                            const k = Object.keys(err.errors)[0];
-                            if (k && err.errors[k] && err.errors[k][0]) msg = err.errors[k][0];
+                            const keys = Object.keys(err.errors);
+                            if (keys.length > 0 && err.errors[keys[0]] && err.errors[keys[0]][0]) {
+                                msg = err.errors[keys[0]][0];
+                            }
                         } else if (err && err.message) {
                             msg = err.message;
                         }
                         Swal.fire({icon: 'error', title: 'Error', text: msg});
                     })
-                    .finally(() => {
+                    .finally(function () {
                         setButtonsDisabled(false);
                         updateToolbarButtons();
                     });
             }
 
-            if (btnSave) btnSave.addEventListener('click', () => submit(false));
-            if (btnSaveExit) btnSaveExit.addEventListener('click', () => submit(true));
+            if (btnSave) btnSave.addEventListener('click', function () { submit(false); });
+            if (btnSaveExit) btnSaveExit.addEventListener('click', function () { submit(true); });
 
             if (amountInput) {
                 amountInput.addEventListener('input', updateRemainingPreview);
