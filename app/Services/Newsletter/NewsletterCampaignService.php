@@ -226,7 +226,8 @@ class NewsletterCampaignService
             (new DeliverNewsletterJob(
                 $send->id,
                 $user ? $user->id : null,
-                $recipient->id
+                $recipient->id,
+                $campaign->id
             ))->delay($now->copy()->addSeconds(5))
         );
     }

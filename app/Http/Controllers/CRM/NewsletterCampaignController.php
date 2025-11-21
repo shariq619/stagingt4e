@@ -278,11 +278,27 @@ class NewsletterCampaignController extends Controller
 
     public function send(NewsletterCampaign $campaign)
     {
-        event(new NewsletterCampaignSendRequested($campaign));
-        $campaign->update(['sent_at' => Carbon::now()]);
+        if ($campaign->sent_at) {
+            return response()->json([
+                'ok'      => false,
+                'status'  => 'already_sent',
+                'message' => 'This campaign has already been sent or is currently being processed. Please wait for completion.',
+            ], 422);
+        }
 
-        return response()->json(['ok' => true]);
+        event(new NewsletterCampaignSendRequested($campaign));
+
+        $campaign->update([
+            'sent_at' => Carbon::now(),
+        ]);
+
+        return response()->json([
+            'ok'      => true,
+            'status'  => 'queued',
+            'message' => 'Campaign send has been queued. Delivery will depend on the queue and may still fail for some recipients.',
+        ]);
     }
+
 
     public function destroy(NewsletterCampaign $campaign)
     {

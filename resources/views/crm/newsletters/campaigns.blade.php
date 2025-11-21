@@ -1141,6 +1141,7 @@
                             page = 1;
                             load(page);
                         });
+
                         checkAllEl.on('change', function () {
                             var checked = $(this).is(':checked');
                             tbodyEl.find('.rp-check').each(function () {
@@ -1152,6 +1153,7 @@
                                 }
                             });
                         });
+
                         tbodyEl.on('change', '.rp-check', function () {
                             var em = $(this).data('email') || '';
                             if (!em) return;
@@ -1168,6 +1170,7 @@
                             var checked = cb.is(':checked');
                             cb.prop('checked', !checked).trigger('change');
                         });
+
                         $('#rp_build').on('click', function () {
                             var emails = Object.keys(selected);
                             if (!emails.length) {
