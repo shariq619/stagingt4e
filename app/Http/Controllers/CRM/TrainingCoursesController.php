@@ -97,7 +97,7 @@ class TrainingCoursesController extends Controller
         $status = $request->get('status');
         $q      = $request->get('q');
         $starts = $request->get('starts');
-        $fromDate = Carbon::create(2025, 11, 21)->startOfDay();
+        $fromDate = Carbon::create(2025, 11, 24)->startOfDay();
 
         $query = DB::table('cohorts as c')
             ->leftJoin('courses as crs', 'crs.id', '=', 'c.course_id')
@@ -113,15 +113,15 @@ class TrainingCoursesController extends Controller
                 DB::raw('crs.duration as days_plain'),
                 DB::raw('t.name as trainer_name'),
                 DB::raw('v.venue_name as venue_name'),
-                DB::raw('(SELECT COUNT(*) FROM cohort_user cu WHERE cu.cohort_id = c.id) as learners_count'),
+                DB::raw('(
+                SELECT COUNT(*)
+                FROM cohort_user cu
+                WHERE cu.cohort_id = c.id
+                  AND cu.created_at >= "' . $fromDate->format('Y-m-d H:i:s') . '"
+            ) as learners_count'),
             ])
             ->whereYear('c.start_date_time', $year)
-            ->whereMonth('c.start_date_time', $month)
-            ->whereExists(function ($sub) use ($fromDate) {
-                $sub->from('cohort_user as cu')
-                    ->whereColumn('cu.cohort_id', 'c.id')
-                    ->whereDate('cu.created_at', '>=', $fromDate);
-            });
+            ->whereMonth('c.start_date_time', $month);
 
         if (!empty($day)) {
             $query->whereDay('c.start_date_time', $day);
@@ -179,7 +179,6 @@ class TrainingCoursesController extends Controller
                 ->groupBy('i.cohort_id', 'l.is_reassigned')
                 ->get();
 
-
             $byCohort = [];
 
             foreach ($lineAgg as $row) {
@@ -206,7 +205,6 @@ class TrainingCoursesController extends Controller
                 }
             }
 
-
             $miscAgg = DB::table($miscTable)
                 ->selectRaw("
                 cohort_id,
@@ -222,8 +220,32 @@ class TrainingCoursesController extends Controller
                 ->whereIn('id', $cohortIds)
                 ->pluck('exclude_misc', 'id');
 
+            $recentLearners = DB::table('cohort_user')
+                ->select('cohort_id')
+                ->whereIn('cohort_id', $cohortIds)
+                ->whereDate('created_at', '>=', $fromDate->toDateString())
+                ->groupBy('cohort_id')
+                ->pluck('cohort_id')
+                ->flip();
+
             foreach ($cohortIds as $cid) {
                 $cidInt = (int) $cid;
+
+                if (!isset($recentLearners[$cidInt])) {
+                    $financialsByCohort[$cidInt] = [
+                        'sub_total'  => 0.00,
+                        'discount'   => 0.00,
+                        'total_cost' => 0.00,
+                        'vat'        => 0.00,
+                        'misc_net'   => 0.00,
+                        'misc_vat'   => 0.00,
+                        'misc_total' => 0.00,
+                        'res_net'    => 0.00,
+                        'res_vat'    => 0.00,
+                        'res_total'  => 0.00,
+                    ];
+                    continue;
+                }
 
                 $base = $byCohort[$cidInt] ?? [
                     'sub'    => 0.0,
