@@ -373,6 +373,7 @@
                         @endif
                     </div>
 
+
                     <div class="sec-title">Body (HTML)</div>
                     <div class="body-panel body-panel-html">
                         {!! $send->html_body !!}
