@@ -483,14 +483,14 @@ TEXT;
         $payload = $request->getPayload();
 
         $mapping = EmailMapping::create([
-            'trigger_id' => $payload['trigger_id'],
-            'template_id' => $payload['template_id'],
-            'scope' => $payload['scope'],
+            'trigger_id'      => $payload['trigger_id'],
+            'template_id'     => $payload['template_id'],
+            'scope'           => $payload['scope'],
             'course_category' => $payload['course_category'],
-            'course_id' => $payload['course_id'],
-            'recipients' => $payload['recipients'],
-            'enabled' => (bool)$payload['enabled'],
-            'priority' => $payload['priority'],
+            'course_id'       => $payload['course_id'],
+            'recipients'      => json_encode([['role' => 'user']]),
+            'enabled'         => (bool)$payload['enabled'],
+            'priority'        => $payload['priority'],
         ]);
 
         if (!empty($payload['learner_status'])) {
