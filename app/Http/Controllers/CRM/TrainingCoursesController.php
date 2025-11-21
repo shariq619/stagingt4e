@@ -97,6 +97,7 @@ class TrainingCoursesController extends Controller
         $status = $request->get('status');
         $q      = $request->get('q');
         $starts = $request->get('starts');
+        $fromDate = Carbon::create(2025, 11, 24)->startOfDay();
 
         $query = DB::table('cohorts as c')
             ->leftJoin('courses as crs', 'crs.id', '=', 'c.course_id')
@@ -115,7 +116,12 @@ class TrainingCoursesController extends Controller
                 DB::raw('(SELECT COUNT(*) FROM cohort_user cu WHERE cu.cohort_id = c.id) as learners_count'),
             ])
             ->whereYear('c.start_date_time', $year)
-            ->whereMonth('c.start_date_time', $month);
+            ->whereMonth('c.start_date_time', $month)
+            ->whereExists(function ($sub) use ($fromDate) {
+                $sub->from('cohort_user as cu')
+                    ->whereColumn('cu.cohort_id', 'c.id')
+                    ->whereDate('cu.created_at', '>=', $fromDate);
+            });
 
         if (!empty($day)) {
             $query->whereDay('c.start_date_time', $day);
