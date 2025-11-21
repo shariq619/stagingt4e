@@ -19,6 +19,7 @@ use App\Http\Requests\Crm\Email\StoreDraftTemplateRequest;
 use App\Http\Requests\Crm\Email\UpdateTemplateRequest;
 use App\Http\Requests\Crm\Email\StoreMappingRequest;
 use App\Http\Requests\Crm\Email\UploadAssetRequest;
+use Illuminate\Support\Str;
 
 class EmailAdminController extends Controller
 {
@@ -218,7 +219,7 @@ TEXT;
     public function updateTemplate($id, UpdateTemplateRequest $request)
     {
         $template = EmailTemplate::findOrFail($id);
-        $data = $request->validated();
+        $data     = $request->validated();
 
         $activeBool = array_key_exists('active', $data)
             ? filter_var($data['active'], FILTER_VALIDATE_BOOLEAN)
@@ -230,28 +231,54 @@ TEXT;
 
         $tplUpdates = array_filter([
             'category' => $data['category'] ?? null,
-            'active' => $activeBool,
+            'active'   => $activeBool,
             'is_draft' => $draftBool,
-        ], function ($v) {
+        ], static function ($v) {
             return !is_null($v);
         });
 
         $meta = [
-            'to' => $data['to_recipients'] ?? [],
-            'cc' => $data['cc_recipients'] ?? [],
-            'bcc' => $data['bcc_recipients'] ?? [],
-            'from_name' => $data['from_name'] ?? '',
-            'from_email' => $data['from_email'] ?? '',
-            'created_by_name' => Auth::user()->name ?? 'System',
+            'to'               => $data['to_recipients'] ?? [],
+            'cc'               => $data['cc_recipients'] ?? [],
+            'bcc'              => $data['bcc_recipients'] ?? [],
+            'from_name'        => $data['from_name'] ?? '',
+            'from_email'       => $data['from_email'] ?? '',
+            'created_by_name'  => Auth::user()->name ?? 'System',
             'created_by_email' => Auth::user()->email ?? 'no-reply@t4e-hub.co.uk',
-            'data_source' => $data['data_source'] ?? '',
-            'merge_field' => $data['merge_field'] ?? '',
-            'newsletter_name' => $data['newsletter_name'] ?? '',
+            'data_source'      => $data['data_source'] ?? '',
+            'merge_field'      => $data['merge_field'] ?? '',
+            'newsletter_name'  => $data['newsletter_name'] ?? '',
         ];
 
         $current = $template->currentVersion;
 
-        return DB::transaction(function () use ($template, $tplUpdates, $data, $meta, $current) {
+        $normalizedAttachments = collect($data['attachments'] ?? [])
+            ->map(function (array $att) {
+                $nameOriginal = trim($att['original_name'] ?? $att['name'] ?? $att['nameStored'] ?? '');
+                $url          = $att['url'] ?? '';
+                if ($nameOriginal === '' || $url === '') {
+                    return null;
+                }
+                $size       = isset($att['size']) ? (string) $att['size'] : '';
+                $nameStored = $att['nameStored'] ?? $att['name'] ?? null;
+                if (!$nameStored) {
+                    $ext       = pathinfo($nameOriginal, PATHINFO_EXTENSION);
+                    $base      = pathinfo($nameOriginal, PATHINFO_FILENAME);
+                    $slugBase  = Str::slug($base) ?: 'attachment';
+                    $nameStored = $slugBase . ($ext ? ('.' . $ext) : '');
+                }
+                return [
+                    'url'          => $url,
+                    'size'         => $size,
+                    'nameStored'   => $nameStored,
+                    'nameOriginal' => $nameOriginal,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        return DB::transaction(function () use ($template, $tplUpdates, $data, $meta, $current, $normalizedAttachments) {
 
             if (!empty($tplUpdates)) {
                 $template->update($tplUpdates);
@@ -263,15 +290,14 @@ TEXT;
                 if ($layoutHtmlNew) {
                     $layoutTextNew = $this->htmlToText($layoutHtmlNew);
                 }
-
                 $current = EmailTemplateVersion::create([
-                    'template_id' => $template->id,
-                    'version' => 1,
-                    'is_current' => 1,
-                    'layout_html' => $layoutHtmlNew,
-                    'layout_text' => $layoutTextNew,
-                    'attachments' => $data['attachments'] ?? [],
-                    'meta' => $meta,
+                    'template_id'  => $template->id,
+                    'version'      => 1,
+                    'is_current'   => 1,
+                    'layout_html'  => $layoutHtmlNew,
+                    'layout_text'  => $layoutTextNew,
+                    'attachments'  => $normalizedAttachments,
+                    'meta'         => $meta,
                 ]);
             } else {
                 $verUpdates = [];
@@ -282,14 +308,12 @@ TEXT;
 
                 if (array_key_exists('layout_text', $data)) {
                     $verUpdates['layout_text'] = $data['layout_text'];
-                } elseif (array_key_exists('layout_html', $data)  && !empty($data['layout_html'])) {
+                } elseif (array_key_exists('layout_html', $data) && !empty($data['layout_html'])) {
                     $verUpdates['layout_text'] = $this->htmlToText($data['layout_html']);
                 }
 
                 if (array_key_exists('attachments', $data)) {
-                    $verUpdates['attachments'] = $data['attachments'] ?? [];
-                } else {
-                    $verUpdates['attachments'] = [];
+                    $verUpdates['attachments'] = $normalizedAttachments;
                 }
 
                 $verUpdates['meta'] = $meta;
@@ -301,6 +325,7 @@ TEXT;
 
             $htmlBody = $data['html_body'] ?? '';
             $textBody = $data['text_body'] ?? null;
+
             if ($htmlBody !== '') {
                 $textBody = $this->htmlToText($htmlBody);
             }
@@ -308,10 +333,10 @@ TEXT;
             EmailTemplateTranslation::updateOrCreate(
                 [
                     'template_version_id' => $current->id,
-                    'locale' => $data['locale'] ?? 'en',
+                    'locale'              => $data['locale'] ?? 'en',
                 ],
                 [
-                    'subject' => $data['subject'] ?? '',
+                    'subject'   => $data['subject'] ?? '',
                     'html_body' => $htmlBody,
                     'text_body' => $textBody,
                 ]
@@ -322,6 +347,7 @@ TEXT;
             );
         });
     }
+
 
     public function publishDraft($id)
     {

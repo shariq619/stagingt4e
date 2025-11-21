@@ -14,7 +14,7 @@ class StoreTemplateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', 'min:3', 'max:100'],
+            'code' => ['required', 'string', 'min:3', 'max:100', 'unique:email_templates,code'],
             'category' => ['required', 'string', 'max:100'],
             'locale' => ['required', 'string', 'max:10'],
             'subject' => ['required', 'string', 'min:2'],

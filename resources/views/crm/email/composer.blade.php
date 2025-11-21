@@ -1176,14 +1176,16 @@ Please do not reply directly to this message."></textarea>
                         renderRecipients('#cc_area', res.cc || []);
                         renderRecipients('#bcc_area', res.bcc || []);
                         renderAttachments((res.attachments || []).map(function (a) {
+                            const displayName = a.nameOriginal || a.nameStored || '';
                             return {
-                                name: a.name,
-                                nameOriginal: a.original_name || a.name,
-                                original_name: a.original_name || a.name,
+                                name: displayName,
+                                nameOriginal: a.nameOriginal || displayName,
+                                original_name: a.nameOriginal || displayName,
                                 url: a.url,
                                 size: a.size
                             };
                         }));
+
                         if (editorHTML) editorHTML.setContent(res.html_body || '');
                         $('#composer_text').val(res.text_body || '');
                         $('#layout_html').val(res.layout_html || '');
@@ -1195,13 +1197,16 @@ Please do not reply directly to this message."></textarea>
 
                 function buildUpdateFormData() {
                     var fd = new FormData();
+
                     var toList = collectRecipientsFrom('#to_area');
                     var ccList = collectRecipientsFrom('#cc_area');
                     var bccList = collectRecipientsFrom('#bcc_area');
+
                     var htmlBody = editorHTML ? editorHTML.getContent() : '';
                     var textBody = $('#composer_text').val() || '';
                     var layoutHtml = $('#layout_html').val() || '';
                     var layoutText = $('#layout_text').val() || '';
+
                     fd.append('category', $('#nl_data_source').val() || 'TrainingCourse');
                     fd.append('active', 'true');
                     fd.append('is_draft', 'false');
@@ -1211,12 +1216,33 @@ Please do not reply directly to this message."></textarea>
                     fd.append('text_body', textBody);
                     fd.append('layout_html', layoutHtml);
                     fd.append('layout_text', layoutText);
-                    currentAttachments.forEach(function (att, idx) {
+
+                    // 🔧 NEW: clean attachments before sending
+                    var cleanedAttachments = (currentAttachments || [])
+                        .map(function (att) {
+                            var name = (att.name || att.nameOriginal || att.original_name || '').trim();
+                            var url = (att.url || '').trim();
+
+                            // if there is no name at all, skip this attachment
+                            if (!name) return null;
+
+                            return {
+                                name: name,
+                                original_name: (att.original_name || att.nameOriginal || name),
+                                url: url,
+                                size: att.size || ''
+                            };
+                        })
+                        .filter(function (att) { return att !== null; });
+
+                    // Only send attachments if we actually have valid ones
+                    cleanedAttachments.forEach(function (att, idx) {
                         fd.append('attachments[' + idx + '][url]', att.url || '');
-                        fd.append('attachments[' + idx + '][name]', att.name || att.nameOriginal || '');
-                        fd.append('attachments[' + idx + '][original_name]', att.original_name || att.nameOriginal || att.name || '');
+                        fd.append('attachments[' + idx + '][name]', att.name || '');
+                        fd.append('attachments[' + idx + '][original_name]', att.original_name || att.name || '');
                         fd.append('attachments[' + idx + '][size]', att.size || '');
                     });
+
                     toList.forEach(function (e, i) {
                         fd.append('to_recipients[' + i + ']', e)
                     });
@@ -1226,6 +1252,7 @@ Please do not reply directly to this message."></textarea>
                     bccList.forEach(function (e, i) {
                         fd.append('bcc_recipients[' + i + ']', e)
                     });
+
                     fd.append('from_name', $('#nl_from_name').val() || '');
                     fd.append('from_email', $('#nl_from_email').val() || '');
                     fd.append('created_by_name', $('#nl_created_by_name').val() || '');
@@ -1235,8 +1262,10 @@ Please do not reply directly to this message."></textarea>
                     fd.append('newsletter_name', $('#nl_name').val() || '');
                     fd.append('_method', 'PUT');
                     fd.append('_token', CSRF_TOKEN);
-                    return fd
+
+                    return fd;
                 }
+
 
                 function validateCcBcc() {
                     var $cc = $('#cc_area'), $bcc = $('#bcc_area');
