@@ -252,41 +252,34 @@ TEXT;
 
         $current = $template->currentVersion;
 
-        $rawAttachments = $request->has('attachments')
-            ? $request->input('attachments')
-            : null;
+        $hasAttachmentsField = array_key_exists('attachments', $data);
 
-        $hasAttachmentsField = !is_null($rawAttachments);
+        $normalizedAttachments = collect($data['attachments'] ?? [])
+            ->map(function (array $att) {
+                $nameOriginal = trim($att['original_name'] ?? $att['name'] ?? $att['nameStored'] ?? '');
+                $url          = $att['url'] ?? '';
+                if ($nameOriginal === '' || $url === '') {
+                    return null;
+                }
+                $size       = isset($att['size']) ? (string) $att['size'] : '';
+                $nameStored = $att['nameStored'] ?? $att['name'] ?? null;
+                if (!$nameStored) {
+                    $ext        = pathinfo($nameOriginal, PATHINFO_EXTENSION);
+                    $base       = pathinfo($nameOriginal, PATHINFO_FILENAME);
+                    $slugBase   = Str::slug($base) ?: 'attachment';
+                    $nameStored = $slugBase . ($ext ? ('.' . $ext) : '');
+                }
+                return [
+                    'url'          => $url,
+                    'size'         => $size,
+                    'nameStored'   => $nameStored,
+                    'nameOriginal' => $nameOriginal,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
 
-        $normalizedAttachments = [];
-
-        if ($hasAttachmentsField && is_array($rawAttachments)) {
-            $normalizedAttachments = collect($rawAttachments)
-                ->map(function (array $att) {
-                    $nameOriginal = trim($att['original_name'] ?? $att['name'] ?? $att['nameStored'] ?? '');
-                    $url          = $att['url'] ?? '';
-                    if ($nameOriginal === '' || $url === '') {
-                        return null;
-                    }
-                    $size       = isset($att['size']) ? (string) $att['size'] : '';
-                    $nameStored = $att['nameStored'] ?? $att['name'] ?? null;
-                    if (!$nameStored) {
-                        $ext        = pathinfo($nameOriginal, PATHINFO_EXTENSION);
-                        $base       = pathinfo($nameOriginal, PATHINFO_FILENAME);
-                        $slugBase   = \Str::slug($base) ?: 'attachment';
-                        $nameStored = $slugBase . ($ext ? ('.' . $ext) : '');
-                    }
-                    return [
-                        'url'          => $url,
-                        'size'         => $size,
-                        'nameStored'   => $nameStored,
-                        'nameOriginal' => $nameOriginal,
-                    ];
-                })
-                ->filter()
-                ->values()
-                ->all();
-        }
 
         return DB::transaction(function () use ($template, $tplUpdates, $data, $meta, $current, $normalizedAttachments, $hasAttachmentsField) {
 
@@ -324,7 +317,7 @@ TEXT;
 
                 if ($hasAttachmentsField) {
                     $verUpdates['attachments'] = $normalizedAttachments;
-                } else {
+                }else{
                     $verUpdates['attachments'] = [];
                 }
 
