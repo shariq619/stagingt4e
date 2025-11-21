@@ -26,13 +26,10 @@ class UpdateTemplateRequest extends FormRequest
             'layout_html' => ['nullable', 'string'],
             'layout_text' => ['nullable', 'string'],
 
-            'attachments'               => ['nullable', 'array'],
-            'attachments.*'             => ['nullable', 'array'],
-            'attachments.*.name'        => ['nullable', 'string'],
-            'attachments.*.original_name' => ['nullable', 'string'],
-            'attachments.*.nameStored'  => ['nullable', 'string'],
-            'attachments.*.url'         => ['nullable', 'string'],
-            'attachments.*.size'        => ['nullable', 'string'],
+            'attachments' => ['nullable', 'array'],
+            'attachments.*.name' => ['required_with:attachments', 'string'],
+            'attachments.*.url'  => ['required_with:attachments', 'string'],
+            'attachments.*.size' => ['nullable', 'string'],
 
             'from_name'         => ['nullable', 'string'],
             'from_email'        => ['nullable', 'string'],
@@ -42,12 +39,12 @@ class UpdateTemplateRequest extends FormRequest
             'merge_field'       => ['nullable', 'string'],
             'newsletter_name'   => ['nullable', 'string'],
 
-            'to_recipients'     => ['nullable', 'array'],
-            'to_recipients.*'   => ['nullable', 'string'],
-            'cc_recipients'     => ['nullable', 'array'],
-            'cc_recipients.*'   => ['nullable', 'string'],
-            'bcc_recipients'    => ['nullable', 'array'],
-            'bcc_recipients.*'  => ['nullable', 'string'],
+            'to_recipients'   => ['nullable', 'array'],
+            'to_recipients.*' => ['nullable', 'string'],
+            'cc_recipients'   => ['nullable', 'array'],
+            'cc_recipients.*' => ['nullable', 'string'],
+            'bcc_recipients'   => ['nullable', 'array'],
+            'bcc_recipients.*' => ['nullable', 'string'],
         ];
     }
 }
