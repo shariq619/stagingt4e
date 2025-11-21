@@ -30,9 +30,13 @@
             padding: 1.5rem 0 3rem;
         }
 
-#dtCustomers_length{
-    margin: 15px;
-}
+        #dtCustomers_length{
+            margin: 15px;
+        }
+
+        .pagination{
+            margin: 10px !important;
+        }
 
         .ribbon {
             display: flex;

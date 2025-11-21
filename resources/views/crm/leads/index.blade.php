@@ -362,6 +362,10 @@
         #leadsTable_length {
             margin: 15px;
         }
+
+        .pagination{
+            margin: 10px !important;
+        }
     </style>
 
     <style>

@@ -719,6 +719,10 @@
             padding: .5rem .9rem .6rem;
             border-top: 1px solid #e5e7eb;
         }
+
+        .pagination{
+            margin: 10px !important;
+        }
     </style>
 @endpush
 

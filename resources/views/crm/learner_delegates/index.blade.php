@@ -386,6 +386,11 @@
         .form-select {
             border-radius: 12px;
         }
+
+        .pagination{
+            margin: 10px !important;
+        }
+
     </style>
 
 @endpush
