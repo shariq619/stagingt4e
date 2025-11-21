@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('certificates:generate')->everyFifteenMinutes();
         $schedule->command('reminder:cohort-tasks')->dailyAt('09:00');
-        $schedule->command('emails:run-time-triggers')->dailyAt('16:30');
+        $schedule->command('emails:run-time-triggers')->dailyAt('16:37');
 
         //$schedule->command('test:cron')->everyMinute(); // for quick testing
 
