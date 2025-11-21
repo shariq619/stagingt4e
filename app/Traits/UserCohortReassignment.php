@@ -14,6 +14,7 @@ trait UserCohortReassignment
         $pivot = DB::table('cohort_user')
             ->where('cohort_id', $fromCohortId)
             ->where('user_id', $userId)
+            ->whereDate('created_at', '>=', '2025-11-24')
             ->lockForUpdate()
             ->first();
 
@@ -24,6 +25,7 @@ trait UserCohortReassignment
         $exists = DB::table('cohort_user')
             ->where('user_id', $userId)
             ->where('cohort_id', $toCohortId)
+            ->whereDate('created_at', '>=', '2025-11-24')
             ->exists();
 
         if ($exists) {
@@ -32,6 +34,7 @@ trait UserCohortReassignment
 
         DB::table('cohort_user')
             ->where('id', $pivot->id)
+            ->whereDate('created_at', '>=', '2025-11-24')
             ->update([
                 'is_reassigned' => 1,
                 'updated_at'    => now(),
