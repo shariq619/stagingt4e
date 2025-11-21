@@ -1,5 +1,5 @@
 @extends('crm.layout.main')
-@section('title','CRM - Payment Receipt')
+@section('title','Payment Receipt Update')
 
 @push('css')
     <style>
