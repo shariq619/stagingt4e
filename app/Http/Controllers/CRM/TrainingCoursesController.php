@@ -97,7 +97,7 @@ class TrainingCoursesController extends Controller
         $status = $request->get('status');
         $q      = $request->get('q');
         $starts = $request->get('starts');
-        $fromDate = Carbon::create(2025, 11, 24)->startOfDay();
+        $fromDate = Carbon::create(2025, 11, 21)->startOfDay();
 
         $query = DB::table('cohorts as c')
             ->leftJoin('courses as crs', 'crs.id', '=', 'c.course_id')
