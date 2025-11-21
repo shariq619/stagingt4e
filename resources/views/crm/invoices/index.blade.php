@@ -847,7 +847,6 @@
 
         .toolbar-readonly {
             pointer-events: none !important;
-            opacity: 0.7;
         }
 
     </style>
