@@ -252,6 +252,8 @@ TEXT;
 
         $current = $template->currentVersion;
 
+        $hasAttachmentsField = array_key_exists('attachments', $data);
+
         $normalizedAttachments = collect($data['attachments'] ?? [])
             ->map(function (array $att) {
                 $nameOriginal = trim($att['original_name'] ?? $att['name'] ?? $att['nameStored'] ?? '');
@@ -262,9 +264,9 @@ TEXT;
                 $size       = isset($att['size']) ? (string) $att['size'] : '';
                 $nameStored = $att['nameStored'] ?? $att['name'] ?? null;
                 if (!$nameStored) {
-                    $ext       = pathinfo($nameOriginal, PATHINFO_EXTENSION);
-                    $base      = pathinfo($nameOriginal, PATHINFO_FILENAME);
-                    $slugBase  = Str::slug($base) ?: 'attachment';
+                    $ext        = pathinfo($nameOriginal, PATHINFO_EXTENSION);
+                    $base       = pathinfo($nameOriginal, PATHINFO_FILENAME);
+                    $slugBase   = Str::slug($base) ?: 'attachment';
                     $nameStored = $slugBase . ($ext ? ('.' . $ext) : '');
                 }
                 return [
@@ -278,7 +280,11 @@ TEXT;
             ->values()
             ->all();
 
-        return DB::transaction(function () use ($template, $tplUpdates, $data, $meta, $current, $normalizedAttachments) {
+        if ($hasAttachmentsField && empty($normalizedAttachments)) {
+            $normalizedAttachments = [];
+        }
+
+        return DB::transaction(function () use ($template, $tplUpdates, $data, $meta, $current, $normalizedAttachments, $hasAttachmentsField) {
 
             if (!empty($tplUpdates)) {
                 $template->update($tplUpdates);
@@ -312,7 +318,7 @@ TEXT;
                     $verUpdates['layout_text'] = $this->htmlToText($data['layout_html']);
                 }
 
-                if (array_key_exists('attachments', $data)) {
+                if ($hasAttachmentsField) {
                     $verUpdates['attachments'] = $normalizedAttachments;
                 }
 
@@ -347,6 +353,7 @@ TEXT;
             );
         });
     }
+
 
 
     public function publishDraft($id)
