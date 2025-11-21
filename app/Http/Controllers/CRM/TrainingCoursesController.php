@@ -346,6 +346,7 @@ class TrainingCoursesController extends Controller
     {
         $ids = DB::table('cohort_user')
             ->where('cohort_id', $cohortId)
+            ->whereDate('created_at', '>=', '2025-11-24')
             ->pluck('user_id');
 
         if ($ids->isEmpty()) {
