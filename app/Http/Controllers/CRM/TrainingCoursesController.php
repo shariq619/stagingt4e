@@ -1044,12 +1044,7 @@ class TrainingCoursesController extends Controller
                 ->orWhere('middle_name', 'like', "%$query%")
                 ->orWhere('last_name', 'like', "%$query%");
         })->role('Learner')
-            ->select('id', 'name', 'email')
-            ->whereNotIn('id', function ($sub) use ($cohortId) {
-                $sub->select('user_id')
-                    ->from('cohort_user')
-                    ->where('cohort_id', $cohortId);
-            })
+
             ->get();
         return response()->json($users);
     }
