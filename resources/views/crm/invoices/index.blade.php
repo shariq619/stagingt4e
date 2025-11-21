@@ -877,8 +877,8 @@
                             onclick="location.href='{{ route('crm.payments.create', ['invoice' => $invoice->id ?? '__ID__']) }}'">
                         Add Payment
                     </button>
-                    <button class="btn btn-green" id="btnSaveTop">Save</button>
-                    <button class="btn btn-green" id="btnSaveExitTop">Save and Exit</button>
+                    <button class="btn btn-green d-none" id="btnSaveTop">Save</button>
+                    <button class="btn btn-green d-none" id="btnSaveExitTop">Save and Exit</button>
                     <button class="btn btn-gray d-none" id="btnCancelTop">Cancel</button>
                     <button class="btn btn-red d-none" id="btnDeleteTop">Delete</button>
                 </div>
