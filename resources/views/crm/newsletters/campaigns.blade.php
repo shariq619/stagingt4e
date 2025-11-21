@@ -867,14 +867,39 @@
                                 url: '/crm/newsletter-campaigns/' + id + '/send',
                                 method: 'POST',
                                 headers: {'X-CSRF-TOKEN': CSRF_TOKEN, Accept: 'application/json'}
-                            }).done(function () {
-                                Swal.fire({icon: 'success', title: 'Queued', text: 'Campaign send has been queued.'});
-                                loadCampaigns()
-                            }).fail(function () {
-                                Swal.fire({icon: 'error', title: 'Send failed', text: 'Could not queue campaign.'})
-                            })
-                        })
-                    })
+                            }).done(function (res) {
+                                var ok = !!res.ok;
+                                var status = res.status || '';
+                                var msg = res.message || '';
+
+                                var icon = 'success';
+                                var title = 'Queued';
+
+                                if (!ok) {
+                                    if (status === 'already_sent' || status === 'already_completed') {
+                                        icon = 'info';
+                                        title = 'Already sent';
+                                        if (!msg) msg = 'This campaign has already been sent or completed.';
+                                    } else {
+                                        icon = 'error';
+                                        title = 'Send failed';
+                                        if (!msg) msg = 'Could not queue campaign.';
+                                    }
+                                } else {
+                                    if (!msg) msg = 'Campaign send has been queued. Delivery will happen via the queue.';
+                                }
+
+                                Swal.fire({icon: icon, title: title, text: msg});
+                                loadCampaigns();
+                            }).fail(function (xhr) {
+                                var msg = 'Could not queue campaign.';
+                                if (xhr && xhr.responseJSON && xhr.responseJSON.message) {
+                                    msg = xhr.responseJSON.message;
+                                }
+                                Swal.fire({icon: 'error', title: 'Send failed', text: msg});
+                            });
+                        });
+                    });
                 });
                 tbody.find('button[data-act="delete"]').each(function () {
                     var btn = $(this);
@@ -897,12 +922,12 @@
                                 Swal.fire({icon: 'success', title: 'Deleted', timer: 1200, showConfirmButton: false});
                                 state.server ? loadCampaigns() : (state.allClient = state.allClient.filter(function (x) {
                                     return String(x.id) !== String(id)
-                                }), applyClientFilter(), render())
+                                }), applyClientFilter(), render());
                             }).fail(function () {
-                                Swal.fire({icon: 'error', title: 'Delete failed', text: 'Could not delete campaign.'})
-                            })
-                        })
-                    })
+                                Swal.fire({icon: 'error', title: 'Delete failed', text: 'Could not delete campaign.'});
+                            });
+                        });
+                    });
                 });
                 tbody.find('.count-pill').each(function () {
                     var btn = $(this);
@@ -913,6 +938,7 @@
                     });
                 });
             }
+
 
             function syncQueryString() {
                 var p = new URLSearchParams();
