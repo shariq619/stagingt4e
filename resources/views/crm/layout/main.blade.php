@@ -421,15 +421,25 @@
     });
 </script>
 
+{{--<script>--}}
+{{--    document.addEventListener("DOMContentLoaded", function () {--}}
+{{--        document.body.classList.add("page-readonly");--}}
+{{--        setTimeout(() => {--}}
+{{--            document.body.classList.remove("page-readonly");--}}
+{{--        }, 1000);--}}
+{{--    });--}}
+{{--</script>--}}
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        document.body.classList.add("page-readonly");
+        const toolbar = document.querySelector(".toolbar-actions");
+        if (!toolbar) return;
+        toolbar.classList.add("toolbar-readonly");
         setTimeout(() => {
-            document.body.classList.remove("page-readonly");
+            toolbar.classList.remove("toolbar-readonly");
         }, 1000);
     });
 </script>
-
 
 @stack('js')
 </body>
