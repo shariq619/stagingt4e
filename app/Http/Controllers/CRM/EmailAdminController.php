@@ -252,7 +252,6 @@ TEXT;
 
         $current = $template->currentVersion;
 
-        // ⬇️ IMPORTANT: raw request se uthao
         $rawAttachments = $request->has('attachments')
             ? $request->input('attachments')
             : null;
@@ -323,9 +322,10 @@ TEXT;
                     $verUpdates['layout_text'] = $this->htmlToText($data['layout_html']);
                 }
 
-                // ⬇️ sirf tabhi attachments touch karo jab field aayi ho
                 if ($hasAttachmentsField) {
                     $verUpdates['attachments'] = $normalizedAttachments;
+                } else {
+                    $verUpdates['attachments'] = [];
                 }
 
                 $verUpdates['meta'] = $meta;

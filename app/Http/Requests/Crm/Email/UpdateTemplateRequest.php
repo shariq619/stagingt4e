@@ -26,8 +26,7 @@ class UpdateTemplateRequest extends FormRequest
             'layout_html' => ['nullable', 'string'],
             'layout_text' => ['nullable', 'string'],
 
-            'attachments' => ['sometimes', 'array'],
-            'attachments.*' => ['nullable', 'array'],
+            'attachments' => ['nullable', 'array'],
             'attachments.*.name' => ['required_with:attachments', 'string'],
             'attachments.*.url'  => ['required_with:attachments', 'string'],
             'attachments.*.size' => ['nullable', 'string'],
