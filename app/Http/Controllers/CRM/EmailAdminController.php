@@ -281,7 +281,7 @@ TEXT;
             ->all();
 
 
-        if (!count($normalizedAttachments)) {
+        if (count($normalizedAttachments) == 0) {
             $normalizedAttachments = [];
         }
 
