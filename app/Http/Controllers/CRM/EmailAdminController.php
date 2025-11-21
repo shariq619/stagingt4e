@@ -280,6 +280,8 @@ TEXT;
             ->values()
             ->all();
 
+        dd($normalizedAttachments);
+
         if ($hasAttachmentsField && empty($normalizedAttachments)) {
             $normalizedAttachments = [];
         }
