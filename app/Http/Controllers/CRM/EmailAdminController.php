@@ -488,7 +488,7 @@ TEXT;
             'scope'           => $payload['scope'],
             'course_category' => $payload['course_category'],
             'course_id'       => $payload['course_id'],
-            'recipients'      => '[{"role":"user"}]',
+            'recipients'      => [['role' => 'user']],
             'enabled'         => (bool)$payload['enabled'],
             'priority'        => $payload['priority'],
         ]);
