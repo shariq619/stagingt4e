@@ -1,5 +1,5 @@
 @extends('crm.layout.main')
-@section('title','CRM - Payment Receipt')
+@section('title','Payment Receipt Create')
 
 @push('css')
     <style>
@@ -293,10 +293,10 @@
                                 <input class="hl"
                                        value="{{ $cust->customer_no ?? ('U'.str_pad($cust->id,6,'0',STR_PAD_LEFT)) }}"
                                        readonly>
-                                <button type="button" class="pill">A–Z</button>
+                                <button type="button" class="pill d-none">A–Z</button>
                             </div>
                             <textarea class="hl" rows="6" readonly>
-{{ trim(($cust->name ?? '').' '.($cust->last_name ?? '')) }}
+                                {{ trim(($cust->name ?? '').' '.($cust->last_name ?? '')) }}
                                 {{ $cust->company ?? '' }}
                                 {{ $cust->address ?? '' }}
                                 {{ $cust->city ?? '' }}
@@ -308,7 +308,7 @@
                                 <label class="muted">Payment Date:</label>
                                 <input type="datetime-local" class="hl" name="payment_date"
                                        value="{{ $prefill['payment_date'] }}">
-                                <span class="pill">📅</span>
+                                <span class="pill d-none">📅</span>
                             </div>
                             <div class="kv">
                                 <label class="muted">Payment Type:</label>
@@ -318,7 +318,7 @@
                                             value="{{ $t }}" {{ (isset($prefill['payment_type']) && $prefill['payment_type']===$t)?'selected':'' }}>{{ $t }}</option>
                                     @endforeach
                                 </select>
-                                <button type="button" class="pill">A–Z</button>
+                                <button type="button" class="pill d-none">A–Z</button>
                             </div>
                             <div class="kv">
                                 <label class="muted">Payment Ref:</label>
@@ -357,7 +357,7 @@
                                         <label class="muted">Date Transaction Cleared:</label>
                                         <input type="datetime-local" class="hl" name="cleared_at"
                                                value="{{ $prefill['payment_date'] }}">
-                                        <span class="pill">📅</span>
+                                        <span class="pill d-none">📅</span>
                                     </div>
                                     <div class="form-note">Optional — for record only</div>
                                 </div>
@@ -505,7 +505,7 @@
                     amount: {
                         required: "Enter an amount.",
                         number: "Enter a valid number.",
-                        min: "Amount must be at least 0.01.",
+                        min: "Amount must be at least 0.01",
                         max: function () {
                             return "Amount cannot exceed the current unallocated (" + currentUnallocated().toFixed(2) + ").";
                         }

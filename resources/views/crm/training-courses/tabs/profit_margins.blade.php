@@ -1,4 +1,4 @@
-@section('title','CRM - Profit Margins')
+@section('title','Profit Margins')
 
 @push('css')
     <style>

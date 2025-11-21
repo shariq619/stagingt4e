@@ -1,4 +1,4 @@
-@section('title','CRM - Training Course Detail')
+@section('title','Training Course Detail')
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">

@@ -21,17 +21,16 @@
             font-size: 13px;
         }
 
-
         .pr-wrap {
             background: var(--card-bg);
             border: 1px solid rgba(148, 163, 184, .45);
             border-radius: 18px;
             margin-top: .9rem;
-            box-shadow: 0 20px 45px rgba(15, 23, 42, .14),
-            0 0 0 1px rgba(255, 255, 255, .8);
+            box-shadow:
+                0 20px 45px rgba(15, 23, 42, .14),
+                0 0 0 1px rgba(255,255,255,.8);
             overflow: hidden;
         }
-
 
         .pr-toolbar {
             display: flex;
@@ -45,7 +44,6 @@
             z-index: 9;
             box-shadow: 0 6px 18px rgba(15, 23, 42, .08);
         }
-
 
         .btn {
             border-radius: 999px;
@@ -100,7 +98,6 @@
             transform: none;
         }
 
-
         .pr-body {
             padding: 1rem 1rem 1.1rem;
             background: radial-gradient(circle at top right, #eff6ff 0, #ffffff 45%, #f9fafb 100%);
@@ -135,7 +132,6 @@
             padding: .8rem .9rem;
         }
 
-
         .kv {
             display: grid;
             grid-template-columns: 150px 1fr auto;
@@ -149,15 +145,15 @@
             font-size: .9rem;
         }
 
-
         .hl {
             border: 1px solid #d1d5db;
             border-radius: 16px;
             padding: .35rem .65rem;
             width: 100%;
             background: #f9fafb;
-            box-shadow: inset 0 1px 0 #fff,
-            inset 0 -1px 0 #e4e7ec;
+            box-shadow:
+                inset 0 1px 0 #fff,
+                inset 0 -1px 0 #e4e7ec;
             font-size: 12px;
             color: var(--ink);
             transition: all .16s ease-in-out;
@@ -167,15 +163,22 @@
             outline: none;
             background: #ffffff;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(17, 104, 230, .18),
-            0 4px 10px rgba(15, 23, 42, .08);
+            box-shadow:
+                0 0 0 3px rgba(17, 104, 230, .18),
+                0 4px 10px rgba(15, 23, 42, .08);
         }
 
         .hl[readonly] {
-            background: linear-gradient(180deg, #e2e6ea 0%, #eef2f6 100%);
+            background: linear-gradient(180deg, #e2e6ea 0, #eef2f6 100%);
             border-color: #b7bec7;
             color: #374151;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .4);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.4);
+        }
+
+        .hl-wrapper {
+            width: 100%;
+            display: block;
+            position: relative;
         }
 
         textarea.hl {
@@ -183,7 +186,6 @@
             resize: vertical;
             white-space: pre-line;
         }
-
 
         .pill {
             display: inline-flex;
@@ -212,7 +214,6 @@
             border-color: #eab308;
         }
 
-
         .summary {
             display: flex;
             justify-content: space-between;
@@ -226,6 +227,17 @@
             color: var(--muted);
         }
 
+        .is-invalid {
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 0 1px rgba(239,68,68,.35) !important;
+        }
+
+        .invalid-feedback {
+            display: block;
+            font-size: .78rem;
+            color: var(--danger);
+            margin-top: .15rem;
+        }
 
         @media (max-width: 992px) {
             .grid {
@@ -256,7 +268,6 @@
     </style>
 @endpush
 
-
 @section('main')
     @php $cust=$invoice->user; @endphp
     <div class="container-fluid px-3 py-3">
@@ -284,7 +295,7 @@
                                 <input class="hl"
                                        value="{{ $cust->customer_no ?? ('U'.str_pad($cust->id,6,'0',STR_PAD_LEFT)) }}"
                                        readonly>
-                                <button type="button" class="pill" disabled>A–Z</button>
+                                <button type="button" class="pill d-none" disabled>A–Z</button>
                             </div>
                             <textarea class="hl" rows="6" readonly>{{ trim(($cust->name ?? '').' '.($cust->last_name ?? '')) }}
                                 {{ $cust->company ?? '' }}
@@ -297,7 +308,7 @@
                                 <label class="muted">Payment Date:</label>
                                 <input type="datetime-local" class="hl" name="payment_date"
                                        value="{{ $prefill['payment_date'] }}">
-                                <span class="pill">📅</span>
+                                <span class="pill d-none">📅</span>
                             </div>
                             <div class="kv">
                                 <label class="muted">Payment Type:</label>
@@ -307,7 +318,7 @@
                                             value="{{ $t }}" {{ (isset($prefill['payment_type']) && $prefill['payment_type']===$t)?'selected':'' }}>{{ $t }}</option>
                                     @endforeach
                                 </select>
-                                <button type="button" class="pill" disabled>A–Z</button>
+                                <button type="button" class="pill d-none" disabled>A–Z</button>
                             </div>
                             <div class="kv">
                                 <label class="muted">Payment Ref:</label>
@@ -330,7 +341,9 @@
                     <div class="box-b">
                         <div class="kv">
                             <label class="muted">Payment Amount:</label>
-                            <input name="amount" class="hl" inputmode="decimal" value="{{ $prefill['amount'] }}">
+                            <div class="hl-wrapper">
+                                <input name="amount" class="hl" inputmode="decimal" value="{{ $prefill['amount'] }}">
+                            </div>
                             <span></span>
                         </div>
                         <hr>
@@ -342,7 +355,7 @@
                                         <label class="muted">Date Transaction Cleared:</label>
                                         <input type="datetime-local" class="hl" name="cleared_at"
                                                value="{{ $prefill['payment_date'] }}">
-                                        <span class="pill">📅</span>
+                                        <span class="pill d-none">📅</span>
                                     </div>
                                     <div class="form-note">Optional — for record only</div>
                                 </div>
@@ -354,9 +367,7 @@
                                     <div class="badge badge-warn text-dark">Amount Unallocated: <b
                                             id="unallocated">{{ $unallocated }}</b></div>
                                 </div>
-                                <div class="form-note" style="margin-top:.5rem">Outstanding = Invoice Gross −
-                                    Allocated
-                                </div>
+                                <div class="form-note" style="margin-top:.5rem">Outstanding = Invoice Gross − Allocated</div>
                             </div>
                         </div>
                     </div>
@@ -400,10 +411,10 @@
             function ensureAmountErrorElement() {
                 let err = document.getElementById('amount-error');
                 if (!err) {
-                    const wrap = amountInput.closest('.kv') || amountInput.parentElement;
+                    const wrap = amountInput.closest('.hl-wrapper') || amountInput.parentElement;
                     err = document.createElement('div');
                     err.id = 'amount-error';
-                    err.className = 'invalid-feedback d-block';
+                    err.className = 'invalid-feedback';
                     if (wrap) wrap.appendChild(err);
                 }
                 return err;
@@ -431,7 +442,7 @@
 
                 let preview = document.getElementById('remaining-preview');
                 if (!preview) {
-                    const wrap = amountInput.closest('.kv') || amountInput.parentElement;
+                    const wrap = amountInput.closest('.hl-wrapper') || amountInput.parentElement;
                     preview = document.createElement('div');
                     preview.id = 'remaining-preview';
                     preview.className = 'form-note';
@@ -444,7 +455,7 @@
                 if (amt <= 0.00001) {
                     const err = ensureAmountErrorElement();
                     amountInput.classList.add('is-invalid');
-                    err.textContent = 'Payment amount must be greater than zero.';
+                    err.textContent = 'Amount must be at least 0.01';
                 } else if (amt > unalloc + 0.00001) {
                     const err = ensureAmountErrorElement();
                     amountInput.classList.add('is-invalid');
@@ -484,7 +495,6 @@
                 const unalloc = currentUnallocated();
                 const amt = amountInput ? toNum(amountInput.value) : 0;
 
-                // sirf inline error + disable buttons, swal nahi
                 if (amt <= 0.00001 || amt > unalloc + 0.00001) {
                     updateRemainingPreview();
                     amountInput && amountInput.focus();
@@ -563,4 +573,3 @@
         });
     </script>
 @endpush
-

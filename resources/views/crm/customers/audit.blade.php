@@ -1,5 +1,5 @@
 @extends('crm.layout.main')
-@section('title','CRM - User Audit Logs')
+@section('title','User Audit Logs')
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">

@@ -1,5 +1,5 @@
 @extends('crm.layout.main')
-@section('title','CRM - Product Invoice (Legacy)')
+@section('title','Product Invoice (Legacy)')
 @push('css')
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet"/>

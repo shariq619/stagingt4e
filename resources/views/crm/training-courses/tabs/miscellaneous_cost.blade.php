@@ -1,4 +1,4 @@
-@section('title','CRM - Miscellaneous Cost')
+@section('title','Miscellaneous Cost')
 
 
 @push('css')
