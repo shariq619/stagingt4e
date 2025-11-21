@@ -1425,35 +1425,63 @@
 
             let typingTimer = null, selectedUserId = null;
             $(document).on('keyup', '#user_search_input', function () {
+
                 clearTimeout(typingTimer);
                 const query = $(this).val().trim();
+
                 if (query.length < 2) {
                     $('#user_search_results').html('');
                     $('#create_new_user_btn').addClass('event_none');
                     selectedUserId = null;
                     return;
                 }
+
                 typingTimer = setTimeout(function () {
-                    $.get('{{ route('crm.training-courses.find-user') }}', {q: query, cohortId: cohortId2()})
+
+                    $.get(
+                        '{{ route('crm.training-courses.find-user') }}',
+                        { q: query, cohortId: cohortId2() }
+                    )
                         .done(function (res) {
+
                             if (res.length > 0) {
-                                let html = '<div class="dropdown-menu show">';
+
+                                let html = `<div class="dropdown-menu show" style="width:100%; max-height:250px; overflow-y:auto;">`;
+
                                 res.forEach(function (u) {
-                                    html += `<button class="dropdown-item user-result-item" data-id="${u.id}" data-name="${u.name}" data-email="${u.email}">${u.name} (${u.email})</button>`;
+                                    const fullName = [u.name, u.middle_name, u.last_name]
+                                        .filter(Boolean)
+                                        .join(' ');
+
+                                    html += `
+                        <button
+                            class="dropdown-item user-result-item"
+                            data-id="${u.id}"
+                            data-name="${fullName}"
+                            data-email="${u.email}">
+                            ${fullName} (${u.email})
+                        </button>`;
                                 });
-                                html += '</div>';
+
+                                html += `</div>`;
                                 $('#user_search_results').html(html);
                                 $('#create_new_user_btn').addClass('event_none');
+
                             } else {
-                                $('#user_search_results').html('<div class="dropdown-menu show text-danger text-center">No user found.</div>');
+                                $('#user_search_results')
+                                    .html('<div class="dropdown-menu show text-danger text-center">No user found.</div>');
                                 $('#create_new_user_btn').removeClass('event_none');
                             }
                         })
+
                         .fail(function () {
-                            $('#user_search_results').html('<div class="dropdown-menu show text-danger text-center">Search failed.</div>');
+                            $('#user_search_results')
+                                .html('<div class="dropdown-menu show text-danger text-center">Search failed.</div>');
                             $('#create_new_user_btn').removeClass('event_none');
                         });
+
                 }, 400);
+
             });
 
             $(document).on('click', '.user-result-item', function () {

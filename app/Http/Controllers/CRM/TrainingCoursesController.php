@@ -1032,22 +1032,34 @@ class TrainingCoursesController extends Controller
 
     public function findUser(Request $request)
     {
-        $query = $request->get('q');
+        $query    = $request->get('q');
         $cohortId = $request->cohortId;
+
         if (!$query) {
             return response()->json([]);
         }
 
-        $users = User::where(function ($q) use ($query) {
-            $q->where('name', 'like', "%$query%")
-                ->orWhere('email', 'like', "%$query%")
-                ->orWhere('middle_name', 'like', "%$query%")
-                ->orWhere('last_name', 'like', "%$query%");
-        })->role('Learner')
+        $fromDate = Carbon::create(2025, 11, 24)->startOfDay();
 
+        $users = User::where(function ($q2) use ($query) {
+            $q2->where('name', 'like', "%{$query}%")
+                ->orWhere('email', 'like', "%{$query}%")
+                ->orWhere('middle_name', 'like', "%{$query}%")
+                ->orWhere('last_name', 'like', "%{$query}%");
+        })
+            ->role('Learner')
+            ->select('id', 'name', 'middle_name', 'last_name', 'email')
+            ->whereNotIn('id', function ($sub) use ($cohortId, $fromDate) {
+                $sub->select('user_id')
+                    ->from('cohort_user as cu')
+                    ->where('cu.cohort_id', $cohortId)
+                    ->whereDate('cu.created_at', '>=', $fromDate->toDateString());
+            })
             ->get();
+
         return response()->json($users);
     }
+
 
     public function addUserToCohort(Request $request)
     {
