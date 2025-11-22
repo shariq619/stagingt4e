@@ -617,7 +617,7 @@
 
                     <div class="divider"></div>
 
-                    <div class="rowline">
+                    <div class="rowline d-none">
                         <div class="label">Customer:</div>
                         <div class="input">
                             <input class="fx" name="customer_id" placeholder="Customer ID or name">

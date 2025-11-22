@@ -28,11 +28,12 @@
 
         @php $user = Auth::user(); @endphp
 
-        @if($user->email == 'web@deans-group.co.uk')
+        @if (auth()->check() && auth()->user()->hasAnyRole(['Admin', 'Super Admin']))
             <li class="nav-item d-none d-sm-inline-block">
                 <a href="{{ route('crm.dashboard.index') }}" class="nav-link">{{ __('CRM') }}</a>
             </li>
         @endif
+
 
         @if(auth()->check() && auth()->user()->isImpersonated() )
             <a href="{{ route('impersonate.leave') }}" class="btn btn-warning mr-2">

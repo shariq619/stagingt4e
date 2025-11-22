@@ -376,7 +376,7 @@ abstract class BaseUserDirectoryController extends Controller
 
                 if ($imageName) {
                     $user->profilePhoto()->updateOrCreate(
-                        ['user_id' => $user->id],
+                        [],
                         [
                             'profile_photo' => $imageName,
                             'status'        => 'In Progress',
