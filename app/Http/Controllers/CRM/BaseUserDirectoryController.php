@@ -60,6 +60,7 @@ abstract class BaseUserDirectoryController extends Controller
             'users.salutation',
             'users.job_title',
             'users.customer_id',
+            'user.client_id',
             'users.owner_id',
             'users.customer_group',
             'users.currency',
@@ -291,6 +292,7 @@ abstract class BaseUserDirectoryController extends Controller
             'salutation' => ['nullable', 'string', 'max:50'],
             'job_title' => ['nullable', 'string', 'max:255'],
             'customer_id' => ['nullable'],
+            'client_id' => ['nullable'],
             'owner_id' => ['nullable'],
             'funder' => ['nullable', 'string', 'max:255'],
             'source' => ['nullable', 'string', 'max:255'],
@@ -337,7 +339,6 @@ abstract class BaseUserDirectoryController extends Controller
                     $user = new User();
                     $plainPassword = Str::random(10);
                     $user->password = Hash::make($plainPassword);
-                    $user->client_id = $request->client_id;
                 } else {
                     $user = User::role(static::ROLE)
                         ->whereKey($id)
@@ -350,6 +351,7 @@ abstract class BaseUserDirectoryController extends Controller
                 $assign = [
                     'name',
                     'last_name',
+                    'client_id',
                     'email',
                     'work_email',
                     'unknown_delegate_name',

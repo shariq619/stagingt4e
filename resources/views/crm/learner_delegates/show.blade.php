@@ -914,6 +914,7 @@
                 fill('years_at_address', d.years_at_address);
                 fill('start_date', d.start_date);
                 fill('vle', d.vle);
+                $('select[name="client_id"]').val(d.client_id);
                 fill('external_login', d.external_login);
                 fill('exclude_from_level_check', d.exclude_from_level_check);
                 fill('third_party_reference', d.third_party_reference);

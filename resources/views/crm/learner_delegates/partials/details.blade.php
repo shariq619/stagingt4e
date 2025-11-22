@@ -229,10 +229,10 @@
         </div>
         <div class="divider"></div>
         <div id="customerRow" class="rowline">
-            <div class="label">Customer:</div>
+            <div class="label">Client:</div>
             <div class="input">
                 <select class="fx" name="client_id">
-                    <option value="">Select Customer</option>
+                    <option value="">Select Client</option>
                     @foreach ($clients as $client)
                         <option value="{{ $client->id }}"
                             {{ old('client_id', $customerId ?? ($delegate->client_id ?? null)) == $client->id ? 'selected' : '' }}>
