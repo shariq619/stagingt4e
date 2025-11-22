@@ -898,7 +898,6 @@
             $.ajax({
                 url: window.location.pathname,
                 dataType: 'json',
-                headers: {'Accept': 'application/json'}
             }).done(function (res) {
                 var d = res.delegate || {};
                 d.created_at = fmtNice(d.created_at);

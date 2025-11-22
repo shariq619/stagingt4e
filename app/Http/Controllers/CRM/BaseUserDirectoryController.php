@@ -221,7 +221,7 @@ abstract class BaseUserDirectoryController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $delegate = User::role(static::ROLE)
             ->select($this->baseSelectColumns())
@@ -230,10 +230,9 @@ abstract class BaseUserDirectoryController extends Controller
 
         $delegate->postal_code_normalized = $delegate->postal_code ?: $delegate->postcode;
         $delegate->image = optional($delegate->profilePhoto)->profile_photo;
-
         $clients = User::role('Corporate Client')->get();
 
-        if (request()->wantsJson()) {
+        if ($request->ajax()) {
             return response()->json([
                 'delegate' => $delegate,
                 'contacts' => $delegate->contacts,
@@ -242,12 +241,11 @@ abstract class BaseUserDirectoryController extends Controller
         }
 
         return view(static::INDEX_VIEW_PREFIX() . '.show', [
-            'delegate' => $delegate,
-            'clients'  => $clients,
+            'delegate'   => $delegate,
+            'clients'    => $clients,
             'customerId' => $delegate->client_id ?? null,
         ]);
     }
-
 
     protected static function INDEX_VIEW_PREFIX(): string
     {
