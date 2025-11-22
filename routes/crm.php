@@ -95,6 +95,7 @@ Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], func
             Route::get('{id}/correspondence/{send}', 'showCorrespondence')->name('correspondence.show');
 
             Route::get('{id}/detail', 'show')->name('show');
+                    Route::get('{id}/detail/json', 'showJson')->name('show.json');
             Route::match(['PUT','POST'], '{id}/detail', 'updateOrStore')->name('update');
             Route::post('{id}/email', 'sendEmail')->name('email.send');
             Route::post('check-unique', 'checkUnique')->name('check-unique');

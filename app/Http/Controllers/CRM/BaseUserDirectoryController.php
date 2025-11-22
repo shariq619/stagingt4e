@@ -221,7 +221,7 @@ abstract class BaseUserDirectoryController extends Controller
         ]);
     }
 
-    public function show(Request $request, $id)
+    protected function buildDelegateData($id): array
     {
         $delegate = User::role(static::ROLE)
             ->select($this->baseSelectColumns())
@@ -230,23 +230,33 @@ abstract class BaseUserDirectoryController extends Controller
 
         $delegate->postal_code_normalized = $delegate->postal_code ?: $delegate->postcode;
         $delegate->image = optional($delegate->profilePhoto)->profile_photo;
+
         $clients = User::role('Corporate Client')->get();
 
-        if ($request->ajax()) {
-            return response()->json([
-                'delegate' => $delegate,
-                'contacts' => $delegate->contacts,
-                'clients'  => $clients,
-            ]);
-        }
+        return compact('delegate', 'clients');
+    }
+
+    public function show($id)
+    {
+        ['delegate' => $delegate, 'clients' => $clients] = $this->buildDelegateData($id);
 
         return view(static::INDEX_VIEW_PREFIX() . '.show', [
-            'delegate'   => $delegate,
-            'clients'    => $clients,
-            'customerId' => $delegate->client_id ?? null,
+            'delegate'    => $delegate,
+            'clients'     => $clients,
+            'customerId'  => $delegate->client_id ?? null,
         ]);
     }
 
+    public function showJson($id)
+    {
+        ['delegate' => $delegate, 'clients' => $clients] = $this->buildDelegateData($id);
+
+        return response()->json([
+            'delegate'  => $delegate,
+            'contacts'  => $delegate->contacts,
+            'clients'   => $clients,
+        ]);
+    }
     protected static function INDEX_VIEW_PREFIX(): string
     {
         return rtrim(static::INDEX_VIEW, '.index');

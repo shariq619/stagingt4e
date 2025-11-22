@@ -1,11 +1,10 @@
 @extends('crm.layout.main')
-@section('title','Delegates Details')
+@section('title', 'Delegates Details')
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.10/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.10/css/dataTables.bootstrap5.min.css">
     <style>
         :root {
 
@@ -402,7 +401,7 @@
             overflow: hidden;
         }
 
-        .ip-bar > span {
+        .ip-bar>span {
             display: block;
             height: 100%;
             width: 40%;
@@ -532,25 +531,25 @@
             border-radius: 16px;
             padding: .5rem .9rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
             transition: border-color .25s ease,
-            box-shadow .25s ease,
-            transform .2s ease,
-            background-color .25s ease;
+                box-shadow .25s ease,
+                transform .2s ease,
+                background-color .25s ease;
         }
 
         .input:hover {
             transform: translateY(-1px);
             border-color: rgba(17, 104, 230, 0.25);
             box-shadow: 0 4px 8px rgba(17, 104, 230, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         .input:focus-within {
             border-color: var(--ui-blue);
             background: #f9fbff;
             box-shadow: 0 0 0 4px rgba(17, 104, 230, 0.1),
-            0 4px 10px rgba(17, 104, 230, 0.08);
+                0 4px 10px rgba(17, 104, 230, 0.08);
             transform: translateY(-1px);
         }
 
@@ -600,7 +599,6 @@
             box-shadow: 0 4px 10px rgba(17, 104, 230, 0.25);
             transform: translateY(-1px);
         }
-
     </style>
 @endpush
 
@@ -612,7 +610,7 @@
         </div>
         <div class="toolbar-actions">
             <button class="d-none btn btn-blue d-none" type="submit" form="delegateForm" data-quit="1"
-                    id="btnSaveQuitTop">
+                id="btnSaveQuitTop">
                 Save &amp; Quit
             </button>
             <button class="btn btn-blue" type="submit" form="delegateForm" data-quit="0" id="btnSaveTop">
@@ -636,7 +634,9 @@
     </nav>
 
 
-    <div id="delegate-page" data-id="{{ $delegate->id ?? request()->route('id') }}"></div>
+    <div id="delegate-page" data-id="{{ $delegate->id ?? request()->route('id') }}"
+        data-json-url="{{ route('crm.learner.delegates.show.json', $delegate->id ?? request()->route('id')) }}">
+    </div>
 
     <section class=" py-3 section active" id="section-delegate-details">
         @include('crm.learner_delegates.partials.details')
@@ -694,29 +694,28 @@
                                 <i class="bi bi-envelope-paper text-primary me-2"></i> Compose Email
                             </h5>
                             <button type="button"
-                                    class="btn btn-sm d-flex align-items-center px-3 py-2 border rounded-pill"
-                                    id="btnFooterImg" style="background:#f8f9fa;">
+                                class="btn btn-sm d-flex align-items-center px-3 py-2 border rounded-pill" id="btnFooterImg"
+                                style="background:#f8f9fa;">
                                 <i class="bi bi-image me-2 text-secondary"></i>
                                 <span class="fw-semibold">Footer Image</span>
                             </button>
                         </div>
 
                         <div class="flex-grow-1"></div>
-                        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
+                        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <div class="modal-body px-4 pt-2 pb-3">
                         <div class="form-group mb-3">
                             <label class="fw-semibold mb-1">To</label>
                             <input type="email" id="mail_to" name="to" class="form-control"
-                                   placeholder="Recipient email" autocomplete="off" required>
+                                placeholder="Recipient email" autocomplete="off" required>
                         </div>
 
                         <div class="form-group mb-3">
                             <label class="fw-semibold mb-1">Subject</label>
                             <input type="text" id="mail_subject" name="subject" class="form-control"
-                                   placeholder="Email subject" autocomplete="off" required>
+                                placeholder="Email subject" autocomplete="off" required>
                         </div>
 
                         <textarea id="mail_editor_area" name="html_body"></textarea>
@@ -727,11 +726,11 @@
                         <span class="text-muted small" id="sendStatus"></span>
                         <div class="d-flex gap-2">
                             <button type="button" class="btn btn-outline-secondary d-flex align-items-center px-3"
-                                    data-bs-dismiss="modal">
+                                data-bs-dismiss="modal">
                                 <i class="bi bi-x-circle me-2"></i> Close
                             </button>
                             <button type="button" class="btn btn-success d-flex align-items-center px-3"
-                                    id="btnSendMail">
+                                id="btnSendMail">
                                 <i class="bi bi-send-fill me-2"></i> Send
                             </button>
                         </div>
@@ -755,7 +754,7 @@
                 <div class="modal-body">
                     <label for="footerUrlInput" class="sr-only">Image URL</label>
                     <input type="url" class="form-control" id="footerUrlInput"
-                           placeholder="https://example.com/footer.png" autocomplete="off">
+                        placeholder="https://example.com/footer.png" autocomplete="off">
                     <div class="invalid-feedback">Enter a valid http(s) URL.</div>
 
                     <div id="footerUrlPreview" class="mt-2" style="display:none;"></div>
@@ -781,7 +780,7 @@
     <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.10/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.10/js/dataTables.bootstrap5.min.js"></script>
     <script>
-        $(function () {
+        $(function() {
             function toYMD(v) {
                 if (!v) return '';
                 if (/^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
@@ -818,7 +817,7 @@
                 }
             }
 
-            $('#image').on('change', function () {
+            $('#image').on('change', function() {
                 const f = this.files[0];
                 if (!f) return;
                 $('#file_name').text(f.name).show();
@@ -847,7 +846,7 @@
             let courseTable = null;
             let corrTable = null;
 
-            $('.mega-tabs .tab').on('click', function (e) {
+            $('.mega-tabs .tab').on('click', function(e) {
                 e.preventDefault();
                 const tab = $(this).data('tab');
                 $('.mega-tabs .tab').removeClass('active');
@@ -866,7 +865,10 @@
                 setQueryParam('tab', tab);
             });
 
-            $('input.fx[data-f="email"]').attr({type: 'email', readonly: true});
+            $('input.fx[data-f="email"]').attr({
+                type: 'email',
+                readonly: true
+            });
             $('input.fx[data-f="work_email"]').attr('type', 'email');
 
             function initPicker($i) {
@@ -878,7 +880,9 @@
                     showDropdowns: true,
                     autoApply: false,
                     autoUpdateInput: true,
-                    locale: {format: 'YYYY-MM-DD'}
+                    locale: {
+                        format: 'YYYY-MM-DD'
+                    }
                 });
                 if (v) {
                     const iso = toYMD(v);
@@ -890,15 +894,18 @@
 
             initPicker($('input.fx[name="start_date"]'));
             initPicker($('input.fx[name="dob"]'));
-            $(document).on('apply.daterangepicker', 'input.fx[name="start_date"], input.fx[name="dob"]', function (e, picker) {
+            $(document).on('apply.daterangepicker', 'input.fx[name="start_date"], input.fx[name="dob"]', function(e,
+                picker) {
                 const v = picker.startDate.format('YYYY-MM-DD');
                 $(this).val(v).trigger('change');
             });
 
+            const jsonUrl = $('#delegate-page').data('json-url');
+
             $.ajax({
-                url: window.location.pathname,
+                url: jsonUrl,
                 dataType: 'json',
-            }).done(function (res) {
+            }).done(function(res) {
                 var d = res.delegate || {};
                 d.created_at = fmtNice(d.created_at);
                 fill('name', d.name);
@@ -942,7 +949,8 @@
                 fill('notes', d.notes);
                 const code = 'D' + String(d.id || 0).padStart(6, '0');
                 $('#chip_code,#badge_code,#side_code').text(code);
-                var avatar = d.image && String(d.image).trim() !== '' ? d.image : 'https://mytraining4employment.co.uk/images/Staff_Photo_Default.png';
+                var avatar = d.image && String(d.image).trim() !== '' ? d.image :
+                    'https://mytraining4employment.co.uk/images/Staff_Photo_Default.png';
                 if (avatar && !/^https?:\/\//i.test(avatar)) {
                     avatar = (window.APP_URL || '') + '/' + avatar.replace(/^\/+/, '');
                 }
@@ -963,30 +971,33 @@
             });
 
             function linkify() {
-                $('[data-mail]').each(function () {
-                    const k = $(this).data('mail'), v = $('.fx[data-f="' + k + '"]').val();
+                $('[data-mail]').each(function() {
+                    const k = $(this).data('mail'),
+                        v = $('.fx[data-f="' + k + '"]').val();
                     $(this).toggleClass('disabled', !v).attr('href', v ? 'mailto:' + v : '#');
                 });
-                $('[data-call]').each(function () {
-                    const k = $(this).data('call'), v = $('.fx[data-f="' + k + '"]').val();
+                $('[data-call]').each(function() {
+                    const k = $(this).data('call'),
+                        v = $('.fx[data-f="' + k + '"]').val();
                     $(this).toggleClass('disabled', !v).attr('href', v ? 'tel:' + v : '#');
                 });
-                $('[data-sms]').each(function () {
-                    const k = $(this).data('sms'), v = $('.fx[data-f="' + k + '"]').val();
+                $('[data-sms]').each(function() {
+                    const k = $(this).data('sms'),
+                        v = $('.fx[data-f="' + k + '"]').val();
                     $(this).toggleClass('disabled', !v).attr('href', v ? 'sms:' + v : '#');
                 });
             }
 
             function clearErrors() {
                 $('.rowline.has-err').removeClass('has-err');
-                $('.input.err').removeClass('err').each(function () {
+                $('.input.err').removeClass('err').each(function() {
                     $(this).find('.err-text').remove();
                 });
                 $('.err-text').remove();
             }
 
             function showErrors(errs) {
-                Object.keys(errs || {}).forEach(function (field) {
+                Object.keys(errs || {}).forEach(function(field) {
                     var msg = (errs[field] && errs[field][0]) || 'Invalid';
                     var $fx = $('.fx[name="' + field + '"]');
                     if ($fx.length) {
@@ -999,7 +1010,9 @@
                 });
                 var $first = $('.input.err').first();
                 if ($first.length) {
-                    $('html,body').animate({scrollTop: $first.offset().top - 140}, 300);
+                    $('html,body').animate({
+                        scrollTop: $first.offset().top - 140
+                    }, 300);
                     $first.find('.fx').focus();
                 }
             }
@@ -1012,7 +1025,9 @@
                 var errs = {};
                 var workEmail = $('.fx[name="work_email"]').val();
                 var email = $('.fx[name="email"]').val();
-                if (workEmail && !isEmail(workEmail)) errs.work_email = ['The work email must be a valid email address.'];
+                if (workEmail && !isEmail(workEmail)) errs.work_email = [
+                    'The work email must be a valid email address.'
+                ];
                 if (email && !isEmail(email)) errs.email = ['The email must be a valid email address.'];
                 var startDate = $('.fx[name="start_date"]').val();
                 if (startDate && isNaN(Date.parse(startDate))) errs.start_date = ['The start date is invalid.'];
@@ -1021,22 +1036,24 @@
                 return errs;
             }
 
-            $(document).on('blur change', '.fx[name="work_email"],.fx[name="email"],.fx[name="start_date"],.fx[name="dob"]', function () {
-                clearErrors();
-                var errs = clientValidate();
-                if (Object.keys(errs).length) showErrors(errs);
-            });
+            $(document).on('blur change',
+                '.fx[name="work_email"],.fx[name="email"],.fx[name="start_date"],.fx[name="dob"]',
+                function() {
+                    clearErrors();
+                    var errs = clientValidate();
+                    if (Object.keys(errs).length) showErrors(errs);
+                });
 
-            $('#btnSaveTop,#btnSaveQuitTop').on('click', function () {
+            $('#btnSaveTop,#btnSaveQuitTop').on('click', function() {
                 $('#__save_quit').val($(this).data('quit') ? '1' : '0');
             });
 
-            $('#btnCancelTop').on('click', function (e) {
+            $('#btnCancelTop').on('click', function(e) {
                 e.preventDefault();
                 window.location.reload();
             });
 
-            $('#delegateForm').on('submit', function (e) {
+            $('#delegateForm').on('submit', function(e) {
                 e.preventDefault();
                 clearErrors();
                 var errs = clientValidate();
@@ -1047,13 +1064,15 @@
                 var $saveBtns = $('#btnSaveTop,#btnSaveQuitTop').prop('disabled', true);
                 var fd = new FormData(this);
                 $.ajax({
-                    url: this.action,
-                    method: 'POST',
-                    data: fd,
-                    processData: false,
-                    contentType: false,
-                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || ''}
-                })
+                        url: this.action,
+                        method: 'POST',
+                        data: fd,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') || ''
+                        }
+                    })
                     .done(() => {
                         Swal.fire({
                             icon: 'success',
@@ -1064,16 +1083,18 @@
                             toast: true,
                             position: 'top-end'
                         });
-                        if ($('#__save_quit').val() === '1') setTimeout(() => window.history.back(), 1500);
+                        if ($('#__save_quit').val() === '1') setTimeout(() => window.history.back(),
+                            1500);
                     })
-                    .fail(function (xhr) {
+                    .fail(function(xhr) {
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             showErrors(xhr.responseJSON.errors);
                         } else {
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Update Failed',
-                                text: (xhr.responseJSON && xhr.responseJSON.message) || 'Something went wrong while saving.',
+                                text: (xhr.responseJSON && xhr.responseJSON.message) ||
+                                    'Something went wrong while saving.',
                                 confirmButtonColor: '#2563eb'
                             });
                         }
@@ -1099,8 +1120,8 @@
                     paste_data_images: true,
                     convert_urls: false,
                     branding: false,
-                    setup: function (ed) {
-                        ed.on('init', function () {
+                    setup: function(ed) {
+                        ed.on('init', function() {
                             composeEd = ed;
                         });
                     },
@@ -1113,7 +1134,7 @@
                 $('#mail_subject').val('');
                 initComposeOnce();
                 $('#mailComposeModal').modal('show');
-                setTimeout(function () {
+                setTimeout(function() {
                     if (composeEd) composeEd.focus();
                 }, 150);
             }
@@ -1121,11 +1142,12 @@
             function insertFooterImage(url) {
                 if (!composeEd || !url) return;
                 var cur = composeEd.getContent() || '';
-                var foot = '<p style="margin-top:24px;text-align:center;"><img src="' + url + '" style="max-width:100%;border-radius:8px" /></p>';
+                var foot = '<p style="margin-top:24px;text-align:center;"><img src="' + url +
+                    '" style="max-width:100%;border-radius:8px" /></p>';
                 composeEd.setContent(cur + foot);
             }
 
-            $(document).on('click', '[data-mail]', function (e) {
+            $(document).on('click', '[data-mail]', function(e) {
                 e.preventDefault();
                 if ($(this).hasClass('disabled')) return;
                 var key = $(this).data('mail');
@@ -1133,12 +1155,12 @@
                 openCompose(v || '');
             });
 
-            $('#btnFooterImg').on('click', function () {
+            $('#btnFooterImg').on('click', function() {
                 $('#footerUrlInput').val('');
                 $('#footerUrlPreview').hide().empty();
                 $('#footerUrlInput').removeClass('is-invalid');
                 $('#footerUrlModal').modal('show');
-                setTimeout(function () {
+                setTimeout(function() {
                     $('#footerUrlInput').trigger('focus');
                 }, 150);
             });
@@ -1147,7 +1169,7 @@
                 return /^https?:\/\//i.test((u || '').trim());
             }
 
-            $('#footerUrlInput').on('input', function () {
+            $('#footerUrlInput').on('input', function() {
                 var v = ($(this).val() || '').trim();
                 if (isHttpUrl(v)) {
                     $(this).removeClass('is-invalid');
@@ -1158,7 +1180,7 @@
                 }
             });
 
-            $('#footerUrlInsertBtn').on('click', function () {
+            $('#footerUrlInsertBtn').on('click', function() {
                 var v = ($('#footerUrlInput').val() || '').trim();
                 if (!isHttpUrl(v)) {
                     $('#footerUrlInput').addClass('is-invalid').focus();
@@ -1174,15 +1196,24 @@
                 var body = composeEd ? (composeEd.getContent() || '') : '';
 
                 if (!to) {
-                    Swal.fire({icon: 'error', title: 'Enter recipient email'});
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Enter recipient email'
+                    });
                     return;
                 }
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
-                    Swal.fire({icon: 'error', title: 'Invalid email'});
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid email'
+                    });
                     return;
                 }
                 if (!body.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim()) {
-                    Swal.fire({icon: 'error', title: 'Body is required'});
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Body is required'
+                    });
                     return;
                 }
 
@@ -1194,16 +1225,16 @@
                 $('#btnSendMail').prop('disabled', true);
 
                 $.ajax({
-                    url: route,
-                    method: 'POST',
-                    data: {
-                        _token: token,
-                        to: to,
-                        subject: sub,
-                        html_body: body
-                    }
-                })
-                    .done(function () {
+                        url: route,
+                        method: 'POST',
+                        data: {
+                            _token: token,
+                            to: to,
+                            subject: sub,
+                            html_body: body
+                        }
+                    })
+                    .done(function() {
                         $('#sendStatus').text('Sent');
 
                         Swal.fire({
@@ -1214,26 +1245,30 @@
                             timerProgressBar: true
                         });
 
-                        setTimeout(function () {
+                        setTimeout(function() {
                             $('#mailComposeModal').modal('hide');
                             $('#sendStatus').text('');
                             $('#mail_subject').val('');
                             if (composeEd) composeEd.setContent('');
                         }, 2000);
                     })
-                    .fail(function (xhr) {
+                    .fail(function(xhr) {
                         var msg = (xhr.responseJSON && (xhr.responseJSON.message ||
-                            (xhr.responseJSON.errors && Object.values(xhr.responseJSON.errors)[0][0]))) || 'Send failed';
-                        Swal.fire({icon: 'error', title: msg});
+                                (xhr.responseJSON.errors && Object.values(xhr.responseJSON.errors)[0][0]))) ||
+                            'Send failed';
+                        Swal.fire({
+                            icon: 'error',
+                            title: msg
+                        });
                         $('#sendStatus').text('');
                     })
-                    .always(function () {
+                    .always(function() {
                         $('#btnSendMail').prop('disabled', false);
                     });
             }
 
             $('#btnSendMail').off('click').on('click', postSend);
-            $('#mailComposeModal').on('hidden.bs.modal', function () {
+            $('#mailComposeModal').on('hidden.bs.modal', function() {
                 $('#mail_subject').val('');
                 $('#sendStatus').text('');
             });
@@ -1244,7 +1279,8 @@
                     return;
                 }
 
-                const COURSE_DT_URL = "{{ route('crm.learner.delegates.courses.dt', $delegate->id ?? request()->route('id')) }}";
+                const COURSE_DT_URL =
+                    "{{ route('crm.learner.delegates.courses.dt', $delegate->id ?? request()->route('id')) }}";
 
                 courseTable = $('#delegateCoursesTable').DataTable({
                     processing: true,
@@ -1254,28 +1290,44 @@
                     lengthChange: false,
                     ajax: {
                         url: COURSE_DT_URL,
-                        data: function (d) {}
+                        data: function(d) {}
                     },
-                    order: [[2, 'desc']],
-                    columns: [
-                        {data: 'course_code', name: 'course_code'},
-                        {data: 'course_description', name: 'course_description'},
-                        {data: 'course_date', name: 'course_date'},
-                        {data: 'course_status', name: 'course_status'},
-                        {data: 'default_customer', name: 'default_customer'}
+                    order: [
+                        [2, 'desc']
                     ],
-                    initComplete: function () {
+                    columns: [{
+                            data: 'course_code',
+                            name: 'course_code'
+                        },
+                        {
+                            data: 'course_description',
+                            name: 'course_description'
+                        },
+                        {
+                            data: 'course_date',
+                            name: 'course_date'
+                        },
+                        {
+                            data: 'course_status',
+                            name: 'course_status'
+                        },
+                        {
+                            data: 'default_customer',
+                            name: 'default_customer'
+                        }
+                    ],
+                    initComplete: function() {
                         const api = this.api();
-                        setTimeout(function () {
+                        setTimeout(function() {
                             api.columns.adjust().draw(false);
                         }, 50);
                     },
-                    drawCallback: function () {
+                    drawCallback: function() {
                         this.api().columns.adjust();
                     }
                 });
 
-                $(window).on('resize', function () {
+                $(window).on('resize', function() {
                     if (courseTable) {
                         courseTable.columns.adjust().draw(false);
                     }
@@ -1288,7 +1340,8 @@
                     corrTable.columns.adjust().draw(false);
                     return;
                 }
-                const CORR_DT_URL = "{{ route('crm.learner.delegates.correspondence.dt', $delegate->id ?? request()->route('id')) }}";
+                const CORR_DT_URL =
+                    "{{ route('crm.learner.delegates.correspondence.dt', $delegate->id ?? request()->route('id')) }}";
 
                 corrTable = $('#delegateCorrespondenceTable').DataTable({
                     processing: true,
@@ -1298,30 +1351,57 @@
                     lengthChange: false,
                     ajax: {
                         url: CORR_DT_URL,
-                        data: function (d) {}
+                        data: function(d) {}
                     },
-                    order: [[0, 'desc']],
-                    columns: [
-                        {data: 'date', name: 'date'},
-                        {data: 'letter_code', name: 'letter_code'},
-                        {data: 'letter_name', name: 'letter_name'},
-                        {data: 'course', name: 'course'},
-                        {data: 'description', name: 'description'},
-                        {data: 'type', name: 'type'},
-                        {data: 'user_name', name: 'user_name'},
-                        {data: 'action', name: 'action', orderable: false, searchable: false},
+                    order: [
+                        [0, 'desc']
                     ],
-                    initComplete: function () {
+                    columns: [{
+                            data: 'date',
+                            name: 'date'
+                        },
+                        {
+                            data: 'letter_code',
+                            name: 'letter_code'
+                        },
+                        {
+                            data: 'letter_name',
+                            name: 'letter_name'
+                        },
+                        {
+                            data: 'course',
+                            name: 'course'
+                        },
+                        {
+                            data: 'description',
+                            name: 'description'
+                        },
+                        {
+                            data: 'type',
+                            name: 'type'
+                        },
+                        {
+                            data: 'user_name',
+                            name: 'user_name'
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        },
+                    ],
+                    initComplete: function() {
                         const api = this.api();
-                        setTimeout(function () {
+                        setTimeout(function() {
                             api.columns.adjust().draw(false);
                         }, 50);
                     },
-                    drawCallback: function () {
+                    drawCallback: function() {
                         this.api().columns.adjust();
                     }
                 });
-                $(window).on('resize', function () {
+                $(window).on('resize', function() {
                     if (corrTable) {
                         corrTable.columns.adjust().draw(false);
                     }
@@ -1337,4 +1417,3 @@
         });
     </script>
 @endpush
-
