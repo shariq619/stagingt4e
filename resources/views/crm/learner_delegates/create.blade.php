@@ -1,5 +1,5 @@
 @extends('crm.layout.main')
-@section('title','Add Learner–Delegate')
+@section('title', 'Add Learner–Delegate')
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
@@ -293,25 +293,25 @@
             border-radius: 16px;
             padding: .5rem .9rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04),
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
             transition: border-color .25s ease,
-            box-shadow .25s ease,
-            transform .2s ease,
-            background-color .25s ease;
+                box-shadow .25s ease,
+                transform .2s ease,
+                background-color .25s ease;
         }
 
         .input:hover {
             transform: translateY(-1px);
             border-color: rgba(17, 104, 230, 0.25);
             box-shadow: 0 4px 8px rgba(17, 104, 230, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         .input:focus-within {
             border-color: var(--ui-blue);
             background: #f9fbff;
             box-shadow: 0 0 0 4px rgba(17, 104, 230, 0.1),
-            0 4px 10px rgba(17, 104, 230, 0.08);
+                0 4px 10px rgba(17, 104, 230, 0.08);
             transform: translateY(-1px);
         }
 
@@ -361,8 +361,6 @@
             box-shadow: 0 4px 10px rgba(17, 104, 230, 0.25);
             transform: translateY(-1px);
         }
-
-
     </style>
 @endpush
 
@@ -383,7 +381,7 @@
     <section class="section" id="section-delegate-details">
         <div class="wrap">
             <form id="delegateForm" action="{{ route('crm.learner.delegates.update', ['id' => 0]) }}" method="POST"
-                  enctype="multipart/form-data">
+                enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="__save_quit" id="__save_quit" value="0">
                 <input type="hidden" name="client_id" value="{{ $customerId }}">
@@ -402,7 +400,8 @@
                             <div class="rowline">
                                 <div class="label">Unknown Delegate Name:</div>
                                 <div class="input">
-                                    <input class="fx" name="unknown_delegate_name" placeholder="If delegate not identified yet">
+                                    <input class="fx" name="unknown_delegate_name"
+                                        placeholder="If delegate not identified yet">
                                 </div>
                             </div>
 
@@ -496,7 +495,8 @@
                             <div class="rowline">
                                 <div class="label">Third Party Reference:</div>
                                 <div class="input">
-                                    <input class="fx" name="third_party_reference" placeholder="External system reference ID">
+                                    <input class="fx" name="third_party_reference"
+                                        placeholder="External system reference ID">
                                 </div>
                             </div>
                         </div>
@@ -526,14 +526,16 @@
                             <div class="rowline">
                                 <div class="label">Email:</div>
                                 <div class="input">
-                                    <input class="fx" name="email" type="email" placeholder="e.g. user@example.com">
+                                    <input class="fx" name="email" type="email"
+                                        placeholder="e.g. user@example.com">
                                 </div>
                             </div>
 
                             <div class="rowline">
                                 <div class="label">Work Email:</div>
                                 <div class="input">
-                                    <input class="fx" name="work_email" type="email" placeholder="e.g. firstname.lastname@company.com">
+                                    <input class="fx" name="work_email" type="email"
+                                        placeholder="e.g. firstname.lastname@company.com">
                                 </div>
                             </div>
 
@@ -554,7 +556,8 @@
                             <div class="rowline">
                                 <div class="label">Payroll Reference:</div>
                                 <div class="input">
-                                    <input class="fx" name="payroll_reference" placeholder="Company payroll code or ID">
+                                    <input class="fx" name="payroll_reference"
+                                        placeholder="Company payroll code or ID">
                                 </div>
                             </div>
 
@@ -599,9 +602,8 @@
                         <div class="col" style="display:flex;flex-direction:column;align-items:center;gap:10px">
                             <div class="avatar" id="avatar_wrap">
                                 <img id="avatar_img"
-                                     src="https://mytraining4employment.co.uk/images/Staff_Photo_Default.png"
-                                     alt="avatar"
-                                     style="width:100%;height:100%;object-fit:cover">
+                                    src="https://mytraining4employment.co.uk/images/Staff_Photo_Default.png"
+                                    alt="avatar" style="width:100%;height:100%;object-fit:cover">
                             </div>
                             <small class="text-muted">Delegate Code:
                                 <strong id="side_code">Auto</strong>
@@ -610,17 +612,24 @@
                                 <label for="image" class="mini-btn" style="cursor:pointer">Upload</label>
                                 <input type="file" id="image" name="image" accept="image/*" hidden>
                             </div>
-                            <small class="text-muted" id="file_name"
-                                   style="display:none;font-size:.8rem"></small>
+                            <small class="text-muted" id="file_name" style="display:none;font-size:.8rem"></small>
                         </div>
                     </div>
 
                     <div class="divider"></div>
 
-                    <div class="rowline d-none">
+                    <div id="customerRow" class="rowline d-none">
                         <div class="label">Customer:</div>
                         <div class="input">
-                            <input class="fx" name="customer_id" placeholder="Customer ID or name">
+                            <select class="fx" name="client_id">
+                                <option value="">Select Customer</option>
+                                @foreach ($clients as $client)
+                                    <option value="{{ $client->id }}"
+                                        {{ isset($customerId) && $customerId == $client->id ? 'selected' : '' }}>
+                                        {{ $client->name }} {{ $client->last_name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
 
@@ -655,15 +664,16 @@
                     <div class="rowline" style="grid-template-columns:180px 1fr;">
                         <div class="label">Learner-Delegate Type:</div>
                         <div class="input">
-                            <input class="fx" name="learner_delegate_type" placeholder="e.g. Door Supervisor / First Aid">
+                            <input class="fx" name="learner_delegate_type"
+                                placeholder="e.g. Door Supervisor / First Aid">
                         </div>
                     </div>
 
                     <div class="rowline" style="grid-template-columns:180px 1fr;">
                         <div class="label">Notes:</div>
                         <div class="input" style="padding:0">
-                <textarea class="fx" name="notes" style="min-height:110px;resize:vertical"
-                          placeholder="Add any additional details or comments about this delegate"></textarea>
+                            <textarea class="fx" name="notes" style="min-height:110px;resize:vertical"
+                                placeholder="Add any additional details or comments about this delegate"></textarea>
                         </div>
                     </div>
                 </div>
@@ -678,8 +688,8 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        $(function () {
-            $('#image').on('change', function () {
+        $(function() {
+            $('#image').on('change', function() {
                 const f = this.files[0];
                 if (!f) return;
                 $('#file_name').text(f.name).show();
@@ -690,7 +700,7 @@
 
             function clearErrors() {
                 $('.rowline.has-err').removeClass('has-err');
-                $('.input.err').removeClass('err').each(function () {
+                $('.input.err').removeClass('err').each(function() {
                     $(this).find('.err-text').remove();
                 });
             }
@@ -709,7 +719,7 @@
             }
 
             function showErrors(errs) {
-                Object.keys(errs || {}).forEach(function (field) {
+                Object.keys(errs || {}).forEach(function(field) {
                     var msg = (errs[field] && errs[field][0]) || 'Invalid';
                     var $fx = $('.fx[name="' + field + '"]');
                     if ($fx.length) {
@@ -722,7 +732,9 @@
                 });
                 var $first = $('.input.err').first();
                 if ($first.length) {
-                    $('html,body').animate({scrollTop: $first.offset().top - 140}, 300);
+                    $('html,body').animate({
+                        scrollTop: $first.offset().top - 140
+                    }, 300);
                     $first.find('.fx').focus();
                 }
             }
@@ -735,7 +747,9 @@
                 var errs = {};
                 var workEmail = $('.fx[name="work_email"]').val();
                 var email = $('.fx[name="email"]').val();
-                if (workEmail && !isEmail(workEmail)) errs.work_email = ['The work email must be a valid email address.'];
+                if (workEmail && !isEmail(workEmail)) errs.work_email = [
+                    'The work email must be a valid email address.'
+                ];
                 if (email && !isEmail(email)) errs.email = ['The email must be a valid email address.'];
                 var startDate = $('.fx[name="start_date"]').val();
                 if (startDate && isNaN(Date.parse(startDate))) errs.start_date = ['The start date is invalid.'];
@@ -744,7 +758,7 @@
                 return errs;
             }
 
-            $('#btnCancelTop').on('click', function () {
+            $('#btnCancelTop').on('click', function() {
                 window.history.back();
             });
 
@@ -757,8 +771,8 @@
                 'third_party_reference'
             ];
 
-            uniqueFields.forEach(function (field) {
-                $(document).on('blur', '.fx[name="' + field + '"]', function () {
+            uniqueFields.forEach(function(field) {
+                $(document).on('blur', '.fx[name="' + field + '"]', function() {
                     var value = $(this).val();
                     setFieldError(field, null);
                     if (!value) return;
@@ -771,7 +785,7 @@
                             id: 0,
                             _token: $('meta[name="csrf-token"]').attr('content') || ''
                         }
-                    }).done(function (res) {
+                    }).done(function(res) {
                         if (res && res.valid === false && res.message) {
                             setFieldError(field, res.message);
                         }
@@ -779,7 +793,7 @@
                 });
             });
 
-            $('#delegateForm').on('submit', function (e) {
+            $('#delegateForm').on('submit', function(e) {
                 e.preventDefault();
 
                 const $form = $(this);
@@ -792,18 +806,22 @@
                 });
 
                 $.ajax({
-                    url: $form.attr('action'),
-                    type: 'POST',
-                    data: fd,
-                    processData: false,
-                    contentType: false
-                })
-                    .done(function (res) {
+                        url: $form.attr('action'),
+                        type: 'POST',
+                        data: fd,
+                        processData: false,
+                        contentType: false
+                    })
+                    .done(function(res) {
                         Swal.close();
 
                         if (!res || !res.success) {
                             const msg = (res && res.message) || 'Save failed';
-                            Swal.fire({icon: 'error', title: 'Error', text: msg});
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: msg
+                            });
                             return;
                         }
 
@@ -902,13 +920,30 @@
                             document.head.appendChild(style);
                         }
                     })
-                    .fail(function (xhr) {
+                    .fail(function(xhr) {
                         Swal.close();
                         const msg = xhr?.responseJSON?.message || 'Failed to save';
-                        Swal.fire({icon: 'error', title: 'Error', text: msg});
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: msg
+                        });
                     });
             });
 
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const row = document.getElementById('customerRow');
+            const url = window.location.href;
+
+            if (url.includes('/new')) {
+                row.classList.remove('d-none');
+            } else {
+                row.classList.add('d-none');
+            }
         });
     </script>
 @endpush

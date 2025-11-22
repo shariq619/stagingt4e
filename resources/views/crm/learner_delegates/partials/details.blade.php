@@ -12,22 +12,20 @@
                     <div class="label">Name:</div>
                     <div class="input">
                         <input class="fx" name="name" data-f="name" placeholder="-" autocomplete="off">
-                        <input class="fx" name="last_name" data-f="last_name" placeholder="-"
-                               autocomplete="off">
+                        <input class="fx" name="last_name" data-f="last_name" placeholder="-" autocomplete="off">
                     </div>
                 </div>
                 <div class="rowline">
                     <div class="label">Unknown Delegate Name:</div>
                     <div class="input">
-                        <input class="fx" name="unknown_delegate_name"
-                               data-f="unknown_delegate_name" placeholder="-">
+                        <input class="fx" name="unknown_delegate_name" data-f="unknown_delegate_name"
+                            placeholder="-">
                     </div>
                 </div>
                 <div class="rowline">
                     <div class="label">House Number:</div>
                     <div class="input">
-                        <input class="fx" name="house_number" data-f="house_number"
-                               placeholder="-">
+                        <input class="fx" name="house_number" data-f="house_number" placeholder="-">
                     </div>
                 </div>
                 <div class="rowline">
@@ -57,15 +55,13 @@
                 <div class="rowline">
                     <div class="label">Post Code:</div>
                     <div class="input">
-                        <input class="fx" name="postal_code" data-f="postal_code_normalized"
-                               placeholder="-">
+                        <input class="fx" name="postal_code" data-f="postal_code_normalized" placeholder="-">
                     </div>
                 </div>
                 <div class="rowline">
                     <div class="label">Years at Address:</div>
                     <div class="input">
-                        <input class="fx" name="years_at_address" data-f="years_at_address"
-                               placeholder="-">
+                        <input class="fx" name="years_at_address" data-f="years_at_address" placeholder="-">
                     </div>
                 </div>
                 <div class="divider"></div>
@@ -94,8 +90,7 @@
                 <div class="rowline">
                     <div class="label">Exclude From Course Level Check:</div>
                     <div class="input">
-                        <select class="fx" name="exclude_from_level_check"
-                                data-f="exclude_from_level_check">
+                        <select class="fx" name="exclude_from_level_check" data-f="exclude_from_level_check">
                             <option value="">-</option>
                             <option value="1">Yes</option>
                             <option value="0">No</option>
@@ -105,8 +100,8 @@
                 <div class="rowline">
                     <div class="label">Third Party Reference:</div>
                     <div class="input">
-                        <input class="fx" name="third_party_reference"
-                               data-f="third_party_reference" placeholder="-">
+                        <input class="fx" name="third_party_reference" data-f="third_party_reference"
+                            placeholder="-">
                     </div>
                 </div>
             </div>
@@ -114,8 +109,7 @@
                 <div class="rowline" style="grid-template-columns:180px auto;">
                     <div class="label">Date Created:</div>
                     <div class="input">
-                        <input class="fx" name="created_at" data-f="created_at" readonly
-                               placeholder="-">
+                        <input class="fx" name="created_at" data-f="created_at" readonly placeholder="-">
                     </div>
                 </div>
                 <div class="rowline d-none" style="grid-template-columns:180px auto;">
@@ -125,8 +119,7 @@
                 <div class="rowline">
                     <div class="label">Old Reference:</div>
                     <div class="input">
-                        <input class="fx" name="old_reference" data-f="old_reference"
-                               placeholder="-">
+                        <input class="fx" name="old_reference" data-f="old_reference" placeholder="-">
                     </div>
                 </div>
                 <div class="divider"></div>
@@ -149,24 +142,23 @@
                     <div class="input">
                         <input class="fx" name="mobile" data-f="mobile" placeholder="-">
                         <span style="display:flex;gap:6px">
-                                    <a class="mini-btn" href="#" data-call="mobile">CALL</a>
-                                    <a class="mini-btn" href="#" data-sms="mobile">SMS</a>
-                                </span>
+                            <a class="mini-btn" href="#" data-call="mobile">CALL</a>
+                            <a class="mini-btn" href="#" data-sms="mobile">SMS</a>
+                        </span>
                     </div>
                 </div>
                 <div class="rowline">
                     <div class="label">Email:</div>
                     <div class="input">
-                        <input class="fx" name="email" data-f="email" placeholder="-"
-                               type="email" readonly>
+                        <input class="fx" name="email" data-f="email" placeholder="-" type="email"
+                            readonly>
                         <a class="mini-btn" href="#" data-mail="email">E</a>
                     </div>
                 </div>
                 <div class="rowline">
                     <div class="label">Work Email:</div>
                     <div class="input">
-                        <input class="fx" name="work_email" data-f="work_email" placeholder="-"
-                               type="email">
+                        <input class="fx" name="work_email" data-f="work_email" placeholder="-" type="email">
                         <a class="mini-btn d-none" href="#" data-mail="work_email">E</a>
                     </div>
                 </div>
@@ -185,8 +177,7 @@
                 <div class="rowline">
                     <div class="label">Payroll Reference:</div>
                     <div class="input">
-                        <input class="fx" name="payroll_reference" data-f="payroll_reference"
-                               placeholder="-">
+                        <input class="fx" name="payroll_reference" data-f="payroll_reference" placeholder="-">
                     </div>
                 </div>
                 <div class="divider"></div>
@@ -199,15 +190,13 @@
                 <div class="rowline">
                     <div class="label">Hours Worked:</div>
                     <div class="input">
-                        <input class="fx" name="hours_worked" data-f="hours_worked"
-                               placeholder="-">
+                        <input class="fx" name="hours_worked" data-f="hours_worked" placeholder="-">
                     </div>
                 </div>
                 <div class="rowline">
                     <div class="label">Nationality:</div>
                     <div class="input">
-                        <input class="fx" name="nationality" data-f="nationality"
-                               placeholder="-">
+                        <input class="fx" name="nationality" data-f="nationality" placeholder="-">
                     </div>
                 </div>
                 <div class="rowline">
@@ -225,10 +214,8 @@
             </div>
             <div class="col" style="display:flex;flex-direction:column;align-items:center;gap:10px">
                 <div class="avatar" id="avatar_wrap">
-                    <img id="avatar_img"
-                         src="https://mytraining4employment.co.uk/images/Staff_Photo_Default.png"
-                         alt="avatar"
-                         style="width:100%;height:100%;object-fit:cover">
+                    <img id="avatar_img" src="https://mytraining4employment.co.uk/images/Staff_Photo_Default.png"
+                        alt="avatar" style="width:100%;height:100%;object-fit:cover">
                 </div>
                 <small class="text-muted">Delegate Code:
                     <strong id="side_code">-</strong>
@@ -237,17 +224,25 @@
                     <label for="image" class="mini-btn" style="cursor:pointer">Upload</label>
                     <input type="file" id="image" name="image" accept="image/*" hidden>
                 </div>
-                <small class="text-muted" id="file_name"
-                       style="display:none;font-size:.8rem"></small>
+                <small class="text-muted" id="file_name" style="display:none;font-size:.8rem"></small>
             </div>
         </div>
         <div class="divider"></div>
-        <div class="rowline">
+        <div id="customerRow" class="rowline">
             <div class="label">Customer:</div>
             <div class="input">
-                <input class="fx" name="customer_id" data-f="customer_id" placeholder="-">
+                <select class="fx" name="client_id">
+                    <option value="">Select Customer</option>
+                    @foreach ($clients as $client)
+                        <option value="{{ $client->id }}"
+                            {{ old('client_id', $customerId ?? ($delegate->client_id ?? null)) == $client->id ? 'selected' : '' }}>
+                            {{ $client->name }} {{ $client->last_name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
         </div>
+
         <div class="rowline">
             <div class="label">Owner:</div>
             <div class="input">
@@ -275,16 +270,14 @@
         <div class="rowline" style="grid-template-columns:180px 1fr;">
             <div class="label">Learner-Delegate Type:</div>
             <div class="input">
-                <input class="fx" name="learner_delegate_type"
-                       data-f="learner_delegate_type"
-                       placeholder="-">
+                <input class="fx" name="learner_delegate_type" data-f="learner_delegate_type" placeholder="-">
             </div>
         </div>
         <div class="rowline" style="grid-template-columns:180px 1fr;">
             <div class="label">Notes:</div>
             <div class="input" style="padding:0">
-                        <textarea class="fx" id="notes_box" name="notes" data-f="notes"
-                                  style="min-height:110px;resize:vertical" placeholder="-"></textarea>
+                <textarea class="fx" id="notes_box" name="notes" data-f="notes" style="min-height:110px;resize:vertical"
+                    placeholder="-"></textarea>
             </div>
         </div>
     </div>

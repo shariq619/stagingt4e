@@ -1,4 +1,3 @@
-{{-- resources/views/crm/learner_delegates/index.blade.php --}}
 @extends('crm.layout.main')
 @section('title', 'Learner Delegates')
 
@@ -387,12 +386,10 @@
             border-radius: 12px;
         }
 
-        .pagination{
+        .pagination {
             margin: 10px !important;
         }
-
     </style>
-
 @endpush
 
 @section('main')
@@ -401,13 +398,14 @@
             <form id="filters" class="ribbon mb-3">
                 <div class="group">
                     <input class="search" type="text" name="q" id="q"
-                           placeholder="Search by name, email or phone">
+                        placeholder="Search by name, email or phone">
                 </div>
 
                 <div class="mini">
                     @php $alpha = range('A','Z'); @endphp
-                    @foreach($alpha as $ch)
-                        <button type="button" data-letter="{{ $ch }}" class="pill az">{{ $ch }}</button>
+                    @foreach ($alpha as $ch)
+                        <button type="button" data-letter="{{ $ch }}"
+                            class="pill az">{{ $ch }}</button>
                     @endforeach
                     <button type="button" id="reset" class="pill">Reset</button>
                 </div>
@@ -419,21 +417,31 @@
             <div class="card card-modern">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="card-title">Learner Delegates</h4>
-                    <span class="badge-soft" id="totalBadge">{{ number_format($total ?? 0) }} total</span>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge-soft" id="totalBadge">
+                            {{ number_format($total ?? 0) }} total
+                        </span>
+
+                        <a href="{{ url('crm/learner-delegates/create/new') }}" class="btn btn-sm btn-primary">
+                            + Add New Delegate
+                        </a>
+                    </div>
                 </div>
+
 
                 <div class="card-body">
                     <div class="table-wrap">
                         <table class="table-modern" id="dtLearners">
                             <thead>
-                            <tr>
-                                <th style="width:70px;">#</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th style="width:140px;">Phone</th>
-                                <th>Address</th>
-                                <th style="width:140px;">Date</th>
-                            </tr>
+                                <tr>
+                                    <th style="width:70px;">#</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th style="width:140px;">Phone</th>
+                                    <th>Address</th>
+                                    <th style="width:140px;">Date</th>
+                                </tr>
                             </thead>
                         </table>
                     </div>
@@ -456,10 +464,14 @@
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
     <script>
-        var table, finderOpen = false, finderIndex = -1;
+        var table, finderOpen = false,
+            finderIndex = -1;
 
         function params() {
-            return {q: $('#q').val(), starts: $('#starts').val()}
+            return {
+                q: $('#q').val(),
+                starts: $('#starts').val()
+            }
         }
 
         function openFinder() {
@@ -483,8 +495,7 @@
                     <div class="dots"><span>${it.name || ''}</span></div>
                     <div class="dots"><span>${it.email || ''}</span></div>
                     <div class="finder-col-code"><span>${it.code || ''}</span></div>
-                    </div>`
-                );
+                    </div>`);
             });
         }
 
@@ -503,11 +514,13 @@
             const $r = $('#finderList .finder-row');
             $r.removeClass('finder-active');
             if (idx >= 0 && idx < $r.length) {
-                $($r[idx]).addClass('finder-active')[0].scrollIntoView({block: 'nearest'})
+                $($r[idx]).addClass('finder-active')[0].scrollIntoView({
+                    block: 'nearest'
+                })
             }
         }
 
-        $(function () {
+        $(function() {
             table = $('#dtLearners').DataTable({
                 lengthChange: true,
                 pageLength: 25,
@@ -518,53 +531,72 @@
                 searching: false,
                 ajax: {
                     url: "{{ route('crm.learner.delegates.dt') }}",
-                    data: function (d) {
+                    data: function(d) {
                         $.extend(d, params())
                     }
                 },
-                columns: [
-                    {data: 'id', name: 'id', width: '80px'},
+                columns: [{
+                        data: 'id',
+                        name: 'id',
+                        width: '80px'
+                    },
                     {
                         data: 'full_name',
                         name: 'users.name',
-                        render: function (data, type, row) {
+                        render: function(data, type, row) {
                             return `<a href="/crm/learner-delegates/${row.id}/detail" class="text-decoration-underline">${data}</a>`;
                         }
                     },
-                    {data: 'email', name: 'users.email'},
-                    {data: 'phone_number', name: 'users.phone_number'},
-                    {data: 'address', name: 'users.address', className: 'td-trunc'},
-                    {data: 'date', name: 'date', width: '160px'}
+                    {
+                        data: 'email',
+                        name: 'users.email'
+                    },
+                    {
+                        data: 'phone_number',
+                        name: 'users.phone_number'
+                    },
+                    {
+                        data: 'address',
+                        name: 'users.address',
+                        className: 'td-trunc'
+                    },
+                    {
+                        data: 'date',
+                        name: 'date',
+                        width: '160px'
+                    }
                 ],
-                order: [[5, 'desc']],
-                drawCallback: function (s) {
+                order: [
+                    [5, 'desc']
+                ],
+                drawCallback: function(s) {
                     if (s.json && typeof s.json.total !== 'undefined') {
                         $('#totalBadge').text(new Intl.NumberFormat().format(s.json.total) + ' total')
                     }
                     this.api().columns.adjust();
                 },
-                initComplete: function () {
+                initComplete: function() {
                     const api = this.api();
-                    setTimeout(function () {
+                    setTimeout(function() {
                         api.columns.adjust().draw(false);
                     }, 50);
                 }
             });
 
-            $(window).on('resize', function () {
+            $(window).on('resize', function() {
                 if (table) {
                     table.columns.adjust().draw(false);
                 }
             });
 
-            $('#filters').on('submit', function (e) {
+            $('#filters').on('submit', function(e) {
                 e.preventDefault();
                 table.page(0).ajax.reload();
                 openFinder();
                 fetchFinder()
             });
 
-            $('.az').on('click', function () {
+            $('.az').on('click', function() {
                 $('#starts').val($(this).data('letter'));
                 $('.az').removeClass('active');
                 $(this).addClass('active');
@@ -573,17 +605,19 @@
                 fetchFinder();
             });
 
-            $('#reset').on('click', function (e) {
+            $('#reset').on('click', function(e) {
                 e.preventDefault();
                 $('#q').val('');
                 $('#starts').val('');
                 $('.az').removeClass('active');
-                table.search('').order([[5, 'desc']]).page(0).ajax.reload();
+                table.search('').order([
+                    [5, 'desc']
+                ]).page(0).ajax.reload();
                 closeFinder();
                 if (history.replaceState) history.replaceState({}, document.title, location.pathname);
             });
 
-            $('#q').on('keyup', function (e) {
+            $('#q').on('keyup', function(e) {
                 if ($(this).val().trim().length >= 2) {
                     openFinder();
                     fetchFinder()
@@ -597,12 +631,12 @@
 
             $(document).on('click', '#finderClose', closeFinder);
 
-            $('#finderList').on('click', '.finder-row', function () {
+            $('#finderList').on('click', '.finder-row', function() {
                 const url = $(this).data('url');
                 window.location.href = url;
             });
 
-            $(document).on('keydown', function (e) {
+            $(document).on('keydown', function(e) {
                 if (!finderOpen) return;
                 const $rows = $('#finderList .finder-row');
                 if (e.key === 'Escape') {

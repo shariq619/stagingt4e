@@ -4,12 +4,14 @@ namespace App\Http\Controllers\CRM;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendRawEmailJob;
+use App\Mail\WelcomeEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -220,24 +222,31 @@ abstract class BaseUserDirectoryController extends Controller
 
     public function show($id)
     {
-
         $delegate = User::role(static::ROLE)
             ->select($this->baseSelectColumns())
-            ->with('contacts')
+            ->with(['contacts', 'profilePhoto'])
             ->findOrFail($id);
 
         $delegate->postal_code_normalized = $delegate->postal_code ?: $delegate->postcode;
         $delegate->image = optional($delegate->profilePhoto)->profile_photo;
 
+        $clients = User::role('Corporate Client')->get();
+
         if (request()->wantsJson()) {
             return response()->json([
                 'delegate' => $delegate,
-                'contacts' => $delegate->contacts
+                'contacts' => $delegate->contacts,
+                'clients'  => $clients,
             ]);
         }
 
-        return view(static::INDEX_VIEW_PREFIX() . '.show', compact('delegate'));
+        return view(static::INDEX_VIEW_PREFIX() . '.show', [
+            'delegate' => $delegate,
+            'clients'  => $clients,
+            'customerId' => $delegate->client_id ?? null,
+        ]);
     }
+
 
     protected static function INDEX_VIEW_PREFIX(): string
     {
@@ -307,7 +316,6 @@ abstract class BaseUserDirectoryController extends Controller
             'pm_sms' => ['nullable', 'boolean'],
             'website' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'file', 'image', 'max:4096'],
-
             'contacts' => ['nullable', 'array'],
             'contacts.*.id' => ['nullable', 'integer', 'exists:user_contacts,id'],
             'contacts.*.name' => ['nullable', 'string', 'max:255'],
@@ -327,7 +335,7 @@ abstract class BaseUserDirectoryController extends Controller
 
                 if ($isNew) {
                     $user = new User();
-                    $plainPassword = $data['password'] ?? '12345678';
+                    $plainPassword = Str::random(10);
                     $user->password = Hash::make($plainPassword);
                     $user->client_id = $request->client_id;
                 } else {
@@ -340,17 +348,60 @@ abstract class BaseUserDirectoryController extends Controller
                 $imageName = $user->image;
 
                 $assign = [
-                    'name', 'last_name', 'email', 'work_email', 'unknown_delegate_name',
-                    'house_number', 'house_name', 'address', 'address2', 'town', 'county', 'country',
-                    'years_at_address', 'vle', 'third_party_reference', 'old_reference',
-                    'telephone', 'work_tel', 'fax', 'mobile', 'ni_number', 'payroll_reference',
-                    'job_type', 'hours_worked', 'nationality', 'salutation', 'job_title',
-                    'customer_id', 'owner_id', 'funder', 'source', 'source_affiliate', 'source_campaign',
-                    'staff_link', 'staff_code', 'supervisor_confirmer', 'customer_group', 'currency',
-                    'learner_delegate_type', 'notes', 'postal_code', 'postcode', 'website',
-                    'b2b_customer', 'ct_cctv', 'ct_close_protection', 'ct_cscs', 'ct_door_supervisor',
-                    'ct_fire_marshall', 'ct_first_aid', 'ct_vehicle_banksman',
-                    'pm_letter', 'pm_email', 'pm_sms',
+                    'name',
+                    'last_name',
+                    'email',
+                    'work_email',
+                    'unknown_delegate_name',
+                    'house_number',
+                    'house_name',
+                    'address',
+                    'address2',
+                    'town',
+                    'county',
+                    'country',
+                    'years_at_address',
+                    'vle',
+                    'third_party_reference',
+                    'old_reference',
+                    'telephone',
+                    'work_tel',
+                    'fax',
+                    'mobile',
+                    'ni_number',
+                    'payroll_reference',
+                    'job_type',
+                    'hours_worked',
+                    'nationality',
+                    'salutation',
+                    'job_title',
+                    'customer_id',
+                    'owner_id',
+                    'funder',
+                    'source',
+                    'source_affiliate',
+                    'source_campaign',
+                    'staff_link',
+                    'staff_code',
+                    'supervisor_confirmer',
+                    'customer_group',
+                    'currency',
+                    'learner_delegate_type',
+                    'notes',
+                    'postal_code',
+                    'postcode',
+                    'website',
+                    'b2b_customer',
+                    'ct_cctv',
+                    'ct_close_protection',
+                    'ct_cscs',
+                    'ct_door_supervisor',
+                    'ct_fire_marshall',
+                    'ct_first_aid',
+                    'ct_vehicle_banksman',
+                    'pm_letter',
+                    'pm_email',
+                    'pm_sms',
                 ];
 
                 foreach ($assign as $k) {
@@ -364,9 +415,7 @@ abstract class BaseUserDirectoryController extends Controller
                     $fileName = time() . '_' . $uploadedFile->getClientOriginalName();
                     $dir = storage_path('app/public/profile_images');
 
-                    if (!is_dir($dir)) {
-                        mkdir($dir, 0775, true);
-                    }
+                    if (!is_dir($dir)) mkdir($dir, 0775, true);
 
                     $uploadedFile->move($dir, $fileName);
                     $imageName = 'storage/profile_images/' . $fileName;
@@ -374,39 +423,12 @@ abstract class BaseUserDirectoryController extends Controller
 
                 $user->image = $imageName;
 
-                if ($imageName) {
-                    $user->profilePhoto()->updateOrCreate(
-                        [],
-                        [
-                            'profile_photo' => $imageName,
-                            'status'        => 'In Progress',
-                        ]
-                    );
-                }
-
-                if (array_key_exists('start_date', $data)) {
-                    $user->start_date = $data['start_date'];
-                }
-
-                if (array_key_exists('mobile', $data)) {
-                    $user->phone_number = $data['mobile'];
-                }
-
-                if (array_key_exists('dob', $data)) {
-                    $user->birth_date = $data['dob'];
-                }
-
-                if (array_key_exists('external_login', $data)) {
-                    $user->external_login = $data['external_login'] === '1';
-                }
-
-                if (array_key_exists('exclude_from_level_check', $data)) {
-                    $user->exclude_from_level_check = $data['exclude_from_level_check'] === '1';
-                }
-
-                if (array_key_exists('status', $data)) {
-                    $user->learner_status = $data['status'];
-                }
+                if (array_key_exists('start_date', $data)) $user->start_date = $data['start_date'];
+                if (array_key_exists('mobile', $data)) $user->phone_number = $data['mobile'];
+                if (array_key_exists('dob', $data)) $user->birth_date = $data['dob'];
+                if (array_key_exists('external_login', $data)) $user->external_login = $data['external_login'] === '1';
+                if (array_key_exists('exclude_from_level_check', $data)) $user->exclude_from_level_check = $data['exclude_from_level_check'] === '1';
+                if (array_key_exists('status', $data)) $user->learner_status = $data['status'];
 
                 $flagFields = [
                     'ct_cctv',
@@ -428,7 +450,18 @@ abstract class BaseUserDirectoryController extends Controller
                 $user->save();
 
                 if ($isNew) {
+                    Mail::to($user->email)->send(new WelcomeEmail($user, $plainPassword));
                     $user->assignRole(static::ROLE);
+                }
+
+                if ($imageName) {
+                    $user->profilePhoto()->updateOrCreate(
+                        ['user_id' => $user->id],
+                        [
+                            'profile_photo' => $imageName,
+                            'status' => 'In Progress',
+                        ]
+                    );
                 }
 
                 if (method_exists($user, 'contacts')) {
@@ -440,40 +473,34 @@ abstract class BaseUserDirectoryController extends Controller
                         ->mapWithKeys(fn($id, $email) => [strtolower(trim($email)) => $id]);
 
                     foreach ($contacts as $row) {
-                        $id = $row['id'] ?? null;
+                        $cid = $row['id'] ?? null;
                         $name = trim($row['name'] ?? '');
                         $email = strtolower(trim($row['direct_email'] ?? ''));
                         $phone = trim($row['direct_number'] ?? '');
                         $mobile = trim($row['mobile'] ?? '');
 
-                        if ($name === '' && $email === '' && $phone === '' && $mobile === '') {
-                            continue;
-                        }
+                        if ($name === '' && $email === '' && $phone === '' && $mobile === '') continue;
 
-                        $data = [
-                            'name'          => $name,
-                            'position'      => $row['position'] ?? null,
+                        $contactData = [
+                            'name' => $name,
+                            'position' => $row['position'] ?? null,
                             'direct_number' => $phone ?: null,
-                            'direct_email'  => $email ?: null,
-                            'mobile'        => $mobile ?: null,
-                            'opt_out'       => !empty($row['opt_out']),
+                            'direct_email' => $email ?: null,
+                            'mobile' => $mobile ?: null,
+                            'opt_out' => !empty($row['opt_out']),
                         ];
 
-                        if ($id && isset($existing[$id])) {
-                            $existing[$id]->update($data);
-                            $existing->forget($id);
+                        if ($cid && isset($existing[$cid])) {
+                            $existing[$cid]->update($contactData);
+                            $existing->forget($cid);
                             continue;
                         }
 
-                        if ($email && isset($existingByEmail[$email])) {
-                            continue;
-                        }
+                        if ($email && isset($existingByEmail[$email])) continue;
 
-                        $user->contacts()->create($data);
+                        $user->contacts()->create($contactData);
 
-                        if ($email) {
-                            $existingByEmail[$email] = true;
-                        }
+                        if ($email) $existingByEmail[$email] = true;
                     }
 
                     foreach ($existing as $contact) {
@@ -481,14 +508,12 @@ abstract class BaseUserDirectoryController extends Controller
                     }
                 }
 
-
-
                 return $user->fresh(['contacts']);
             });
 
             return response()->json([
-                'success'  => true,
-                'message'  => static::ENTITY_LABEL . ' saved successfully',
+                'success' => true,
+                'message' => static::ENTITY_LABEL . ' saved successfully',
                 'delegate' => $result,
                 'redirect' => route('crm.learner.delegates.show', ['id' => $result->id]),
             ]);
@@ -499,6 +524,7 @@ abstract class BaseUserDirectoryController extends Controller
             ], 500);
         }
     }
+
 
     public function sendEmail(Request $request, $id)
     {
@@ -596,8 +622,5 @@ abstract class BaseUserDirectoryController extends Controller
             })
             ->rawColumns(['status'])
             ->toJson();
-
-
     }
-
 }

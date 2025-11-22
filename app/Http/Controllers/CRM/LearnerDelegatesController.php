@@ -31,8 +31,10 @@ class LearnerDelegatesController extends BaseUserDirectoryController
 
     public function create($customerId)
     {
+        $clients = User::role('Corporate Client')->get();
         return view('crm.learner_delegates.create', [
             'customerId' => $customerId,
+            'clients'    => $clients
         ]);
     }
 
