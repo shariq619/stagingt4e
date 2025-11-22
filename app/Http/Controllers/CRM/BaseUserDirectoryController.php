@@ -60,7 +60,7 @@ abstract class BaseUserDirectoryController extends Controller
             'users.salutation',
             'users.job_title',
             'users.customer_id',
-            'user.client_id',
+            'users.client_id',
             'users.owner_id',
             'users.customer_group',
             'users.currency',
