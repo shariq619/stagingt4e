@@ -583,7 +583,7 @@
                     <div class="row-field">
                         <div class="label-col">Newsletter Name</div>
                         <div class="value-col">
-                            <input class="form-control" id="nl_name" placeholder="Joining Instructions - EFAW Portal">
+                            <input class="form-control" id="nl_name" readonly placeholder="Joining Instructions - EFAW Portal">
                         </div>
                     </div>
                     <div class="row-field">

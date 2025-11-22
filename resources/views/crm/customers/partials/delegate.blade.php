@@ -209,7 +209,6 @@
                     <th>PostCode</th>
                     <th>Telephone</th>
                     <th>Email</th>
-                    <th>Status</th>
                 </tr>
                 </thead>
                 <tbody></tbody>

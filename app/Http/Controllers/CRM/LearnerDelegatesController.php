@@ -134,7 +134,6 @@ class LearnerDelegatesController extends BaseUserDirectoryController
 
         $cohortIds = DB::table('cohort_user')
             ->where('user_id', $userId)
-            ->whereDate('created_at', '>=', '2025-11-24')
             ->pluck('cohort_id');
 
         if ($cohortIds->isEmpty()) {

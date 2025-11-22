@@ -97,7 +97,6 @@ class TrainingCoursesController extends Controller
         $status = $request->get('status');
         $q      = $request->get('q');
         $starts = $request->get('starts');
-        $fromDate = Carbon::create(2025, 11, 24)->startOfDay();
 
         $query = DB::table('cohorts as c')
             ->leftJoin('courses as crs', 'crs.id', '=', 'c.course_id')
@@ -113,12 +112,7 @@ class TrainingCoursesController extends Controller
                 DB::raw('crs.duration as days_plain'),
                 DB::raw('t.name as trainer_name'),
                 DB::raw('v.venue_name as venue_name'),
-                DB::raw('(
-                SELECT COUNT(*)
-                FROM cohort_user cu
-                WHERE cu.cohort_id = c.id
-                  AND cu.created_at >= "' . $fromDate->format('Y-m-d H:i:s') . '"
-            ) as learners_count'),
+                DB::raw('(SELECT COUNT(*) FROM cohort_user cu WHERE cu.cohort_id = c.id) as learners_count'),
             ])
             ->whereYear('c.start_date_time', $year)
             ->whereMonth('c.start_date_time', $month);
@@ -179,6 +173,7 @@ class TrainingCoursesController extends Controller
                 ->groupBy('i.cohort_id', 'l.is_reassigned')
                 ->get();
 
+
             $byCohort = [];
 
             foreach ($lineAgg as $row) {
@@ -205,6 +200,7 @@ class TrainingCoursesController extends Controller
                 }
             }
 
+
             $miscAgg = DB::table($miscTable)
                 ->selectRaw("
                 cohort_id,
@@ -220,32 +216,8 @@ class TrainingCoursesController extends Controller
                 ->whereIn('id', $cohortIds)
                 ->pluck('exclude_misc', 'id');
 
-            $recentLearners = DB::table('cohort_user')
-                ->select('cohort_id')
-                ->whereIn('cohort_id', $cohortIds)
-                ->whereDate('created_at', '>=', $fromDate->toDateString())
-                ->groupBy('cohort_id')
-                ->pluck('cohort_id')
-                ->flip();
-
             foreach ($cohortIds as $cid) {
                 $cidInt = (int) $cid;
-
-                if (!isset($recentLearners[$cidInt])) {
-                    $financialsByCohort[$cidInt] = [
-                        'sub_total'  => 0.00,
-                        'discount'   => 0.00,
-                        'total_cost' => 0.00,
-                        'vat'        => 0.00,
-                        'misc_net'   => 0.00,
-                        'misc_vat'   => 0.00,
-                        'misc_total' => 0.00,
-                        'res_net'    => 0.00,
-                        'res_vat'    => 0.00,
-                        'res_total'  => 0.00,
-                    ];
-                    continue;
-                }
 
                 $base = $byCohort[$cidInt] ?? [
                     'sub'    => 0.0,
@@ -370,11 +342,11 @@ class TrainingCoursesController extends Controller
             ->make(true);
     }
 
+
     protected function buildLearnerRows(int $cohortId, ?string $search = null, ?string $learnerStatus = null): array
     {
         $ids = DB::table('cohort_user')
             ->where('cohort_id', $cohortId)
-            ->whereDate('created_at', '>=', '2025-11-24')
             ->pluck('user_id');
 
         if ($ids->isEmpty()) {
@@ -928,7 +900,6 @@ class TrainingCoursesController extends Controller
 
         $learnerIds = DB::table('cohort_user')
             ->where('cohort_id', $training->id)
-            ->whereDate('created_at', '>=', '2025-11-24')
             ->pluck('user_id');
 
         if ($selectedIds->isNotEmpty()) {
@@ -1040,8 +1011,6 @@ class TrainingCoursesController extends Controller
             return response()->json([]);
         }
 
-        $fromDate = Carbon::create(2025, 11, 24)->startOfDay();
-
         $users = User::where(function ($q2) use ($query) {
             $q2->where('name', 'like', "%{$query}%")
                 ->orWhere('email', 'like', "%{$query}%")
@@ -1050,11 +1019,10 @@ class TrainingCoursesController extends Controller
         })
             ->role('Learner')
             ->select('id', 'name', 'middle_name', 'last_name', 'email')
-            ->whereNotIn('id', function ($sub) use ($cohortId, $fromDate) {
+            ->whereNotIn('id', function ($sub) use ($cohortId) {
                 $sub->select('user_id')
                     ->from('cohort_user as cu')
-                    ->where('cu.cohort_id', $cohortId)
-                    ->whereDate('cu.created_at', '>=', $fromDate->toDateString());
+                    ->where('cu.cohort_id', $cohortId);
             })
             ->get();
 

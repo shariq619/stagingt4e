@@ -1078,7 +1078,6 @@
                         {data: 'postal', name: 'postal_code'},
                         {data: 'telephone', name: 'telephone'},
                         {data: 'email', name: 'email'},
-                        {data: 'status', name: 'status', orderable: false, searchable: false}
                     ],
                     pageLength: 10,
                     lengthChange: false,

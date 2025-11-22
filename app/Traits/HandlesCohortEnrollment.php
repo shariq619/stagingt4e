@@ -24,7 +24,6 @@ trait HandlesCohortEnrollment
 
             $currentCount = DB::table('cohort_user')
                 ->where('cohort_id', $cohortId)
-                ->whereDate('created_at', '>=', '2025-11-24')
                 ->count();
 
             if ($cohort->max_learner && $currentCount >= $cohort->max_learner) {
@@ -34,7 +33,6 @@ trait HandlesCohortEnrollment
             $exists = DB::table('cohort_user')
                 ->where('user_id', $userId)
                 ->where('cohort_id', $cohortId)
-                ->whereDate('created_at', '>=', '2025-11-24')
                 ->exists();
 
             if ($exists) {
