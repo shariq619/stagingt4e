@@ -55,7 +55,8 @@
                 <div class="rowline">
                     <div class="label">Post Code:</div>
                     <div class="input">
-                        <input class="fx" name="postal_code" data-f="postal_code_normalized" placeholder="-">
+                        <input class="fx" data-f="postal_code_normalized" name="postal_code_normalized"
+                            maxlength="8" inputmode="text" autocomplete="postal-code">
                     </div>
                 </div>
                 <div class="rowline">
@@ -126,8 +127,8 @@
                 <div class="rowline">
                     <div class="label">Telephone:</div>
                     <div class="input">
-                        <input class="fx" name="telephone" data-f="telephone" placeholder="-">
-                        <a class="mini-btn" href="#" data-call="telephone">CALL</a>
+                        <input class="fx" data-f="telephone" name="telephone" inputmode="tel"
+                            autocomplete="tel"> <a class="mini-btn" href="#" data-call="telephone">CALL</a>
                     </div>
                 </div>
                 <div class="rowline">
@@ -171,7 +172,9 @@
                 <div class="rowline">
                     <div class="label">NI Number:</div>
                     <div class="input">
-                        <input class="fx" name="ni_number" data-f="ni_number" placeholder="-">
+
+                        <input class="fx" data-f="ni_number" name="ni_number" maxlength="13"
+                            style="text-transform:uppercase;">
                     </div>
                 </div>
                 <div class="rowline">

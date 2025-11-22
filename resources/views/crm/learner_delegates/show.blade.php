@@ -779,6 +779,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tinymce@5.10.9/tinymce.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.10/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.10/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery.inputmask@5.0.8/dist/jquery.inputmask.min.js"></script>
     <script>
         $(function() {
             function toYMD(v) {
@@ -816,6 +817,60 @@
                     $el.val(val ? String(val) : '');
                 }
             }
+
+            function ukPostcode(v) {
+                v = String(v || '').toUpperCase().trim();
+                if (!v) return true;
+                const re = /^(GIR 0AA|[A-Z]{1,2}\d[A-Z\d]?\s*\d[ABD-HJLNP-UW-Z]{2})$/;
+                return re.test(v);
+            }
+
+            function ukPhone(v) {
+                v = String(v || '').replace(/[\s\-().]/g, '');
+                if (!v) return true;
+                if (/^0\d{9,10}$/.test(v)) return true;
+                if (/^(\+44)\d{9,10}$/.test(v)) return true;
+                return false;
+            }
+
+            function ukNiNumber(v) {
+                v = String(v || '').toUpperCase().replace(/\s/g, '');
+                if (!v) return true;
+                const re = /^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEGHJ-PR-TW-Z]{2}\d{6}[A-D]$/;
+                return re.test(v);
+            }
+
+Inputmask({
+    regex: "^(GIR 0AA|[A-Z]{1,2}\\d[A-Z\\d]?\\s?\\d[ABD-HJLNP-UW-Z]{2})$",
+    casing: "upper",
+    placeholder: '',
+    showMaskOnHover: false,
+    showMaskOnFocus: false
+}).mask('input.fx[name="postal_code_normalized"], input.fx[name="postcode"], input.fx[name="postal_code"]');
+
+Inputmask({
+    regex: "^(?:0\\d{9,10}|\\+44\\d{9,10})$",
+    placeholder: '',
+    showMaskOnHover: false,
+    showMaskOnFocus: false
+}).mask('input.fx[name="telephone"], input.fx[name="work_tel"], input.fx[name="mobile"]');
+
+Inputmask({
+    regex: "^(?!BG)(?!GB)(?!NK)(?!KN)(?!TN)(?!NT)(?!ZZ)[A-CEGHJ-PR-TW-Z]{2}\\d{6}[A-D]$",
+    casing: "upper",
+    placeholder: '',
+    showMaskOnHover: false,
+    showMaskOnFocus: false
+}).mask('input.fx[name="ni_number"]');
+
+Inputmask({
+    mask: "99",
+    placeholder: '',
+    showMaskOnFocus: false,
+    showMaskOnHover: false
+}).mask('input.fx[name="years_at_address"]');
+
+
 
             $('#image').on('change', function() {
                 const f = this.files[0];
@@ -1022,19 +1077,43 @@
             }
 
             function clientValidate() {
-                var errs = {};
-                var workEmail = $('.fx[name="work_email"]').val();
-                var email = $('.fx[name="email"]').val();
-                if (workEmail && !isEmail(workEmail)) errs.work_email = [
-                    'The work email must be a valid email address.'
-                ];
-                if (email && !isEmail(email)) errs.email = ['The email must be a valid email address.'];
-                var startDate = $('.fx[name="start_date"]').val();
-                if (startDate && isNaN(Date.parse(startDate))) errs.start_date = ['The start date is invalid.'];
-                var dob = $('.fx[name="dob"]').val();
-                if (dob && isNaN(Date.parse(dob))) errs.dob = ['The date of birth is invalid.'];
-                return errs;
-            }
+    var errs = {};
+
+    var workEmail = $('.fx[name="work_email"]').val();
+    var email = $('.fx[name="email"]').val();
+    if (workEmail && !isEmail(workEmail)) errs.work_email = ['The work email must be a valid email address.'];
+    if (email && !isEmail(email)) errs.email = ['The email must be a valid email address.'];
+
+    var startDate = $('.fx[name="start_date"]').val();
+    if (startDate && isNaN(Date.parse(startDate))) errs.start_date = ['The start date is invalid.'];
+    var dob = $('.fx[name="dob"]').val();
+    if (dob && isNaN(Date.parse(dob))) errs.dob = ['The date of birth is invalid.'];
+
+    var pc = $('.fx[name="postal_code_normalized"]').val() || $('.fx[name="postcode"]').val();
+    if (pc && !ukPostcode(pc)) {
+        errs.postal_code_normalized = ['Enter a valid UK postcode (e.g. B1 1AA).'];
+    }
+
+    var tel = $('.fx[name="telephone"]').val();
+    var wtel = $('.fx[name="work_tel"]').val();
+    var mob = $('.fx[name="mobile"]').val();
+
+    if (tel && !ukPhone(tel)) errs.telephone = ['Enter a valid UK phone number.'];
+    if (wtel && !ukPhone(wtel)) errs.work_tel = ['Enter a valid UK phone number.'];
+    if (mob && !ukPhone(mob)) errs.mobile = ['Enter a valid UK mobile number.'];
+
+    var ni = $('.fx[name="ni_number"]').val();
+    if (ni && !ukNiNumber(ni)) {
+        errs.ni_number = ['Enter a valid UK National Insurance number (e.g. QQ123456C).'];
+    }
+
+    var yrs = $('.fx[name="years_at_address"]').val();
+    if (yrs && (!/^\d{1,2}$/.test(yrs) || parseInt(yrs, 10) > 99)) {
+        errs.years_at_address = ['Enter a valid number of years (0–99).'];
+    }
+
+    return errs;
+}
 
             $(document).on('blur change',
                 '.fx[name="work_email"],.fx[name="email"],.fx[name="start_date"],.fx[name="dob"]',
