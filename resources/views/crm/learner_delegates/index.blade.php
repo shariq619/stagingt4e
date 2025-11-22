@@ -3,6 +3,7 @@
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <style>
         :root {
             --ink: #0f172a;
@@ -389,6 +390,32 @@
         .pagination {
             margin: 10px !important;
         }
+
+        .btn-add-delegate {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .45rem 1.1rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #3ba1ff, #1168e6);
+            border: none;
+            color: #fff;
+            font-size: .84rem;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, .35);
+            transition: all .2s ease;
+        }
+
+        .btn-add-delegate:hover {
+            background: linear-gradient(135deg, #4db1ff, #1b75ff);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px rgba(37, 99, 235, .45);
+        }
+
+        .btn-add-delegate i {
+            font-size: 1rem;
+        }
     </style>
 @endpush
 
@@ -423,8 +450,9 @@
                             {{ number_format($total ?? 0) }} total
                         </span>
 
-                        <a href="{{ url('crm/learner-delegates/create/new') }}" class="btn btn-sm btn-primary">
-                            + Add New Delegate
+                        <a href="{{ url('crm/learner-delegates/create/new') }}" class="btn-add-delegate">
+                            <i class="bi bi-plus-circle"></i>
+                            Add Delegate
                         </a>
                     </div>
                 </div>
