@@ -477,7 +477,7 @@ class TrainingCoursesController extends Controller
 
             $latestTo = DB::table('cohort_reassignments')
                 ->where('user_id', $userId)
-                ->where('to_cohort_id', $cohortId)
+                ->where('from_cohort_id', $cohortId)
                 ->when($invoiceId, fn($qq) => $qq->where('invoice_id', $invoiceId))
                 ->orderByDesc('id')
                 ->value('to_cohort_id');
