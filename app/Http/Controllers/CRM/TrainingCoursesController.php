@@ -477,6 +477,7 @@ class TrainingCoursesController extends Controller
 
             $latestTo = DB::table('cohort_reassignments')
                 ->where('user_id', $userId)
+                ->where('to_cohort_id', $cohortId)
                 ->when($invoiceId, fn($qq) => $qq->where('invoice_id', $invoiceId))
                 ->orderByDesc('id')
                 ->value('to_cohort_id');
@@ -1175,7 +1176,7 @@ class TrainingCoursesController extends Controller
                 return response()->json($payload);
             });
         } catch (\Throwable $e) {
-            \Log::error('Invoice Generation Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            Log::error('Invoice Generation Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Something went wrong while generating invoice.'], 500);
         }
     }
