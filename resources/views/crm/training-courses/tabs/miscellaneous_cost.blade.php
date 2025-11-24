@@ -562,13 +562,13 @@
     <div class="card">
         <div class="toolbar">
             <div class="title">Miscellaneous Costs</div>
-            <select class="y-select" id="filterA">
-                <option value="">Select</option>
-            </select>
-            <select class="y-select" id="filterB">
-                <option value="">Select</option>
-            </select>
-            <button class="btn-pill" id="btnGeneratePO">+ Generate PO</button>
+{{--            <select class="y-select" id="filterA">--}}
+{{--                <option value="">Select</option>--}}
+{{--            </select>--}}
+{{--            <select class="y-select" id="filterB">--}}
+{{--                <option value="">Select</option>--}}
+{{--            </select>--}}
+{{--            <button class="btn-pill" id="btnGeneratePO">+ Generate PO</button>--}}
             <div class="vat-rate">
                 <label for="vatRate">VAT %</label>
                 <input type="number" id="vatRate" min="0" step="0.01" value="20">
