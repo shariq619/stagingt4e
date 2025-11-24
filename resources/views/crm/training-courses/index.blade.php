@@ -755,8 +755,10 @@
                 <div class="group">
                     <select name="status" id="status">
                         <option value="">--Status--</option>
-                        @foreach(getLearnerStatuses() as $s)
-                            <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ $s }}</option>
+                        @foreach(['Complete', 'Confirmed', 'Cancelled'] as $s)
+                            <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>
+                                {{ $s }}
+                            </option>
                         @endforeach
                     </select>
 
