@@ -12,6 +12,18 @@ class MailProvider
         Mail::send([], [], function ($message) use ($to, $subject, $htmlBody, $textBody, $meta) {
             $message->to($to)->subject($subject);
 
+            if (!empty($meta['from_email'])) {
+                $fromEmail = $meta['from_email'];
+                $fromName  = $meta['from_name'] ?? config('mail.from.name');
+
+                $message->from($fromEmail, $fromName);
+            } else {
+                $message->from(
+                    config('mail.from.address'),
+                    config('mail.from.name')
+                );
+            }
+
             if ($htmlBody) {
                 $message->setBody($htmlBody, 'text/html');
             }
