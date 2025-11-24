@@ -688,7 +688,6 @@
                                         <th class="text-end">Cost</th>
                                         <th class="w-36">Days</th>
                                         <th>Notes</th>
-                                        <th class="w-36">Ex</th>
                                         <th class="w-36">Edit</th>
                                     </tr>
                                     </thead>
@@ -703,7 +702,6 @@
                                         </td>
                                         <td></td>
                                         <td></td>
-                                        <td class="w-36"><input type="checkbox"></td>
                                         <td class="w-36">
                                             <button class="btn btn-gray btn-circle edit-trainer">E</button>
                                             <form action="/crm/update-trainers" method="POST" class="d-inline"
