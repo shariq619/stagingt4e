@@ -30,6 +30,7 @@ class CohortUser extends Model
 
             $isCrmNamedRoute = $routeName && str_starts_with($routeName, 'crm.');
             $isCrmUrlPrefix  = $firstSeg === 'crm';
+            dd('not fine');
 
             if (! $isCrmNamedRoute && ! $isCrmUrlPrefix) {
                 return;
