@@ -466,7 +466,7 @@
                                     <th style="width:70px;">#</th>
                                     <th>Name</th>
                                     <th>Email</th>
-                                    <th style="width:140px;">Phone</th>
+                                    <th style="width:140px;">Mobile</th>
                                     <th>Address</th>
                                     <th style="width:140px;">Date</th>
                                 </tr>
