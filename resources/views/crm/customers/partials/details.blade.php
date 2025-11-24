@@ -142,7 +142,7 @@
                     <div class="label">Email:</div>
                     <div class="input">
                         <input class="fx" type="email" name="email" data-f="email" placeholder="-" readonly>
-                        <div style="display:flex;gap:6px">
+                        <div style="display:none;gap:6px">
                             <a class="mini-btn" href="#" data-mail="email">E</a>
                         </div>
                     </div>
