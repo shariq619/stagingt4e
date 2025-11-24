@@ -686,8 +686,8 @@
                                         <th>Trainer Name</th>
                                         <th>Telephone</th>
                                         <th class="text-end">Cost</th>
-                                        <th class="w-36">Days</th>
-                                        <th>Notes</th>
+{{--                                        <th class="w-36">Days</th>--}}
+{{--                                        <th>Notes</th>--}}
                                         <th class="w-36">Edit</th>
                                     </tr>
                                     </thead>
@@ -700,8 +700,8 @@
                                             <input class="form-control form-control-sm d-none" id="trainer_cost_input"
                                                    value="0.00">
                                         </td>
-                                        <td></td>
-                                        <td></td>
+{{--                                        <td></td>--}}
+{{--                                        <td></td>--}}
                                         <td class="w-36">
                                             <button class="btn btn-gray btn-circle edit-trainer">E</button>
                                             <form action="/crm/update-trainers" method="POST" class="d-inline"
