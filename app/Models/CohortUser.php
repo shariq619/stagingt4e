@@ -35,8 +35,7 @@ class CohortUser extends Model
                 return;
             }
 
-            $todayAfter2 = Carbon::today()->setTime(14, 0, 0);
-            $builder->where('created_at', '>=', $todayAfter2);
+            $builder->where('created_at', '>=', '2025-11-24 14:00:00');
         });
     }
 }
