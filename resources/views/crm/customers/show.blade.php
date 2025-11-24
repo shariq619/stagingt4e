@@ -649,7 +649,10 @@
         </div>
     </nav>
 
-    <div id="customer-page" data-id="{{ $delegate->id ?? request()->route('id') }}"></div>
+
+    <div id="customer-page" data-id="{{ $delegate->id ?? request()->route('id') }}"
+         data-json-url="{{ route('crm.learner.delegates.show.json', $delegate->id ?? request()->route('id')) }}">
+    </div>
 
     <section class="section active" id="section-customer-details">
         @include('crm.customers.partials.details')
@@ -665,6 +668,8 @@
                         <div class="ip-text">Manage learners, profiles, enrollments, and course assignments.</div>
                     </div>
                 </div>
+
+
 
                 <div class="ip-body mt-3">
                     @include('crm.customers.partials.delegate')
@@ -830,11 +835,11 @@
                     });
                 }
             }
+            const jsonUrl = $('#customer-page').data('json-url');
 
             $.ajax({
-                url: window.location.pathname,
+                url: jsonUrl,
                 dataType: 'json',
-                headers: {'Accept': 'application/json'}
             }).done(function (res) {
                 const d = res.delegate || {};
                 const contacts = Array.isArray(d.contacts) ? d.contacts : [];
