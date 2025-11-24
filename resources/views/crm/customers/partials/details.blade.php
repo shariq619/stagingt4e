@@ -9,7 +9,7 @@
                 <i class="bi bi-building"></i> Customer Details
             </div>
 
-            <label class="b2b-toggle">
+            <label class="b2b-toggle d-none">
                 B2B Customer:
                 <input type="checkbox" name="b2b_customer" class="form-check-input" data-f="b2b_customer"
                        value="1">
