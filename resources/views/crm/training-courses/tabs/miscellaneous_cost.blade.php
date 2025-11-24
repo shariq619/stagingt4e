@@ -327,7 +327,7 @@
                 font-size: 16px;
                 font-weight: 700;
                 color: #2f3b52;
-                margin: 15;
+                margin: 15px;
             }
 
             .y-select {
