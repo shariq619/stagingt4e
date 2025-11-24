@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -241,9 +242,9 @@ abstract class BaseUserDirectoryController extends Controller
         ['delegate' => $delegate, 'clients' => $clients] = $this->buildDelegateData($id);
 
         return view(static::INDEX_VIEW_PREFIX() . '.show', [
-            'delegate'    => $delegate,
-            'clients'     => $clients,
-            'customerId'  => $delegate->client_id ?? null,
+            'delegate' => $delegate,
+            'clients' => $clients,
+            'customerId' => $delegate->client_id ?? null,
         ]);
     }
 
@@ -252,11 +253,12 @@ abstract class BaseUserDirectoryController extends Controller
         ['delegate' => $delegate, 'clients' => $clients] = $this->buildDelegateData($id);
 
         return response()->json([
-            'delegate'  => $delegate,
-            'contacts'  => $delegate->contacts,
-            'clients'   => $clients,
+            'delegate' => $delegate,
+            'contacts' => $delegate->contacts,
+            'clients' => $clients,
         ]);
     }
+
     protected static function INDEX_VIEW_PREFIX(): string
     {
         return rtrim(static::INDEX_VIEW, '.index');
@@ -265,9 +267,14 @@ abstract class BaseUserDirectoryController extends Controller
     public function updateOrStore(Request $request, $id)
     {
         $data = $request->validate([
-            'name' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
-            'email' => ['nullable', 'email', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->ignore($id),
+            ],
             'work_email' => ['nullable', 'email', 'max:255'],
             'unknown_delegate_name' => ['nullable', 'string', 'max:255'],
             'house_number' => ['nullable', 'string', 'max:255'],
@@ -538,13 +545,13 @@ abstract class BaseUserDirectoryController extends Controller
     public function sendEmail(Request $request, $id)
     {
         $data = $request->validate([
-            'to'          => ['required', 'string'],
-            'subject'     => ['required', 'string', 'min:2', 'max:190'],
-            'html_body'   => ['required', 'string', 'min:1'],
+            'to' => ['required', 'string'],
+            'subject' => ['required', 'string', 'min:2', 'max:190'],
+            'html_body' => ['required', 'string', 'min:1'],
             'attachments' => ['nullable', 'string'],
         ]);
 
-        $toRaw     = trim($data['to'] ?? '');
+        $toRaw = trim($data['to'] ?? '');
         $addresses = array_filter(array_map('trim', explode(',', $toRaw)));
 
         if (!count($addresses)) {
@@ -591,10 +598,11 @@ abstract class BaseUserDirectoryController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'message' => 'Email enqueue failed',
-                'error'   => $e->getMessage(),
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
+
     public function customerDelegatesDt(Request $request, $id)
     {
         $query = User::query()
@@ -622,8 +630,8 @@ abstract class BaseUserDirectoryController extends Controller
             ->editColumn('status', function ($u) {
                 $status = strtolower($u->status ?? 'inactive');
                 $classes = [
-                    'active'   => 'delegate-status active',
-                    'pending'  => 'delegate-status pending',
+                    'active' => 'delegate-status active',
+                    'pending' => 'delegate-status pending',
                     'inactive' => 'delegate-status inactive',
                 ];
                 $class = $classes[$status] ?? $classes['inactive'];
