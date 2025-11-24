@@ -2,11 +2,8 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Route;
 
 class FrontOrderDetails extends Model
 {
@@ -59,26 +56,6 @@ class FrontOrderDetails extends Model
     public function latestInvoice()
     {
         return $this->hasOne(\App\Models\ProductInvoice::class, 'order_detail_id')->latestOfMany('id');
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::addGlobalScope('crmFilter', function (Builder $builder) {
-
-            $routeName = Route::currentRouteName();
-            $firstSeg  = request()->segment(1);
-
-            $isCrmNamedRoute = $routeName && str_starts_with($routeName, 'crm.');
-            $isCrmUrlPrefix  = $firstSeg === 'crm';
-
-            if (! $isCrmNamedRoute && ! $isCrmUrlPrefix) {
-                return;
-            }
-
-            $builder->where('created_at', '>=', '2025-11-24 14:00:00');
-        });
     }
 
 
