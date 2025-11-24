@@ -488,8 +488,8 @@
             .vat-rate {
                 display: flex;
                 align-items: center;
-                gap: 8px;
-                margin-left: 12px;
+                /*gap: 8px;*/
+                /*margin-left: 12px;*/
             }
 
             .vat-rate input {
@@ -577,9 +577,9 @@
                 <label for="excludeChk">Exclude Miscellaneous Costs:</label>
                 <input type="checkbox" id="excludeChk">
             </div>
-            <select class="y-select" id="filterC">
-                <option value="">Select</option>
-            </select>
+{{--            <select class="y-select" id="filterC">--}}
+{{--                <option value="">Select</option>--}}
+{{--            </select>--}}
         </div>
 
         <div class="table-wrap">
