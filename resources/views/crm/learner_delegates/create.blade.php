@@ -806,12 +806,12 @@
                 });
 
                 $.ajax({
-                        url: $form.attr('action'),
-                        type: 'POST',
-                        data: fd,
-                        processData: false,
-                        contentType: false
-                    })
+                    url: $form.attr('action'),
+                    type: 'POST',
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                })
                     .done(function(res) {
                         Swal.close();
 
@@ -838,42 +838,42 @@
                         Swal.fire({
                             title: 'All done ✨',
                             html: `
-                    <div style="font-size:14px;color:#4b5563;line-height:1.4;">
-                        Redirecting you to the delegate view…
-                        <span id="delegateRedirectCountdown" style="font-weight:600;color:#111827;">
-                            ${secondsLeft}s remaining…
-                        </span>
+                <div style="font-size:14px;color:#4b5563;line-height:1.4;">
+                    Redirecting you to the delegate view…
+                    <span id="delegateRedirectCountdown" style="font-weight:600;color:#111827;">
+                        ${secondsLeft}s remaining…
+                    </span>
+                </div>
+                <div style="
+                    margin-top:16px;
+                    background:#f1f5f9;
+                    border-radius:8px;
+                    padding:12px 14px;
+                    font-size:12px;
+                    color:#6b7280;
+                    border:1px solid #e5e7eb;
+                    text-align:left;
+                ">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="
+                            width:8px;
+                            height:8px;
+                            border-radius:999px;
+                            background:#22c55e;
+                            box-shadow:0 0 10px rgba(34,197,94,.8);
+                            animation:pulseDot 1.2s infinite;
+                        "></div>
+                        <div>Opening the delegate detail screen for you…</div>
                     </div>
-                    <div style="
-                        margin-top:16px;
-                        background:#f1f5f9;
-                        border-radius:8px;
-                        padding:12px 14px;
-                        font-size:12px;
-                        color:#6b7280;
-                        border:1px solid #e5e7eb;
-                        text-align:left;
-                    ">
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <div style="
-                                width:8px;
-                                height:8px;
-                                border-radius:999px;
-                                background:#22c55e;
-                                box-shadow:0 0 10px rgba(34,197,94,.8);
-                                animation:pulseDot 1.2s infinite;
-                            "></div>
-                            <div>Opening the delegate detail screen for you…</div>
-                        </div>
-                    </div>
-                    <style>
-                        @keyframes pulseDot {
-                            0%   { opacity:1; transform:scale(1);   }
-                            50%  { opacity:.4; transform:scale(.6); }
-                            100% { opacity:1; transform:scale(1);   }
-                        }
-                    </style>
-                `,
+                </div>
+                <style>
+                    @keyframes pulseDot {
+                        0%   { opacity:1; transform:scale(1);   }
+                        50%  { opacity:.4; transform:scale(.6); }
+                        100% { opacity:1; transform:scale(1);   }
+                    }
+                </style>
+            `,
                             showConfirmButton: false,
                             allowOutsideClick: false,
                             allowEscapeKey: false,
@@ -904,29 +904,54 @@
                             const style = document.createElement('style');
                             style.id = 'swal-modern-style';
                             style.textContent = `
-                    .swal-modern-popup {
-                        border-radius: 16px !important;
-                        padding: 24px 24px 20px !important;
-                        box-shadow: 0 25px 50px -12px rgba(0,0,0,.45) !important;
-                        border: 1px solid #e5e7eb !important;
-                    }
-                    .swal-modern-title {
-                        font-size: 16px !important;
-                        font-weight:600 !important;
-                        color:#111827 !important;
-                        margin-bottom:8px !important;
-                    }
-                `;
+                .swal-modern-popup {
+                    border-radius: 16px !important;
+                    padding: 24px 24px 20px !important;
+                    box-shadow: 0 25px 50px -12px rgba(0,0,0,.45) !important;
+                    border: 1px solid #e5e7eb !important;
+                }
+                .swal-modern-title {
+                    font-size: 16px !important;
+                    font-weight:600 !important;
+                    color:#111827 !important;
+                    margin-bottom:8px !important;
+                }
+            `;
                             document.head.appendChild(style);
                         }
                     })
                     .fail(function(xhr) {
                         Swal.close();
-                        const msg = xhr?.responseJSON?.message || 'Failed to save';
+
+                        let title = 'Validation Error';
+                        let html = 'Failed to save.';
+
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            const items = [];
+
+                            Object.keys(errors).forEach(function (field) {
+                                errors[field].forEach(function (msg) {
+                                    items.push('<li>' + msg + '</li>');
+                                });
+                            });
+
+                            html = `
+                <div style="text-align:left;font-size:14px;color:#4b5563;">
+                    <p style="margin-bottom:6px;">Please fix the following:</p>
+                    <ul style="padding-left:18px;margin:0;">
+                        ${items.join('')}
+                    </ul>
+                </div>
+            `;
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            html = xhr.responseJSON.message;
+                        }
+
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: msg
+                            title: title,
+                            html: html
                         });
                     });
             });
