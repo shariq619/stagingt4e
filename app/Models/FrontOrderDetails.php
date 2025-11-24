@@ -76,6 +76,7 @@ class FrontOrderDetails extends Model
             if (! $isCrmNamedRoute && ! $isCrmUrlPrefix) {
                 return;
             }
+            dd('fine', $isCrmNamedRoute, $isCrmUrlPrefix);
 
             $builder->where('created_at', '>=', '2025-11-24 14:00:00');
         });
