@@ -115,7 +115,8 @@ class TrainingCoursesController extends Controller
                 DB::raw('(SELECT COUNT(*) FROM cohort_user cu WHERE cu.cohort_id = c.id) as learners_count'),
             ])
             ->whereYear('c.start_date_time', $year)
-            ->whereMonth('c.start_date_time', $month);
+            ->whereMonth('c.start_date_time', $month)
+            ->where('c.deleted_at', null);
 
         if (!empty($day)) {
             $query->whereDay('c.start_date_time', $day);
