@@ -268,14 +268,14 @@ abstract class BaseUserDirectoryController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'last_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['nullable', 'email', 'max:255'],
             'email' => [
                 'required',
                 'email',
                 'max:255',
                 Rule::unique('users', 'email')->ignore($id),
             ],
-            'work_email' => ['nullable', 'email', 'max:255'],
+            'work_email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'work_email')->ignore($id)],
             'unknown_delegate_name' => ['nullable', 'string', 'max:255'],
             'house_number' => ['nullable', 'string', 'max:255'],
             'house_name' => ['nullable', 'string', 'max:255'],
