@@ -268,7 +268,7 @@ abstract class BaseUserDirectoryController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'last_name' => ['nullable', 'email', 'max:255'],
+            'last_name' => ['nullable', 'string', 'max:255'],
             'email' => [
                 'required',
                 'email',
