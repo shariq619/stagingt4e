@@ -115,6 +115,7 @@ Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], func
             Route::post('{id}/email', 'sendEmail')->name('email.send');
 
             Route::get('{id}/delegates/dt', 'customerDelegatesDt')->name('delegates.dt');
+            Route::get('{id}/detail/json', 'showJson')->name('show.json');
 
             Route::get('financial/{id}/json', 'financialsJson')->name('financials.json');
             Route::get('invoices/payments', 'invoicePaymentsJson')->name('invoices.payments.json');

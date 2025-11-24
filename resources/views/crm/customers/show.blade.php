@@ -651,7 +651,7 @@
 
 
     <div id="customer-page" data-id="{{ $delegate->id ?? request()->route('id') }}"
-         data-json-url="{{ route('crm.customers.show', $delegate->id ?? request()->route('id')) }}">
+         data-json-url="{{ route('crm.customers.show.json', $delegate->id ?? request()->route('id')) }}">
     </div>
 
     <section class="section active" id="section-customer-details">
