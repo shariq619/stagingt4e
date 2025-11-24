@@ -264,7 +264,6 @@ abstract class BaseUserDirectoryController extends Controller
 
     public function updateOrStore(Request $request, $id)
     {
-        dd($request->all(), $id, STATIC::ROLE);
         $data = $request->validate([
             'name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
@@ -340,7 +339,6 @@ abstract class BaseUserDirectoryController extends Controller
         try {
             $result = DB::transaction(function () use ($data, $request, $id) {
                 $contacts = $data['contacts'] ?? [];
-                unset($data['contacts']);
 
                 $isNew = empty($id) || $id === '0' || $id === 'new';
 
