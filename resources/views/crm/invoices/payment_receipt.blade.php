@@ -383,8 +383,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('paymentForm');
-            const inv = document.getElementById('invoice_id') ? document.getElementById('invoice_id').value : null;
-            const pid = document.getElementById('payment_id') ? document.getElementById('payment_id').value : null;
+            const inv = document.getElementById('invoice_id')?.value || null;
+            const pid = document.getElementById('payment_id')?.value || null;
             const btnSave = document.getElementById('btnSave');
             const btnSaveExit = document.getElementById('btnSaveExit');
             const amountInput = document.querySelector('[name=amount]');
@@ -399,7 +399,10 @@
             }
 
             function fmt2(n) {
-                return toNum(n).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                return toNum(n).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
             }
 
             function currentUnallocated() {
@@ -418,7 +421,7 @@
                     err = document.createElement('div');
                     err.id = 'amount-error';
                     err.className = 'invalid-feedback';
-                    if (wrap) wrap.appendChild(err);
+                    wrap.appendChild(err);
                 }
                 return err;
             }
@@ -426,20 +429,18 @@
             function clearAmountError() {
                 const err = document.getElementById('amount-error');
                 if (err) err.remove();
-                if (amountInput) amountInput.classList.remove('is-invalid');
+                amountInput.classList.remove('is-invalid');
             }
 
             function updateToolbarButtons() {
                 const unalloc = currentUnallocated();
-                const amt = amountInput ? toNum(amountInput.value) : 0;
+                const amt = toNum(amountInput.value);
                 const maxAllowed = unalloc + originalAmount;
-                const shouldDisable = (amt <= 0.00001) || (amt > maxAllowed + 0.00001);
-                setButtonsDisabled(shouldDisable);
+                const disable = (amt <= 0.00001) || (amt > maxAllowed + 0.00001);
+                setButtonsDisabled(disable);
             }
 
             function updateRemainingPreview() {
-                if (!amountInput) return;
-
                 const unalloc = currentUnallocated();
                 const amt = toNum(amountInput.value);
                 const maxAllowed = unalloc + originalAmount;
@@ -447,11 +448,11 @@
 
                 let preview = document.getElementById('remaining-preview');
                 if (!preview) {
-                    const wrap = amountInput.closest('.hl-wrapper') || amountInput.parentElement;
+                    const wrap = amountInput.closest('.hl-wrapper');
                     preview = document.createElement('div');
                     preview.id = 'remaining-preview';
                     preview.className = 'form-note';
-                    if (wrap) wrap.appendChild(preview);
+                    wrap.appendChild(preview);
                 }
                 preview.textContent = 'Remaining after this payment: ' + fmt2(remaining);
 
@@ -476,35 +477,31 @@
                     headers: {'Accept': 'application/json'},
                     cache: 'no-store'
                 })
-                    .then(function (r) { return r.json(); })
-                    .then(function (j) {
+                    .then(r => r.json())
+                    .then(j => {
                         const a = toNum(j.allocated);
                         const u = toNum(j.unallocated);
-                        if (allocatedEl) allocatedEl.textContent = fmt2(a);
-                        if (unallocatedEl) unallocatedEl.textContent = fmt2(u);
-                        if (amountInput && !pid) amountInput.value = fmt2(u);
+                        allocatedEl.textContent = fmt2(a);
+                        unallocatedEl.textContent = fmt2(u);
                         updateRemainingPreview();
-                    })
-                    .catch(function () {});
+                    });
             }
 
             function csrf() {
                 const m = document.querySelector('meta[name="csrf-token"]');
-                if (m && m.content) return m.content;
+                if (m) return m.content;
                 const t = form ? new FormData(form).get('_token') : null;
                 return t || '';
             }
 
             function submit(exitAfter) {
-                if (!form || !pid) return;
-
                 const unalloc = currentUnallocated();
-                const amt = amountInput ? toNum(amountInput.value) : 0;
+                const amt = toNum(amountInput.value);
                 const maxAllowed = unalloc + originalAmount;
 
                 if (amt <= 0.00001 || amt > maxAllowed + 0.00001) {
                     updateRemainingPreview();
-                    if (amountInput) amountInput.focus();
+                    amountInput.focus();
                     return;
                 }
 
@@ -514,14 +511,11 @@
                 setButtonsDisabled(true);
 
                 Swal.fire({
-                    title: 'Saving Payment...',
-                    text: 'Please wait while we save your changes.',
+                    title: 'Saving...',
                     icon: 'info',
-                    allowOutsideClick: false,
                     showConfirmButton: false,
-                    didOpen: function () {
-                        Swal.showLoading();
-                    }
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
                 });
 
                 fetch('/crm/invoice-payments/' + pid, {
@@ -533,51 +527,43 @@
                     },
                     body: fd
                 })
-                    .then(function (r) {
-                        if (!r.ok) return r.json().then(function (j) { throw j; });
+                    .then(r => {
+                        if (!r.ok) return r.json().then(j => { throw j; });
                         return r.json();
                     })
-                    .then(function () {
-                        const amt = amountInput ? toNum(amountInput.value) : 0;
+                    .then(() => {
                         originalAmount = amt;
-                        if (originalAmountInput) {
-                            originalAmountInput.value = fmt2(amt);
-                        }
+                        if (originalAmountInput) originalAmountInput.value = fmt2(amt);
 
                         Swal.fire({
                             icon: 'success',
-                            title: 'Saved Successfully',
-                            text: 'Your payment details have been updated.',
-                            timer: 1500,
+                            title: 'Payment Updated',
+                            timer: 1300,
                             showConfirmButton: false
-                        }).then(function () {
-                            if (exitAfter && inv) {
+                        }).then(() => {
+                            if (exitAfter) {
                                 window.location.href = '/crm/invoices/' + inv;
                             } else {
                                 refreshAlloc();
                             }
                         });
                     })
-                    .catch(function (err) {
-                        let msg = 'Failed to save payment.';
-                        if (err && err.errors) {
-                            const keys = Object.keys(err.errors);
-                            if (keys.length > 0 && err.errors[keys[0]] && err.errors[keys[0]][0]) {
-                                msg = err.errors[keys[0]][0];
-                            }
-                        } else if (err && err.message) {
-                            msg = err.message;
+                    .catch(err => {
+                        let msg = 'Failed to update payment.';
+                        if (err?.errors) {
+                            const k = Object.keys(err.errors)[0];
+                            msg = err.errors[k][0];
                         }
                         Swal.fire({icon: 'error', title: 'Error', text: msg});
                     })
-                    .finally(function () {
+                    .finally(() => {
                         setButtonsDisabled(false);
                         updateToolbarButtons();
                     });
             }
 
-            if (btnSave) btnSave.addEventListener('click', function () { submit(false); });
-            if (btnSaveExit) btnSaveExit.addEventListener('click', function () { submit(true); });
+            if (btnSave) btnSave.addEventListener('click', () => submit(false));
+            if (btnSaveExit) btnSaveExit.addEventListener('click', () => submit(true));
 
             if (amountInput) {
                 amountInput.addEventListener('input', updateRemainingPreview);

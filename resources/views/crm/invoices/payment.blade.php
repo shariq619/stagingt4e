@@ -406,7 +406,10 @@
             }
 
             function fmt2(n) {
-                return (toNumber(n)).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                return (toNumber(n)).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
             }
 
             function currentUnallocated() {
@@ -418,8 +421,43 @@
                 $btnSaveExit.prop('disabled', state);
             }
 
+            function handleFullyPaid(unalloc) {
+                if (unalloc <= 0.00001) {
+                    if ($amountInput.length) {
+                        $amountInput.val(fmt2(0));
+                        $amountInput.prop('disabled', true);
+                        $amountInput.removeClass('is-invalid');
+                        const wrap = $amountInput.closest('.hl-wrapper');
+                        if (wrap.length) {
+                            wrap.find('.invalid-feedback').remove();
+                        }
+                    }
+                    let preview = document.getElementById('remaining-preview');
+                    if (!preview && $amountInput.length) {
+                        const wrap = $amountInput.closest('.hl-wrapper');
+                        preview = document.createElement('div');
+                        preview.id = 'remaining-preview';
+                        preview.className = 'form-note';
+                        wrap.append(preview[0] || preview);
+                    }
+                    if (preview) {
+                        preview.textContent = 'Invoice fully paid.';
+                    }
+                    setButtonsDisabled(true);
+                    return true;
+                }
+                if ($amountInput.prop('disabled')) {
+                    $amountInput.prop('disabled', false);
+                }
+                return false;
+            }
+
             function updateToolbarButtons() {
                 const unalloc = currentUnallocated();
+                if (unalloc <= 0.00001) {
+                    setButtonsDisabled(true);
+                    return;
+                }
                 const amt = toNumber($amountInput.val());
                 const hasError = amt <= 0.00001 || amt > unalloc + 0.00001 || $amountInput.hasClass('is-invalid');
                 setButtonsDisabled(hasError);
@@ -438,6 +476,9 @@
                 const unallocated = toNumber(j.unallocated);
                 $allocatedEl.text(fmt2(allocated));
                 $unallocatedEl.text(fmt2(unallocated));
+                if (handleFullyPaid(unallocated)) {
+                    return {allocated, unallocated};
+                }
                 $amountInput.val(fmt2(unallocated));
                 if (form.data('validator')) {
                     $amountInput.valid();
@@ -450,7 +491,6 @@
             function updateRemainingPreview() {
                 const unalloc = currentUnallocated();
                 const amt = toNumber($amountInput.val());
-                const remaining = Math.max(0, unalloc - amt);
                 let preview = document.getElementById('remaining-preview');
                 if (!preview) {
                     const wrap = $amountInput.closest('.hl-wrapper');
@@ -459,6 +499,13 @@
                     preview.className = 'form-note';
                     wrap.append(preview[0] || preview);
                 }
+                if (unalloc <= 0.00001) {
+                    preview.textContent = 'Invoice fully paid.';
+                    $amountInput.removeClass('is-invalid');
+                    setButtonsDisabled(true);
+                    return;
+                }
+                const remaining = Math.max(0, unalloc - amt);
                 preview.textContent = `Remaining after this payment: ${fmt2(remaining)}`;
                 if (amt <= 0.00001 || amt > unalloc + 0.00001) {
                     $amountInput.addClass('is-invalid');
@@ -467,6 +514,27 @@
                 }
                 updateToolbarButtons();
             }
+
+            $.validator.methods.number = function (value, element) {
+                if (typeof value === 'string') value = value.replace(/,/g, '').trim();
+                return this.optional(element) || (value !== '' && !isNaN(value) && !isNaN(parseFloat(value)));
+            };
+
+            $.validator.methods.min = function (value, element, param) {
+                if (typeof value === 'string') value = value.replace(/,/g, '').trim();
+                if (this.optional(element)) return true;
+                const v = parseFloat(value);
+                if (isNaN(v)) return false;
+                return v >= param;
+            };
+
+            $.validator.methods.max = function (value, element, param) {
+                if (typeof value === 'string') value = value.replace(/,/g, '').trim();
+                if (this.optional(element)) return true;
+                const v = parseFloat(value);
+                if (isNaN(v)) return false;
+                return v <= param;
+            };
 
             form.validate({
                 ignore: [],
@@ -582,11 +650,11 @@
             document.getElementById('btnSave').addEventListener('click', () => post(false));
             document.getElementById('btnSaveExit').addEventListener('click', () => post(true));
 
+            handleFullyPaid(currentUnallocated());
+            updateRemainingPreview();
             refreshBalances().catch(() => {
                 updateToolbarButtons();
             });
-            updateRemainingPreview();
         })();
     </script>
-
 @endpush

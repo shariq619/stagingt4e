@@ -113,6 +113,10 @@ class ProductInvoicePaymentsController extends Controller
 
     public function store(Request $request, $id)
     {
+        $request->merge([
+            'amount' => str_replace(',', '', $request->amount)
+        ]);
+
         $invoice = ProductInvoice::findOrFail($id);
 
         $data = $request->validate([
@@ -201,6 +205,10 @@ class ProductInvoicePaymentsController extends Controller
 
     public function update(Request $request, $paymentId)
     {
+        $request->merge([
+            'amount' => str_replace(',', '', $request->amount)
+        ]);
+
         $payment = ProductInvoicePayment::with('invoice')->findOrFail($paymentId);
         $invoice = $payment->invoice;
 
