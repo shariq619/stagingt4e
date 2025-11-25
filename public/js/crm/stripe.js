@@ -194,41 +194,80 @@
     }
 
     async function onPay() {
-        startProgress(payBtn, 'Processing…', modal);
+        startProgress(payBtn, 'Processing…', modal, false);
+
+        let prevDisplay = '';
+        let hiddenFor3DS = false;
+        let resolved = false;
+
         try {
             const amount = parseFloat(amtEl.value || '0');
             const currency = curEl.value || 'GBP';
             if (!(amount > 0)) throw new Error('Enter a valid amount');
+
             const intent = await createIntent(amount, currency);
-            const res = await stripe.confirmCardPayment(intent.client_secret, {payment_method: {card}});
-            if (res.error) throw new Error(res.error.message || 'Card authorization failed');
+
+            const hideTimer = setTimeout(function () {
+                if (resolved) return;
+                if (modal && modal.style.display !== 'none') {
+                    prevDisplay = modal.style.display || '';
+                    modal.style.display = 'none';
+                    hiddenFor3DS = true;
+                }
+            }, 1000);
+
+            const res = await stripe.confirmCardPayment(intent.client_secret, {
+                payment_method: { card }
+            });
+
+            resolved = true;
+            clearTimeout(hideTimer);
+
+            if (res.error) {
+                if (modal && hiddenFor3DS) modal.style.display = prevDisplay || 'block';
+                throw new Error(res.error.message || 'Card authorization failed');
+            }
+
             const pi = res.paymentIntent;
-            if (!pi) throw new Error('No payment intent returned');
+            if (!pi) {
+                if (modal && hiddenFor3DS) modal.style.display = prevDisplay || 'block';
+                throw new Error('No payment intent returned');
+            }
+
             if (pi.status === 'succeeded' || pi.status === 'processing') {
                 await allocate(pi.id);
-                hide(modal);
                 resetChargeModal();
-                if (window.Swal) Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    timer: 1700,
-                    showConfirmButton: false,
-                    title: 'Payment captured',
-                    icon: 'success'
-                });
+                hiddenFor3DS = false;
+
+                if (modal) hide(modal);
+
+                if (window.Swal) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        timer: 1700,
+                        showConfirmButton: false,
+                        title: 'Payment captured',
+                        icon: 'success'
+                    });
+                }
+
                 if (typeof fetchPayments === 'function') {
                     fetchPayments().then(function (p) {
-                        if (typeof recalcAllClient === 'function') recalcAllClient(p.allocated)
-                    })
+                        if (typeof recalcAllClient === 'function') {
+                            recalcAllClient(p.allocated);
+                        }
+                    });
                 }
             } else {
-                throw new Error('Payment not completed (status: ' + pi.status + ')')
+                if (modal && hiddenFor3DS) modal.style.display = prevDisplay || 'block';
+                throw new Error('Payment not completed (status: ' + pi.status + ')');
             }
         } catch (e) {
             const err = qs('stripe-card-errors');
-            if (err) err.textContent = e.message || 'Error'
+            if (err) err.textContent = e.message || 'Error';
         } finally {
-            stopProgress(payBtn)
+            stopProgress(payBtn);
         }
     }
 
