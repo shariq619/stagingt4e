@@ -856,7 +856,7 @@
                     <div class="input-group position-relative">
                         <input type="text" class="form-control" id="user_search_input" autocomplete="off"
                                placeholder="Search user by name or email" style="height: 40px;">
-                        <a href="{{ route('backend.users.create') }}" target="_blank" class="btn btn-blue event_none"
+                        <a href="{{ url('crm/learner-delegates/create/new') }}" target="_blank" class="btn btn-blue event_none"
                            id="create_new_user_btn">Create New</a>
                     </div>
                     <div id="user_search_results"></div>
