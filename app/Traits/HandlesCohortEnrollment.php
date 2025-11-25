@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Traits;
 
 use Illuminate\Support\Facades\DB;
@@ -49,21 +50,26 @@ trait HandlesCohortEnrollment
             $user   = User::findOrFail($userId);
             $course = $cohort->course ?? abort(404, 'Associated course not found for this cohort.');
 
-            $price       = (float)($course->price ?? 0);
-            $quantity    = 1;
-            $totalPrice  = $price * $quantity;
-            $costPrice   = $price * 0.8;
-            $vatAmount   = $price * 0.2;
+            $vatRate        = 0.20;
+            $quantity       = 1;
+
+            $grossUnit      = (float) ($course->price ?? 0);
+            $netUnit        = round($grossUnit / (1 + $vatRate), 2);
+            $vatUnit        = round($grossUnit - $netUnit, 2);
+
+            $netTotal       = round($netUnit * $quantity, 2);
+            $vatTotal       = round($vatUnit * $quantity, 2);
+            $grossTotal     = round($netTotal + $vatTotal, 2);
 
             $order = FrontOrder::create([
                 'user_id'           => $userId,
-                'total_amount'      => $totalPrice,
+                'total_amount'      => $grossTotal,
                 'payment_method'    => null,
                 'order_status'      => 'Processing',
                 'shipping_cost'     => 0,
-                'tax_amount'        => 0,
+                'tax_amount'        => $vatTotal,
                 'discount_amount'   => 0,
-                'remaining_balance' => $totalPrice,
+                'remaining_balance' => $grossTotal,
             ]);
 
             $detail = FrontOrderDetails::create([
@@ -76,14 +82,14 @@ trait HandlesCohortEnrollment
                 'bundle_id'         => null,
                 'product_id'        => null,
                 'course_name'       => $course->name,
-                'course_price'      => $price,
+                'course_price'      => $netTotal,
                 'quantity'          => $quantity,
-                'total_price'       => $totalPrice,
+                'total_price'       => $netTotal,
                 'deposit_paid'      => 0,
                 'deposit_amount'    => 0,
-                'cost_price'        => $costPrice,
-                'vat'               => $vatAmount,
-                'remaining_balance' => $totalPrice,
+                'cost_price'        => $netTotal,
+                'vat'               => $vatTotal,
+                'remaining_balance' => $grossTotal,
                 'discount'          => 0,
             ]);
 
@@ -95,20 +101,20 @@ trait HandlesCohortEnrollment
             ]);
 
             CheckoutDetail::create([
-                'order_id'        => $order->id,
-                'first_name'      => $user->name ?? "N/A",
-                'last_name'       => $user->last_name ?? "N/A",
-                'company_name'    => $user->company ?? "N/A",
-                'street_address'  => $user->address ?? "N/A",
-                'unit'            => $user->unit ?? "N/A",
-                'city'            => $user->city ?? "N/A",
-                'postcode'        => $user->postcode ?? "00000",
-                'phone'           => $user->phone_number ?? ($user->telephone ?? "000000000"),
-                'email'           => $user->email ?? "N/A",
-                'attendee_details'=> null,
-                'hear_about'      => '',
-                'declaration'     => false,
-                'terms'           => false,
+                'order_id'         => $order->id,
+                'first_name'       => $user->name ?? "N/A",
+                'last_name'        => $user->last_name ?? "N/A",
+                'company_name'     => $user->company ?? "N/A",
+                'street_address'   => $user->address ?? "N/A",
+                'unit'             => $user->unit ?? "N/A",
+                'city'             => $user->city ?? "N/A",
+                'postcode'         => $user->postcode ?? "00000",
+                'phone'            => $user->phone_number ?? ($user->telephone ?? "000000000"),
+                'email'            => $user->email ?? "N/A",
+                'attendee_details' => null,
+                'hear_about'       => '',
+                'declaration'      => false,
+                'terms'            => false,
             ]);
 
             $invoice = null;
@@ -118,9 +124,13 @@ trait HandlesCohortEnrollment
             }
 
             return [
-                'order'   => $order,
-                'detail'  => $detail,
-                'invoice' => $invoice,
+                'order'        => $order,
+                'detail'       => $detail,
+                'invoice'      => $invoice,
+                'vat_rate'     => $vatRate,
+                'net_amount'   => $netTotal,
+                'vat_amount'   => $vatTotal,
+                'gross_amount' => $grossTotal,
             ];
         });
     }
