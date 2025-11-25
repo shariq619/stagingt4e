@@ -55,7 +55,11 @@ class TrainingCoursesController extends Controller
 
         $cohort_count = $countQuery->count();
 
-        return view('crm.training-courses.index', compact('cohort_count'));
+        $trainers = User::role('trainer')
+            ->orderBy('name')
+            ->pluck('name', 'id');
+
+        return view('crm.training-courses.index', compact('cohort_count', 'trainers'));
     }
 
     public function show($id)
@@ -116,7 +120,7 @@ class TrainingCoursesController extends Controller
             ])
             ->whereYear('c.start_date_time', $year)
             ->whereMonth('c.start_date_time', $month)
-            ->where('c.deleted_at', null);
+            ->whereNull('c.deleted_at');
 
         if (!empty($day)) {
             $query->whereDay('c.start_date_time', $day);
@@ -132,15 +136,20 @@ class TrainingCoursesController extends Controller
 
         if (!empty($q)) {
             $query->where(function ($w) use ($q) {
-                $w->where('crs.name', 'like', "%{$q}%")
-                    ->orWhere('c.status', 'like', "%{$q}%")
-                    ->orWhere('t.name', 'like', "%{$q}%")
-                    ->orWhere('v.venue_name', 'like', "%{$q}%");
+                $w->where('crs.name', 'like', '%' . $q . '%')
+                    ->orWhere('c.status', 'like', '%' . $q . '%')
+                    ->orWhere('t.name', 'like', '%' . $q . '%')
+                    ->orWhere('v.venue_name', 'like', '%' . $q . '%');
             });
         }
 
         $baseCount = (clone $query)->count();
         $cohortIds = (clone $query)->pluck('c.id')->all();
+
+        $maxId = null;
+        if (!empty($cohortIds)) {
+            $maxId = max($cohortIds);
+        }
 
         $financialsByCohort = [];
         $subTotal  = 0.0;
@@ -161,19 +170,18 @@ class TrainingCoursesController extends Controller
             $lineAgg = DB::table($lineTable . ' as l')
                 ->join($invTable . ' as i', 'i.id', '=', 'l.invoice_id')
                 ->selectRaw("
-                i.cohort_id,
-                l.is_reassigned,
-                COALESCE(SUM(l.qty * l.unit_cost), 0)       AS sub_total,
-                COALESCE(SUM(l.discount), 0)                AS discount,
-                COALESCE(SUM(l.net_amount), 0)              AS total_cost,
-                COALESCE(SUM(l.vat_amount), 0)              AS vat
-            ")
+                    i.cohort_id,
+                    l.is_reassigned,
+                    COALESCE(SUM(l.qty * l.unit_cost), 0) AS sub_total,
+                    COALESCE(SUM(l.discount), 0) AS discount,
+                    COALESCE(SUM(l.net_amount), 0) AS total_cost,
+                    COALESCE(SUM(l.vat_amount), 0) AS vat
+                ")
                 ->whereIn('i.cohort_id', $cohortIds)
                 ->whereNull('i.deleted_at')
                 ->whereNull('l.deleted_at')
                 ->groupBy('i.cohort_id', 'l.is_reassigned')
                 ->get();
-
 
             $byCohort = [];
 
@@ -201,13 +209,12 @@ class TrainingCoursesController extends Controller
                 }
             }
 
-
             $miscAgg = DB::table($miscTable)
                 ->selectRaw("
-                cohort_id,
-                COALESCE(SUM(net_cost), 0) AS misc_net,
-                COALESCE(SUM(vat), 0)      AS misc_vat
-            ")
+                    cohort_id,
+                    COALESCE(SUM(net_cost), 0) AS misc_net,
+                    COALESCE(SUM(vat), 0) AS misc_vat
+                ")
                 ->whereIn('cohort_id', $cohortIds)
                 ->groupBy('cohort_id')
                 ->get()
@@ -337,8 +344,9 @@ class TrainingCoursesController extends Controller
             ->rawColumns(['course_name', 'availability', 'invoice_total', 'customer'])
             ->orderColumn('course_date', 'c.start_date_time $1')
             ->with([
-                'total'  => $baseCount,
-                'totals' => $totals,
+                'total'   => $baseCount,
+                'totals'  => $totals,
+                'max_id'  => $maxId,
             ])
             ->make(true);
     }
@@ -1762,21 +1770,67 @@ class TrainingCoursesController extends Controller
         ], 403);
     }
 
-    public function copy($cohortId)
+
+    public function copy(Request $request, $cohortId)
     {
         $cohort = Cohort::findOrFail($cohortId);
 
+        if (!$request->filled('start_date_time') || !$request->filled('end_date_time')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Start and End date are required.',
+            ], 422);
+        }
+
+        $startInput = trim($request->input('start_date_time'));
+        $endInput   = trim($request->input('end_date_time'));
+
+        $startFormat = strlen($startInput) > 10 ? 'd-m-Y H:i' : 'd-m-Y';
+        $endFormat   = strlen($endInput) > 10 ? 'd-m-Y H:i' : 'd-m-Y';
+
         $clone = $cohort->replicate();
         $clone->status = 'Confirmed';
+
+        if (!$request->boolean('exclude_trainers')) {
+            $clone->trainer_id = $request->input('trainer_id');
+        }
+
+//        elseif($request->boolean('exclude_trainers')) {
+//            $clone->trainer_id = $cohort->trainer_id;
+//        }
+
+        $clone->start_date_time = Carbon::createFromFormat($startFormat, $startInput);
+        $clone->end_date_time   = Carbon::createFromFormat($endFormat, $endInput);
+
         $clone->created_at = now();
         $clone->updated_at = now();
         $clone->save();
 
+        if (!$request->boolean('exclude_delegates')) {
+            $oldDelegates = \DB::table('cohort_user')
+                ->where('cohort_id', $cohortId)
+                ->pluck('user_id');
+
+            foreach ($oldDelegates as $uid) {
+                try {
+                    $this->enrollUserToCohortWithOptions(
+                        $uid,
+                        $clone->id,
+                        0
+                    );
+                } catch (\Throwable $e) {
+                    Log::error("Failed to add delegate $uid to cloned cohort: " . $e->getMessage());
+                }
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Course copied successfully'
+            'message' => 'Course copied successfully',
+            'id' => $clone->id,
         ]);
     }
+
 
     public function updateStatus(Request $request)
     {

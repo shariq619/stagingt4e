@@ -3,6 +3,7 @@
 
 @push('css')
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
     <style>
         .ribbon {
             display: flex;
@@ -16,7 +17,6 @@
             box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
             margin-bottom: 1.25rem;
         }
-
         .ribbon .group {
             display: inline-flex;
             gap: .4rem;
@@ -25,14 +25,12 @@
             border-radius: 999px;
             padding: .25rem .55rem .25rem .5rem;
         }
-
         .ribbon .mini {
             display: flex;
             flex-wrap: wrap;
             gap: .35rem;
             align-items: center;
         }
-
         .ribbon select,
         .ribbon input {
             height: 36px;
@@ -46,18 +44,15 @@
             outline: none;
             transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
         }
-
         .ribbon select:focus,
         .ribbon input:focus {
             border-color: rgba(37, 99, 235, .75);
             box-shadow: 0 0 0 1px rgba(37, 99, 235, .35);
             background-color: #f9fbff;
         }
-
         .ribbon .search {
             width: 260px;
         }
-
         .ribbon .pill {
             border-radius: 999px;
             border: 1px solid var(--soft);
@@ -73,7 +68,6 @@
             text-transform: uppercase;
             transition: background-color .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .12s ease;
         }
-
         .ribbon .pill:hover {
             background: #f9fafb;
             border-color: #d1d5db;
@@ -81,29 +75,24 @@
             transform: translateY(-1px);
             box-shadow: 0 1px 4px rgba(15, 23, 42, .08);
         }
-
         .ribbon .pill.active {
             color: blue;
             box-shadow: 0 2px 6px rgba(37, 99, 235, .35);
         }
-
         .ribbon .btn-blue {
             background: var(--chip);
             color: #fff;
             border: none;
             font-weight: 600;
         }
-
         .ribbon .btn-blue:hover {
             background: #1d4ed8;
         }
-
         .ribbon .btn-outline {
             background: #fff;
             color: var(--ink);
             border: 1px solid var(--soft);
         }
-
         .card-modern {
             border: 0;
             border-radius: 18px;
@@ -111,7 +100,6 @@
             overflow: hidden;
             background: var(--card-bg);
         }
-
         .card-modern .card-header {
             background: linear-gradient(135deg, #ffffff, #f3f4ff);
             border-bottom: 1px solid var(--soft);
@@ -120,7 +108,6 @@
             padding-inline: 1.25rem;
             padding-block: .9rem;
         }
-
         .card-modern .card-title {
             margin: 0;
             font-weight: 600;
@@ -128,7 +115,6 @@
             font-size: 1rem;
             letter-spacing: .01em;
         }
-
         .badge-soft {
             background: rgba(37, 99, 235, .06);
             color: #1d4ed8;
@@ -141,7 +127,6 @@
             align-items: center;
             gap: .25rem;
         }
-
         .badge-soft::before {
             content: '';
             width: 8px;
@@ -149,27 +134,22 @@
             border-radius: 999px;
             background: var(--accent);
         }
-
         .card-modern .card-body {
             padding: 1.1rem 1.25rem 1.25rem;
         }
-
         .table-wrap {
             border: 1px solid rgba(148, 163, 184, .35);
             background: #ffffff;
             border-radius: 14px;
         }
-
         .table-modern {
             border-collapse: collapse;
             width: 100%;
             font-size: .875rem;
         }
-
         .table-modern thead {
             box-shadow: 0 1px 0 rgba(148, 163, 184, .45);
         }
-
         .table-modern th {
             background: linear-gradient(90deg, #eff6ff, #e0f2fe);
             color: #0f172a;
@@ -182,7 +162,6 @@
             white-space: nowrap;
             text-transform: uppercase;
         }
-
         .table-modern th,
         .table-modern td {
             padding: .75rem .9rem;
@@ -191,68 +170,61 @@
             border-bottom: 1px solid #f1f5f9;
             border-right: 1px solid #edf2f7;
         }
-
         .table-modern th:last-child,
         .table-modern td:last-child {
             border-right: 0;
         }
-
         .table-modern tbody tr {
             transition: background-color .16s ease, box-shadow .16s ease;
         }
-
         .table-modern tbody tr:hover {
             background: #f9fafb;
             box-shadow: 0 2px 6px rgba(15, 23, 42, .05);
         }
-
         .td-trunc {
             max-width: 260px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         .empty {
             padding: 3rem 1rem;
             text-align: center;
             color: var(--muted);
             font-size: .9rem;
         }
-
         @media (max-width: 992px) {
             .ribbon {
                 border-radius: 16px;
             }
         }
-
         @media (max-width: 576px) {
             .ribbon {
                 flex-direction: column;
                 align-items: stretch;
                 border-radius: 18px;
             }
-
             .ribbon .group {
                 width: 100%;
                 justify-content: space-between;
             }
-
             .ribbon .search {
                 width: 100%;
             }
-
             .td-trunc {
                 max-width: 160px;
             }
         }
-
         #dtCourses_length {
             margin: 15px;
         }
-
         .form-control,
         .form-select {
             border-radius: 12px;
+        }
+        .table-modern tbody tr.row-copied {
+            background: #dcfce7 !important;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.4) inset;
+            transition: background-color .4s ease, box-shadow .4s ease;
         }
     </style>
 
@@ -268,21 +240,17 @@
             --header-bg: #f9fafb;
             --accent: #22c55e;
         }
-
         body {
             background: radial-gradient(circle at top left, #eef2ff 0, #f3f4f6 42%, #f9fafb 100%);
         }
-
         .page-wrap {
             max-width: 1440px;
             margin-inline: auto;
             padding-inline: 1.25rem;
         }
-
         .page-inner {
             padding: 1.5rem 0 3rem;
         }
-
         .ribbon {
             display: flex;
             gap: .75rem;
@@ -295,7 +263,6 @@
             box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
             margin-bottom: 1.25rem;
         }
-
         .ribbon .group {
             display: inline-flex;
             gap: .4rem;
@@ -304,14 +271,12 @@
             border-radius: 999px;
             padding: .25rem .55rem .25rem .5rem;
         }
-
         .ribbon .mini {
             display: flex;
             flex-wrap: wrap;
             gap: .35rem;
             align-items: center;
         }
-
         .ribbon .pill {
             border-radius: 999px;
             border: 1px solid var(--soft);
@@ -327,7 +292,6 @@
             text-transform: uppercase;
             transition: background-color .16s ease, color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .12s ease;
         }
-
         .ribbon .pill:hover {
             background: #f9fafb;
             border-color: #d1d5db;
@@ -335,23 +299,19 @@
             transform: translateY(-1px);
             box-shadow: 0 1px 4px rgba(15, 23, 42, .08);
         }
-
         .ribbon .pill.active {
             color: blue;
             box-shadow: 0 2px 6px rgba(37, 99, 235, .35);
         }
-
         .ribbon .btn-blue {
             background: var(--chip);
             color: #fff;
             border: none;
             font-weight: 600;
         }
-
         .ribbon .btn-blue:hover {
             background: #1d4ed8;
         }
-
         .ribbon .search {
             width: 260px;
             height: 36px;
@@ -364,13 +324,11 @@
             outline: none;
             transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
         }
-
         .ribbon .search:focus {
             border-color: rgba(37, 99, 235, .75);
             box-shadow: 0 0 0 1px rgba(37, 99, 235, .35);
             background-color: #f9fbff;
         }
-
         .card-modern {
             border: 0;
             border-radius: 18px;
@@ -378,7 +336,6 @@
             overflow: hidden;
             background: var(--card-bg);
         }
-
         .card-modern .card-header {
             background: linear-gradient(135deg, #ffffff, #f3f4ff);
             border-bottom: 1px solid var(--soft);
@@ -387,7 +344,6 @@
             padding-inline: 1.25rem;
             padding-block: .9rem;
         }
-
         .card-modern .card-title {
             margin: 0;
             font-weight: 600;
@@ -395,7 +351,6 @@
             font-size: 1rem;
             letter-spacing: .01em;
         }
-
         .badge-soft {
             background: rgba(37, 99, 235, .06);
             color: #1d4ed8;
@@ -408,7 +363,6 @@
             align-items: center;
             gap: .25rem;
         }
-
         .badge-soft::before {
             content: '';
             width: 8px;
@@ -416,27 +370,22 @@
             border-radius: 999px;
             background: var(--accent);
         }
-
         .card-modern .card-body {
             padding: 1.1rem 1.25rem 1.25rem;
         }
-
         .table-wrap {
             border: 1px solid rgba(148, 163, 184, .35);
             background: #ffffff;
             border-radius: 14px;
         }
-
         .table-modern {
             border-collapse: collapse;
             width: 100%;
             font-size: .875rem;
         }
-
         .table-modern thead {
             box-shadow: 0 1px 0 rgba(148, 163, 184, .45);
         }
-
         .table-modern th {
             background: linear-gradient(90deg, #eff6ff, #e0f2fe);
             color: #0f172a;
@@ -449,7 +398,6 @@
             white-space: nowrap;
             text-transform: uppercase;
         }
-
         .table-modern th,
         .table-modern td {
             padding: .75rem .9rem;
@@ -458,31 +406,25 @@
             border-bottom: 1px solid #f1f5f9;
             border-right: 1px solid #edf2f7;
         }
-
         .table-modern th:last-child,
         .table-modern td:last-child {
             border-right: 0;
         }
-
         .table-modern tbody tr {
             transition: background-color .16s ease, box-shadow .16s ease;
         }
-
         .table-modern tbody tr:hover {
             background: #f9fafb;
             box-shadow: 0 2px 6px rgba(15, 23, 42, .05);
         }
-
         .td-trunc {
             max-width: 260px;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         #dtLearners_length {
             margin: 15px;
         }
-
         .finder {
             position: fixed;
             inset: 80px 16px 16px 16px;
@@ -494,11 +436,9 @@
             flex-direction: column;
             z-index: 1050;
         }
-
         .finder.hidden {
             display: none;
         }
-
         .finder-head {
             display: flex;
             align-items: center;
@@ -511,7 +451,6 @@
             font-weight: 600;
             font-size: .875rem;
         }
-
         .finder-close {
             background: #ffffff;
             border: 1px solid #d1d5db;
@@ -526,24 +465,20 @@
             justify-content: center;
             transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease;
         }
-
         .finder-close:hover {
             background: #f9fafb;
             border-color: #9ca3af;
             box-shadow: 0 1px 4px rgba(15, 23, 42, .1);
         }
-
         .finder-title {
             font-size: .9rem;
         }
-
         .finder-grid {
             flex: 1;
             overflow: auto;
             background: #ffffff;
             padding: 6px 8px 8px;
         }
-
         .finder-row {
             display: grid;
             grid-template-columns: 120px 1.6fr 1.4fr 110px;
@@ -554,16 +489,13 @@
             font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
             font-size: 12px;
         }
-
         .finder-row:hover {
             background: #f3f4ff;
         }
-
         .finder-row .dots {
             position: relative;
             overflow: hidden;
         }
-
         .finder-row .dots:after {
             content: "................................................................................................................................";
             position: absolute;
@@ -573,64 +505,52 @@
             color: #d1d5db;
             pointer-events: none;
         }
-
         .finder-row span {
             background: #ffffff;
             position: relative;
             z-index: 1;
             padding-right: 6px;
         }
-
         .finder-col-date {
             color: #4b5563;
         }
-
         .finder-col-code {
             text-align: right;
             font-weight: 700;
             color: #6b7280;
         }
-
         .finder-active {
             outline: 2px solid rgba(37, 99, 235, .8);
         }
-
         @media (max-width: 992px) {
             .ribbon {
                 border-radius: 16px;
             }
         }
-
         @media (max-width: 576px) {
             .ribbon {
                 flex-direction: column;
                 align-items: stretch;
                 border-radius: 18px;
             }
-
             .ribbon .group {
                 width: 100%;
                 justify-content: space-between;
             }
-
             .ribbon .search {
                 width: 100%;
             }
-
             .td-trunc {
                 max-width: 160px;
             }
         }
-
         .form-control,
         .form-select {
             border-radius: 12px;
         }
-
         #dtCourses_filter {
             display: none;
         }
-
         .ctx-menu {
             display: none;
             position: absolute;
@@ -642,7 +562,6 @@
             overflow: hidden;
             min-width: 230px;
         }
-
         .ctx-menu a {
             display: block;
             padding: 8px 14px;
@@ -651,7 +570,6 @@
             white-space: nowrap;
             font-size: 12px;
         }
-
         .ctx-menu a:hover {
             background: #eff6ff;
         }
@@ -663,28 +581,23 @@
             box-shadow: 0 18px 40px rgba(15, 23, 42, .2);
             border: 1px solid #d1d5db;
         }
-
         .status-modal-header {
             background: linear-gradient(90deg, #e5edf7, #d9e2f2);
             border-bottom: 1px solid #cbd5e1;
             padding: .5rem .9rem;
         }
-
         .status-modal-header .modal-title {
             font-size: .95rem;
             font-weight: 600;
         }
-
         .status-modal-body {
             padding: .75rem .9rem 1rem;
             background: #f9fafb;
         }
-
         .status-grid {
             border: 1px solid #d1d5db;
             background: #ffffff;
         }
-
         .status-row {
             display: grid;
             grid-template-columns: 1.2fr 2fr;
@@ -692,13 +605,11 @@
             font-size: .8rem;
             align-items: center;
         }
-
         .status-header {
             background: #4b5563;
             color: #f9fafb;
             font-weight: 600;
         }
-
         .status-option {
             border: 0;
             width: 100%;
@@ -706,21 +617,17 @@
             background: #ffffff;
             cursor: pointer;
         }
-
         .status-option:nth-child(even) {
             background: #f9fafb;
         }
-
         .status-option:hover {
             background: #e5f0ff;
         }
-
         .status-modal-footer {
             padding: .5rem .9rem .6rem;
             border-top: 1px solid #e5e7eb;
         }
-
-        .pagination{
+        .pagination {
             margin: 10px !important;
         }
     </style>
@@ -733,8 +640,7 @@
                 <div class="group">
                     <select name="year" id="year">
                         @for ($y = now()->year; $y >= 2016; $y--)
-                            <option
-                                value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
                         @endfor
                     </select>
                     <select name="month" id="month">
@@ -765,16 +671,14 @@
                     <select class="d-none" name="trigger" id="trigger">
                         <option value="">--Trigger Events--</option>
                         @foreach(($triggerEvents ?? []) as $ev)
-                            <option
-                                value="{{ $ev }}" {{ request('trigger') === $ev ? 'selected' : '' }}>{{ $ev }}</option>
+                            <option value="{{ $ev }}" {{ request('trigger') === $ev ? 'selected' : '' }}>{{ $ev }}</option>
                         @endforeach
                     </select>
 
                     <select class="d-none" name="module" id="module">
                         <option value="">--Modules--</option>
                         @foreach(($modules ?? []) as $mod)
-                            <option
-                                value="{{ $mod }}" {{ request('module') === $mod ? 'selected' : '' }}>{{ $mod }}</option>
+                            <option value="{{ $mod }}" {{ request('module') === $mod ? 'selected' : '' }}>{{ $mod }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -783,14 +687,12 @@
                     <select name="invoice_status" id="invoice_status">
                         <option value="">--Course Invoice Status--</option>
                         @foreach(getPaymentStatus() as $ps)
-                            <option
-                                value="{{ $ps }}" {{ request('invoice_status') === $ps ? 'selected' : '' }}>{{ $ps }}</option>
+                            <option value="{{ $ps }}" {{ request('invoice_status') === $ps ? 'selected' : '' }}>{{ $ps }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <input class="search" type="text" name="q" id="q" value="{{ request('q') }}"
-                       placeholder="Search By Names…">
+                <input class="search" type="text" name="q" id="q" value="{{ request('q') }}" placeholder="Search By Names…">
 
                 <div class="mini">
                     @php $alpha = range('A','Z'); @endphp
@@ -821,23 +723,20 @@
                                 <th>Availability</th>
                                 <th>
                                     <span style="display:inline-block;">Net</span>
-                                    <small class="text-muted"
-                                           style="font-size:10px; position:relative; top:2px; margin-left:4px; display:inline-block;">
+                                    <small class="text-muted" style="font-size:10px; position:relative; top:2px; margin-left:4px; display:inline-block;">
                                         (After Discount)
                                     </small>
                                 </th>
                                 <th>
                                     <span style="display:inline-block;">VAT</span>
-                                    <small class="text-muted"
-                                           style="font-size:10px; position:relative; top:2px; margin-left:4px; display:inline-block;">
+                                    <small class="text-muted" style="font-size:10px; position:relative; top:2px; margin-left:4px; display:inline-block;">
                                         (After Discount)
                                     </small>
                                 </th>
                                 <th>Discount</th>
                                 <th>
                                     <span style="display:inline-block;">Invoice Total</span>
-                                    <small class="text-muted"
-                                           style="font-size:10px; position:relative; top:2px; margin-left:4px; display:inline-block;">
+                                    <small class="text-muted" style="font-size:10px; position:relative; top:2px; margin-left:4px; display:inline-block;">
                                         (After Discount)
                                     </small>
                                 </th>
@@ -906,14 +805,86 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="copyCourseModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content status-modal">
+                <div class="modal-header status-modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-people-fill me-2"></i> Copy Training Course
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body status-modal-body">
+                    <input type="hidden" id="copyCohortId">
+
+                    <div class="mb-2 d-flex flex-wrap gap-4">
+                        <div class="form-check d-none">
+                            <input class="form-check-input" type="checkbox" id="copyIncludeInfo" checked>
+                            <label class="form-check-label" for="copyIncludeInfo">
+                                Include Additional Info Data
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="copyExcludeDelegates" checked>
+                            <label class="form-check-label" for="copyExcludeDelegates">
+                                Exclude Learner-Delegates
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="copyExcludeTrainers" checked>
+                            <label class="form-check-label" for="copyExcludeTrainers">
+                                Exclude Trainers
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label mb-1">Start Date & Time</label>
+                            <input type="text" class="form-control" id="copyStartDate" autocomplete="off"
+                                   placeholder="Select start date & time">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label mb-1">End Date & Time</label>
+                            <input type="text" class="form-control" id="copyEndDate" autocomplete="off"
+                                   placeholder="Select end date & time">
+                        </div>
+                        <div class="col-md-4 d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnCopyD1">D+1</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnCopyM1">M+1</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="btnCopyY1">Y+1</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer status-modal-footer d-flex justify-content-between">
+                    <div></div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary" id="copyProceed">Proceed</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
         var table;
+        var highlightLatestOnce = false;
+        var latestId = null;
 
         function params() {
             return {
@@ -930,6 +901,8 @@
         }
 
         $(function () {
+            const trainers = @json($trainers ?? []);
+
             table = $('#dtCourses').DataTable({
                 lengthChange: true,
                 pageLength: 25,
@@ -960,10 +933,39 @@
                     {data: 'venue_name', name: 'venue.venue_name', orderable: false, searchable: false}
                 ],
                 drawCallback: function (s) {
+                    const api = this.api();
+
                     if (s.json && typeof s.json.total !== 'undefined') {
-                        $('#totalBadge').text(new Intl.NumberFormat().format(s.json.total) + ' total')
+                        $('#totalBadge').text(new Intl.NumberFormat().format(s.json.total) + ' total');
                     }
-                    this.api().columns.adjust();
+
+                    if (s.json && typeof s.json.max_id !== 'undefined') {
+                        latestId = s.json.max_id;
+                    }
+
+                    $(api.rows().nodes()).removeClass('row-copied');
+
+                    if (highlightLatestOnce && latestId) {
+                        api.rows().every(function () {
+                            const d = this.data();
+                            if (!d || !d.id) {
+                                return;
+                            }
+                            if (parseInt(d.id, 10) === parseInt(latestId, 10)) {
+                                const $row = $(this.node());
+                                $row.addClass('row-copied');
+                                setTimeout(function () {
+                                    const offset = $row.offset().top;
+                                    $('html, body').animate({
+                                        scrollTop: offset - 20
+                                    }, 400);
+                                }, 120);
+                            }
+                        });
+                        highlightLatestOnce = false;
+                    }
+
+                    api.columns.adjust();
                 },
                 initComplete: function () {
                     const api = this.api();
@@ -1013,9 +1015,12 @@
                 }
             });
 
+            $('#q').on('blur', function () {
+                table.ajax.reload();
+            });
+
             const copyCourseUrlTemplate = "{{ route('crm.training-courses.copy', ['cohort' => '__ID__']) }}";
             const updateStatusUrl = "{{ route('crm.training-courses.update-status') }}";
-
 
             let ctxCourseId = null;
             let currentRowData = null;
@@ -1040,26 +1045,6 @@
                 $ctxMenu.hide();
             });
 
-            $ctxMenu.on('click', 'a', function (e) {
-                e.preventDefault();
-                if (!ctxCourseId) return;
-                const action = $(this).data('action');
-                if (action === 'copy') {
-                    const url = copyCourseUrlTemplate.replace('__ID__', ctxCourseId);
-
-                    $.post(url, {
-                        _token: "{{ csrf_token() }}"
-                    }).done(function () {
-                        table.ajax.reload(null, false);
-                    });
-
-                    return;
-                }else if (action === 'update') {
-                    openStatusModal();
-                }
-                $ctxMenu.hide();
-            });
-
             function openStatusModal() {
                 const current = currentRowData && currentRowData.status_text ? currentRowData.status_text : '-';
                 $('#statusModalCurrent').text(current);
@@ -1067,6 +1052,50 @@
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
             }
+
+            function normalizeDateTimeString(str) {
+                str = (str || '').trim();
+                if (!str) return '';
+                if (str.indexOf(' ') === -1) {
+                    return str + ' 15:00';
+                }
+                return str;
+            }
+
+            function openCopyModal() {
+                $('#copyCohortId').val(ctxCourseId);
+                var startVal = '';
+                var endVal = '';
+                if (currentRowData) {
+                    if (currentRowData.start_raw) startVal = currentRowData.start_raw;
+                    else if (currentRowData.course_date_raw) startVal = currentRowData.course_date_raw;
+                    else if (currentRowData.course_date) startVal = currentRowData.course_date;
+                    if (currentRowData.end_raw) endVal = currentRowData.end_raw;
+                    else if (currentRowData.end_date_raw) endVal = currentRowData.end_date_raw;
+                    else if (currentRowData.end_date) endVal = currentRowData.end_date;
+                }
+                startVal = normalizeDateTimeString(startVal);
+                endVal = normalizeDateTimeString(endVal);
+                $('#copyStartDate').val(startVal);
+                $('#copyEndDate').val(endVal);
+                const modalEl = document.getElementById('copyCourseModal');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+
+            $ctxMenu.on('click', 'a', function (e) {
+                e.preventDefault();
+                if (!ctxCourseId) return;
+                const action = $(this).data('action');
+                if (action === 'copy') {
+                    openCopyModal();
+                    $ctxMenu.hide();
+                    return;
+                } else if (action === 'update') {
+                    openStatusModal();
+                }
+                $ctxMenu.hide();
+            });
 
             $('.status-option').on('click', function () {
                 if (!ctxCourseId) return;
@@ -1083,6 +1112,189 @@
                     }
                     table.ajax.reload(null, false);
                 });
+            });
+
+            $('#copyStartDate').daterangepicker({
+                singleDatePicker: true,
+                timePicker: true,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD-MM-YYYY HH:mm'
+                }
+            });
+
+            $('#copyEndDate').daterangepicker({
+                singleDatePicker: true,
+                timePicker: true,
+                timePicker24Hour: true,
+                autoUpdateInput: false,
+                locale: {
+                    format: 'DD-MM-YYYY HH:mm'
+                }
+            });
+
+            $('#copyStartDate').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('DD-MM-YYYY HH:mm'));
+            });
+
+            $('#copyEndDate').on('apply.daterangepicker', function (ev, picker) {
+                $(this).val(picker.startDate.format('DD-MM-YYYY HH:mm'));
+            });
+
+            function shiftMoment(value, type) {
+                if (!value) return value;
+                var m = moment(value, 'DD-MM-YYYY HH:mm', true);
+                if (!m.isValid()) return value;
+                if (type === 'D') m.add(1, 'day');
+                if (type === 'M') m.add(1, 'month');
+                if (type === 'Y') m.add(1, 'year');
+                return m.format('DD-MM-YYYY HH:mm');
+            }
+
+            $('#btnCopyD1').on('click', function () {
+                $('#copyStartDate').val(shiftMoment($('#copyStartDate').val(), 'D'));
+                $('#copyEndDate').val(shiftMoment($('#copyEndDate').val(), 'D'));
+            });
+
+            $('#btnCopyM1').on('click', function () {
+                $('#copyStartDate').val(shiftMoment($('#copyStartDate').val(), 'M'));
+                $('#copyEndDate').val(shiftMoment($('#copyEndDate').val(), 'M'));
+            });
+
+            $('#btnCopyY1').on('click', function () {
+                $('#copyStartDate').val(shiftMoment($('#copyStartDate').val(), 'Y'));
+                $('#copyEndDate').val(shiftMoment($('#copyEndDate').val(), 'Y'));
+            });
+
+            function sendCopy(payload) {
+                const url = copyCourseUrlTemplate.replace('__ID__', ctxCourseId);
+
+                $.post(url, payload).done(function () {
+                    const modalEl = document.getElementById('copyCourseModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Course copied',
+                        text: 'A new training course has been created from this row.',
+                        toast: true,
+                        position: 'top-end',
+                        timer: 2200,
+                        showConfirmButton: false
+                    });
+
+                    highlightLatestOnce = true;
+
+                    table.ajax.reload(null, false);
+                });
+            }
+
+            function pickTrainerAndCopy(payload) {
+                if ($('#copyExcludeTrainers').is(':checked')) {
+                    payload.trainer_id = null;
+                    sendCopy(payload);
+                    return;
+                }
+
+                const keys = Object.keys(trainers || {});
+                if (!keys.length) {
+                    Swal.fire({ icon: 'error', title: 'No trainers found', text: 'There are no trainers available to assign.' });
+                    return;
+                }
+
+                let html = '<div style="text-align:left;">';
+                keys.forEach(function (id) {
+                    const name = trainers[id];
+                    html += '<label style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;cursor:pointer;">' +
+                        '<input type="radio" name="trainer_pick" value="' + id + '" style="accent-color:#2563eb;">' +
+                        '<span style="font-size:.9rem;">' + name + '</span>' +
+                        '</label>';
+                });
+                html += '</div>';
+
+                Swal.fire({
+                    title: 'Select Trainer',
+                    html: html,
+                    focusConfirm: false,
+                    showCancelButton: true,
+                    confirmButtonText: 'Use Trainer',
+                    cancelButtonText: 'Cancel',
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-light'
+                    },
+                    buttonsStyling: false,
+                    preConfirm: () => {
+                        const el = document.querySelector('input[name="trainer_pick"]:checked');
+                        if (!el) {
+                            Swal.showValidationMessage('Please select a trainer');
+                            return false;
+                        }
+                        return el.value;
+                    }
+                }).then(function (result) {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+                    payload.trainer_id = result.value;
+                    sendCopy(payload);
+                });
+            }
+
+            $('#copyProceed').on('click', function () {
+                if (document.activeElement === this) {
+                    this.blur();
+                }
+
+                if (!ctxCourseId) return;
+
+                const startVal = $('#copyStartDate').val().trim();
+                const endVal   = $('#copyEndDate').val().trim();
+
+                if (!startVal || !endVal) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Dates required',
+                        text: 'Please select both Start Date & Time and End Date & Time before copying this course.'
+                    });
+                    return;
+                }
+
+                const mStart = moment(startVal, 'DD-MM-YYYY HH:mm', true);
+                const mEnd   = moment(endVal, 'DD-MM-YYYY HH:mm', true);
+
+                if (!mStart.isValid() || !mEnd.isValid()) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid date format',
+                        text: 'Please use the date picker to select valid dates and times.'
+                    });
+                    return;
+                }
+
+                if (!mEnd.isAfter(mStart)) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Invalid range',
+                        text: 'End Date & Time must be later than Start Date & Time.'
+                    });
+                    return;
+                }
+
+                const payload = {
+                    _token: "{{ csrf_token() }}",
+                    include_additional_info: $('#copyIncludeInfo').is(':checked') ? 1 : 0,
+                    exclude_delegates: $('#copyExcludeDelegates').is(':checked') ? 1 : 0,
+                    exclude_trainers: $('#copyExcludeTrainers').is(':checked') ? 1 : 0,
+                    start_date_time: startVal,
+                    end_date_time: endVal
+                };
+
+                pickTrainerAndCopy(payload);
             });
         });
     </script>
