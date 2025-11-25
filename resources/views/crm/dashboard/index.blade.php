@@ -136,12 +136,8 @@
             background: linear-gradient(135deg, #38bdf8, #a5f3fc);
         }
 
-        .icon-sales {
-            background: linear-gradient(135deg, #4ade80, #bbf7d0);
-        }
-
-        .icon-orders {
-            background: linear-gradient(135deg, #a78bfa, #ddd6fe);
+        .icon-leads {
+            background: linear-gradient(135deg, #f97316, #fdba74);
         }
 
         .stat-meta {
@@ -214,6 +210,8 @@
             padding: .85rem 1rem 1rem;
             flex: 1 1 auto;
             display: flex;
+            min-height: 0;
+            overflow: hidden;
         }
 
         .list-users {
@@ -221,7 +219,9 @@
             flex-direction: column;
             gap: .55rem;
             flex: 1 1 auto;
+            min-height: 0;
             overflow-y: auto;
+            overflow-x: hidden;
             padding-right: .35rem;
         }
 
@@ -298,146 +298,6 @@
             color: var(--muted);
         }
 
-        .tx-table-wrap {
-            flex: 1 1 auto;
-            overflow-y: auto;
-            overflow-x: hidden;
-            padding-right: .35rem;
-        }
-
-        .tx-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: .8rem;
-            table-layout: auto;
-        }
-
-        .tx-table td,
-        .tx-table th {
-            white-space: nowrap;
-        }
-
-        .tx-table th:nth-child(1),
-        .tx-table td:nth-child(1) {
-            width: 38%;
-        }
-
-        .tx-table th:nth-child(2),
-        .tx-table td:nth-child(2) {
-            width: 26%;
-        }
-
-        .tx-table th:nth-child(3),
-        .tx-table td:nth-child(3) {
-            width: 20%;
-        }
-
-        .tx-table th:nth-child(4),
-        .tx-table td:nth-child(4) {
-            width: 16%;
-        }
-
-        .tx-table thead th {
-            font-size: .7rem;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            padding: .6rem .75rem;
-            border-bottom: 1px solid var(--soft);
-            background: #f9fafb;
-        }
-
-        .tx-table tbody tr {
-            border-bottom: 1px solid #f1f5f9;
-            transition: background .18s ease, transform .18s ease;
-        }
-
-        .tx-table tbody tr:last-child {
-            border-bottom: 0;
-        }
-
-        .tx-table tbody tr:hover {
-            background: #eef4ff;
-            transform: translateY(-1px);
-        }
-
-        .tx-table td {
-            padding: .65rem .75rem;
-            vertical-align: middle;
-            color: var(--ink);
-        }
-
-        .tx-id {
-            display: flex;
-            align-items: center;
-            gap: .55rem;
-            font-weight: 600;
-            min-width: 0;
-        }
-
-        .tx-icon {
-            width: 28px;
-            height: 28px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #bfdbfe, #93c5fd);
-            color: #1e3a8a;
-            font-size: .75rem;
-            flex-shrink: 0;
-        }
-
-        .tx-id div:last-child {
-            min-width: 0;
-        }
-
-        .tx-id div:last-child .tx-sub {
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            display: block;
-            max-width: 100%;
-        }
-
-        .tx-sub {
-            font-size: .7rem;
-            color: var(--muted);
-        }
-
-        .tx-amount {
-            font-variant-numeric: tabular-nums;
-            font-feature-settings: "tnum";
-        }
-
-        .status-chip {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 999px;
-            padding: .3rem .6rem;
-            font-size: .7rem;
-            font-weight: 600;
-        }
-
-        .status-success {
-            background: rgba(16, 185, 129, .15);
-            color: #166534;
-        }
-
-        .status-danger {
-            background: rgba(239, 68, 68, .16);
-            color: #7f1d1d;
-        }
-
-        .status-muted {
-            background: rgba(148, 163, 184, .18);
-            color: #1f2937;
-        }
-
-        .text-end {
-            text-align: right;
-        }
-
         .list-users::-webkit-scrollbar,
         .tx-table-wrap::-webkit-scrollbar {
             width: 8px;
@@ -459,43 +319,15 @@
         .tx-table-wrap::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(180deg, #a5b4fc, #818cf8);
         }
-        .list-users,
-        .tx-table-wrap {
-            height: 560px;
-        }
-        .list-users,
-        .tx-table-wrap {
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .list-users::-webkit-scrollbar,
-        .tx-table-wrap::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .list-users::-webkit-scrollbar-track,
-        .tx-table-wrap::-webkit-scrollbar-track {
-            background: #eef2ff;
-            border-radius: 10px;
-        }
-
-        .list-users::-webkit-scrollbar-thumb,
-        .tx-table-wrap::-webkit-scrollbar-thumb {
-            background: #c7d2fe;
-            border-radius: 10px;
-        }
-
-        .list-users::-webkit-scrollbar-thumb:hover,
-        .tx-table-wrap::-webkit-scrollbar-thumb:hover {
-            background: #a5b4fc;
-        }
-
 
         .list-users,
         .tx-table-wrap {
             scrollbar-width: thin;
             scrollbar-color: #a5b4fc #eef2ff;
+        }
+
+        .text-end {
+            text-align: right;
         }
     </style>
 @endpush
@@ -506,9 +338,9 @@
 
             <div class="section-header">
                 <h3>Dashboard</h3>
-                <button id="refreshDashboard" class="refresh-btn">
-                    <i class="fas fa-sync-alt"></i>
-                    Refresh
+                <button type="button" id="refreshDashboard" class="refresh-btn">
+                    <i class="fas fa-rotate-right"></i>
+                    <span>Refresh</span>
                 </button>
             </div>
 
@@ -536,24 +368,13 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon icon-sales">
-                        <i class="fas fa-pound-sign"></i>
+                    <div class="stat-icon icon-leads">
+                        <i class="fas fa-bullseye"></i>
                     </div>
                     <div class="stat-meta">
-                        <div class="stat-label">Sales</div>
-                        <div class="stat-value">£{{ number_format($sales, 2) }}</div>
-                        <div class="stat-hint">Revenue</div>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon icon-orders">
-                        <i class="fas fa-receipt"></i>
-                    </div>
-                    <div class="stat-meta">
-                        <div class="stat-label">Payments</div>
-                        <div class="stat-value">{{ $orders }}</div>
-                        <div class="stat-hint">Transactions</div>
+                        <div class="stat-label">Leads</div>
+                        <div class="stat-value">{{ $leads }}</div>
+                        <div class="stat-hint">Total</div>
                     </div>
                 </div>
             </div>
@@ -572,7 +393,7 @@
                                     $hasPhoto  = $photoPath && file_exists(public_path($photoPath));
                                     $learnerUrl = route('crm.learner.delegates.show', $learner->id);
                                 @endphp
-                                <a href="{{ $learnerUrl }}" target="_blank" rel="noopener" class="user-row">
+                                <a href="{{ $learnerUrl }}" class="user-row" target="_blank" rel="noopener noreferrer">
                                     <div class="user-avatar">
                                         @if($hasPhoto)
                                             <img src="{{ asset($photoPath) }}" alt="{{ $learner->name }}">
@@ -616,7 +437,7 @@
                                     $url       = route('crm.training-courses.show', $cohort->id);
                                 @endphp
 
-                                <a href="{{ $url }}" target="_blank" rel="noopener" class="user-row">
+                                <a href="{{ $url }}" class="user-row" target="_blank" rel="noopener noreferrer">
                                     <div class="user-avatar">
                                         {{ $initial }}
                                     </div>
@@ -645,69 +466,41 @@
 
                 <div class="panel-card">
                     <div class="panel-head">
-                        <div class="panel-title">Payments</div>
+                        <div class="panel-title">Leads</div>
                     </div>
                     <div class="panel-body">
-                        <div class="tx-table-wrap">
-                            <table class="tx-table">
-                                <thead>
-                                <tr>
-                                    <th>Payment</th>
-                                    <th class="text-end">When</th>
-                                    <th class="text-end">Amount</th>
-                                    <th class="text-end">Status</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($payments as $payment)
-                                    @php
-                                        $invoice = $payment->invoice;
-                                        $customer = $invoice?->user;
-                                        $statusLabel = $payment->is_refunded ? 'Refunded' : 'Paid';
-                                        $badgeClass = $payment->is_refunded ? 'status-danger' : 'status-success';
-                                    @endphp
-                                    <tr>
-                                        <td>
-                                            <div class="tx-id">
-                                                <div class="tx-icon">
-                                                    <i class="fa fa-credit-card"></i>
-                                                </div>
-                                                <div>
-                                                    <div>Payment #{{ $payment->id }}</div>
-                                                    <span class="tx-sub">
-                                                        @if($invoice)
-                                                            Inv: {{ $invoice->invoice_no }}
-                                                            @if($customer)
-                                                                • {{ $customer->name }}
-                                                            @endif
-                                                        @else
-                                                            No invoice linked
-                                                        @endif
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-end">
-                                            {{ optional($payment->payment_date)->format('M d, Y g:i A') }}
-                                        </td>
-                                        <td class="text-end tx-amount">
-                                            £{{ number_format($payment->amount, 2) }}
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="status-chip {{ $badgeClass }}">{{ $statusLabel }}</span>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                @if($payments->isEmpty())
-                                    <tr>
-                                        <td colspan="4" class="text-center"
-                                            style="padding:.9rem .75rem;color:var(--muted);font-size:.8rem;">
-                                            No recent payments to display.
-                                        </td>
-                                    </tr>
-                                @endif
-                                </tbody>
-                            </table>
+                        <div class="list-users">
+                            @foreach($recent_leads as $lead)
+                                @php
+                                    $name = $lead->candidate_name ?: ($lead->email ?: 'Unknown lead');
+                                    $initial = strtoupper(mb_substr($name, 0, 1));
+                                    $statusText = $lead->status_label ?? ucfirst(str_replace('_', ' ', $lead->status ?? ''));
+                                    $dateLabel = $lead->contact_date
+                                        ? \Carbon\Carbon::parse($lead->contact_date)->format('Y-m-d')
+                                        : ($lead->created_at ? $lead->created_at->format('Y-m-d') : '-');
+                                @endphp
+                                <div class="user-row">
+                                    <div class="user-avatar">
+                                        {{ $initial }}
+                                    </div>
+                                    <div class="user-main">
+                                        <div class="user-name">
+                                            {{ $name }}
+                                        </div>
+                                        <div class="user-role">
+                                            {{ $statusText }}
+                                        </div>
+                                        <div class="user-meta">
+                                            {{ $dateLabel }}@if($lead->course_interested) • {{ $lead->course_interested }}@endif
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                            @if($recent_leads->isEmpty())
+                                <div style="padding:.4rem 0;font-size:.8rem;color:var(--muted);">
+                                    No recent leads to display.
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -739,8 +532,8 @@
                     dataType: "html",
                     success: function (response) {
                         var $res = $(response);
-                        var newPanels = $res.find('.panel-grid').html();
                         var newStats = $res.find('.stats-grid').html();
+                        var newPanels = $res.find('.panel-grid').html();
 
                         if (newStats) {
                             $('.stats-grid').html(newStats);

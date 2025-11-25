@@ -2,27 +2,18 @@
 
 namespace App\Http\Controllers\CRM;
 
-use App\Http\Controllers\Backend\OrderController;
 use App\Http\Controllers\Controller;
 use App\Models\Cohort;
-use App\Models\FrontOrder;
-use App\Models\ProductInvoicePayment;
+use App\Models\Lead;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $clients  = User::role('Corporate Client')->count();
+        $clients = User::role('Corporate Client')->count();
         $learners = User::role('Learner')->count();
-
-        $orders = ProductInvoicePayment::count();
-
-        $sales = ProductInvoicePayment::where(function ($q) {
-            $q->whereNull('is_refunded')
-                ->orWhere('is_refunded', false);
-        })->sum('amount');
+        $leads = Lead::count();
 
         $recent_learners = User::with('profilePhoto')
             ->role('Learner')
@@ -31,26 +22,22 @@ class DashboardController extends Controller
             ->get();
 
         $recent_cohorts = Cohort::with('course')
-            ->withCount('learners')
-            ->latest('start_date_time')
+            ->orderByDesc('start_date_time')
             ->take(20)
             ->get();
 
-        $payments = ProductInvoicePayment::with(['invoice.user'])
-            ->latest('payment_date')
+        $recent_leads = Lead::orderByDesc('contact_date')
+            ->orderByDesc('created_at')
             ->take(20)
             ->get();
 
         return view('crm.dashboard.index', compact(
-            'learners',
             'clients',
-            'orders',
-            'sales',
+            'learners',
+            'leads',
             'recent_learners',
             'recent_cohorts',
-            'payments'
+            'recent_leads'
         ));
     }
-
-
 }
