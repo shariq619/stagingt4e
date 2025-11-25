@@ -1357,7 +1357,7 @@ class TrainingCoursesController extends Controller
                 DB::raw('DATE_FORMAT(c.start_date_time, "%d-%m-%Y") as course_date'),
                 DB::raw('crs.name as course_name'),
                 DB::raw('v.venue_name as venue_name'),
-            ]);
+            ])->where('c.deleted_at', null);;
 
         if (!empty($exclude)) {
             $query->whereNotIn('c.id', $exclude);
