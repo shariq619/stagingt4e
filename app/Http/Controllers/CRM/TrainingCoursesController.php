@@ -829,30 +829,50 @@ class TrainingCoursesController extends Controller
 
     public function generatePdf($cohort_id, $order_detail_id, $id)
     {
-        DB::beginTransaction();
-        try {
+        return DB::transaction(function () use ($cohort_id, $order_detail_id, $id) {
 
             $delegate = User::findOrFail($id);
-            $randomNo = 'PI' . rand(100000, 999999);
-            $filePath = "crm/training-courses/invoices/{$randomNo}.pdf";
-            $payment = getFrontOrder($id, $cohort_id);
-            if ($payment && $payment->invoice_pdf_url && Storage::disk('public')->exists($payment->invoice_pdf_url)) {
-                Storage::disk('public')->delete($payment->invoice_pdf_url);
+
+            $invoice = ProductInvoice::where('cohort_id', $cohort_id)
+                ->where('user_id', $delegate->id)
+                ->where('order_detail_id', $order_detail_id)
+                ->first();
+
+            if (!$invoice) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Invoice not found for this delegate and cohort.',
+                ], 404);
             }
-            $payment->invoice_pdf_url = $filePath;
-            $payment->invoice_number = $randomNo;
-            $payment->status = "Unpaid";
-            $payment->save();
-            $costing = $payment;
-            $pdf = Pdf::loadView('crm.pdfs.training_course', compact('delegate', 'costing'));
-            Storage::disk('public')->put($filePath, $pdf->output());
-            DB::commit();
-            return $pdf->stream("delegate_{$randomNo}.pdf");
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
-        }
+
+            $dir      = 'crm/training-courses/invoices';
+            $fileName = "{$invoice->invoice_no}.pdf";
+            $filePath = "{$dir}/{$fileName}";
+
+            $result = InvoicePDFController::generateSingleInvoicePdf(
+                $invoice,
+                $delegate,
+                'public',
+                $filePath
+            );
+
+            $payment = getFrontOrder($id, $cohort_id);
+            if ($payment) {
+                if ($payment->invoice_pdf_url && Storage::disk('public')->exists($payment->invoice_pdf_url)) {
+                    Storage::disk('public')->delete($payment->invoice_pdf_url);
+                }
+
+                $payment->invoice_pdf_url = $result['path'];
+                $payment->invoice_number  = $invoice->invoice_no;
+                $payment->status          = "Unpaid";
+                $payment->save();
+            }
+
+            $fullPath = Storage::disk('public')->path($result['path']);
+            return response()->file($fullPath);
+        });
     }
+
 
     public function generateChecklist(Request $request, int $cohort_id, ?string $type = null, ?int $userId = null)
     {
@@ -1111,13 +1131,13 @@ class TrainingCoursesController extends Controller
         try {
             return DB::transaction(function () use ($request) {
                 $data = $request->validate([
-                    'cohort_id' => ['required', 'integer', 'exists:cohorts,id'],
-                    'user_id' => ['required', 'integer', 'exists:users,id'],
-                    'order_detail_id' => ['required', 'integer', 'exists:front_order_details,id'],
-                    'approval_password' => ['required', 'string', 'min:4'],
-                    'print_pdf' => ['sometimes', 'accepted'],
+                    'cohort_id'                => ['required', 'integer', 'exists:cohorts,id'],
+                    'user_id'                  => ['required', 'integer', 'exists:users,id'],
+                    'order_detail_id'          => ['required', 'integer', 'exists:front_order_details,id'],
+                    'approval_password'        => ['required', 'string', 'min:4'],
+                    'print_pdf'                => ['sometimes', 'accepted'],
                     'include_additional_modules' => ['sometimes', 'accepted'],
-                    'consolidate_by_product' => ['sometimes', 'accepted'],
+                    'consolidate_by_product'   => ['sometimes', 'accepted'],
                 ]);
 
                 $user = Auth::user();
@@ -1128,59 +1148,74 @@ class TrainingCoursesController extends Controller
                 $detail = FrontOrderDetails::with(['frontOrder', 'course', 'cohort'])
                     ->findOrFail($data['order_detail_id']);
 
-                if ((int)$detail->cohort_id !== (int)$data['cohort_id']) {
+                if ((int) $detail->cohort_id !== (int) $data['cohort_id']) {
                     return response()->json(['message' => 'Order detail does not belong to this cohort.'], 422);
                 }
 
                 if (!empty($detail->frontOrder->user_id) &&
-                    (int)$detail->frontOrder->user_id !== (int)$data['user_id']) {
+                    (int) $detail->frontOrder->user_id !== (int) $data['user_id']) {
                     return response()->json(['message' => 'Order detail does not belong to this user.'], 422);
                 }
 
-                $delegate = User::findOrFail($data['user_id']);
-                $frontOrder = getFrontOrder($delegate->id, $request->cohort_id);
+                $delegate   = User::findOrFail($data['user_id']);
+                $frontOrder = getFrontOrder($delegate->id, $data['cohort_id']);
 
                 $invoice = $this->buildInvoiceAndLine($detail, $delegate, null, true);
 
-                $dir = 'crm/training-courses/invoices';
+                $dir      = 'crm/training-courses/invoices';
                 $fileName = "{$invoice->invoice_no}.pdf";
                 $filePath = "{$dir}/{$fileName}";
 
-                Storage::disk('public')->makeDirectory($dir);
-                if (Storage::disk('public')->exists($filePath)) {
-                    Storage::disk('public')->delete($filePath);
+                $disk = Storage::disk('public');
+                $disk->makeDirectory($dir);
+
+                if ($disk->exists($filePath)) {
+                    $disk->delete($filePath);
                 }
 
-                $isPrintable = $request->has('print_pdf') && ($request->print_pdf === 'on' || $request->boolean('print_pdf'));
+                $isPrintable = $request->has('print_pdf')
+                    && ($request->print_pdf === 'on' || $request->boolean('print_pdf'));
 
-                $costing = $frontOrder;
-                $pdf = Pdf::loadView('crm.pdfs.training_course', compact('delegate', 'costing'));
-                Storage::disk('public')->put($filePath, $pdf->output());
+                $result = InvoicePDFController::generateSingleInvoicePdf(
+                    $invoice,
+                    $delegate,
+                    'public',
+                    $filePath
+                );
 
-                $invoice->update(['pdf_url' => $filePath]);
-                $frontOrder->invoice_pdf_url = $filePath;
-                $frontOrder->invoice_number = $invoice->invoice_no;
-                $frontOrder->status = 'Unpaid';
-                $frontOrder->save();
+                $invoice->update(['pdf_url' => $result['path']]);
+
+                if ($frontOrder) {
+                    $frontOrder->invoice_pdf_url = $result['path'];
+                    $frontOrder->invoice_number  = $invoice->invoice_no;
+                    $frontOrder->status          = 'Unpaid';
+                    $frontOrder->save();
+                }
 
                 $payload = [
                     'invoice_id' => $invoice->id,
                     'invoice_no' => $invoice->invoice_no,
-                    'redirect' => route('crm.invoices.show', $invoice->id),
-                    'open' => $isPrintable,
+                    'redirect'   => route('crm.invoices.show', $invoice->id),
+                    'open'       => $isPrintable,
                 ];
 
                 if ($isPrintable) {
-                    $payload['pdf_url'] = Storage::url($filePath);
+                    $payload['pdf_url'] = $result['url'];
                 }
 
                 return response()->json($payload);
             });
         } catch (\Throwable $e) {
-            Log::error('Invoice Generation Failed: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return response()->json(['message' => 'Something went wrong while generating invoice.'], 500);
+            Log::error('Invoice Generation Failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => 'Something went wrong while generating invoice.',
+            ], 500);
         }
     }
+
 
 
     public function invoicePreview(Request $request)

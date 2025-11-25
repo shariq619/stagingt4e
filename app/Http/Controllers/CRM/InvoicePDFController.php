@@ -518,4 +518,43 @@ class InvoicePDFController extends Controller
 
     }
 
+    public static function generateSingleInvoicePdf(
+        ProductInvoice $invoice,
+        User $userObj,
+        string $disk = 'public',
+        ?string $filePath = null
+    ): array {
+        $invoice->loadMissing(['cohort.course', 'lines', 'user']);
+
+        $controller = app(self::class);
+        $pageData = $controller->fromInvoice($invoice, $userObj);
+        $pageData['page_break'] = false;
+
+        $html = view('crm.invoices.pdf.index', $pageData)->render();
+
+        if (!$filePath) {
+            $filePath = 'invoice-single/invoice_' . $invoice->id . '_' . time() . '.pdf';
+        }
+
+        $diskInstance = Storage::disk($disk);
+        $dir = dirname($filePath);
+
+        if ($dir !== '.') {
+            $diskInstance->makeDirectory($dir);
+        }
+        if ($diskInstance->exists($filePath)) {
+            $diskInstance->delete($filePath);
+        }
+
+        $pdf = Pdf::loadHTML($html)->setPaper('a4', 'portrait');
+        $diskInstance->put($filePath, $pdf->output());
+
+        return [
+            'path' => $filePath,
+            'url'  => $diskInstance->url($filePath),
+            'disk' => $disk,
+        ];
+    }
+
+
 }
