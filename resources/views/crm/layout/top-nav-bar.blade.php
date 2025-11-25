@@ -1,6 +1,6 @@
 <header class="topbar">
     <div class="topbar-inner container-fluid">
-        <a href="{{ route('crm.training-courses.index') }}" class="brand">
+        <a href="{{ route('crm.dashboard.index') }}" class="brand">
             <span class="brand-mark"></span>
             <img src="{{ asset('crm/assets/img/logo.png') }}" alt="Image">
         </a>
