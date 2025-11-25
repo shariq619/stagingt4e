@@ -74,6 +74,7 @@ class ProductInvoicesController extends Controller
                 'discount_amount' => (float)($invoice->discount_amount ?? 0),
                 'discount_percent' => (float)($invoice->discount_percent ?? 0),
                 'discount_vat_rate' => (float)($invoice->discount_vat_rate ?? 0),
+                'order_no' => $invoice->order_no,
                 'user' => [
                     'id' => $invoice->user_id,
                     'name' => trim("{$invoice->user?->name} {$invoice->user?->middle_name} {$invoice->user?->last_name}"),
@@ -136,6 +137,7 @@ class ProductInvoicesController extends Controller
                     'additional_invoice_details' => ['nullable', 'string'],
                     'carriage' => ['nullable', 'numeric', 'min:0'],
                     'discount_amount' => ['nullable', 'numeric', 'min:0'],
+                    'order_no' => ['nullable', 'string', 'max:80'],
                     'discount_percent' => ['nullable', 'numeric', 'min:0'],
                     'discount_vat_rate' => ['nullable', 'numeric', 'min:0'],
                     'misc_cost' => ['nullable', 'numeric', 'min:0'],
@@ -149,6 +151,9 @@ class ProductInvoicesController extends Controller
 
                 if (array_key_exists('status', $data)) {
                     $update['invoice_status'] = $data['status'];
+                }
+                if (array_key_exists('order_no', $data)) {
+                    $update['order_no'] = $data['order_no'];
                 }
                 if (array_key_exists('additional_invoice_details', $data)) {
                     $update['additional_invoice_details'] = $data['additional_invoice_details'];

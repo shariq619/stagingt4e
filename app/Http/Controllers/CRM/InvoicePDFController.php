@@ -184,7 +184,7 @@ class InvoicePDFController extends Controller
 
         $rangeDisp = ($startRaw || $endRaw) ? trim($startDisp.' - '.$endDisp) : '-';
 
-        $orderId    = $invoice->order_id ?? null;
+        $orderId    = $invoice->order_no ?? null;
         $order_show = $orderId ? '#'.$orderId : '-';
 
         return [

@@ -939,11 +939,11 @@
                                 <span></span><span></span>
                             </div>
 
-                            <div class="field-row d-none">
+                            <div class="field-row">
                                 <label>Order Number:</label>
-                                <input class="hl" id="order_number_in">
-                                <label>Delivery Date:</label>
-                                <div class="date-field">
+                                <input class="hl" id="order_number_in" placeholder="Enter Order Number">
+                                <label class="d-none">Delivery Date:</label>
+                                <div class="date-field d-none">
                                     <input class="hl" id="delivery_date_in">
                                     <span class="mini-btn d-none">🗓</span>
                                 </div>
@@ -1480,6 +1480,7 @@
                     $('#additional_invoice_details').val(h.additional_invoice_details || '');
                     $('#cust_name').val(u.name || '');
                     $('#cust_tel_in').val(u.telephone || '');
+                    $('#order_number_in').val(h.order_no || '');
                     $('#cust_mobile_in').val(u.phone || '');
                     currentCohortId  = h.cohort_id || null;
                     currentLearnerId = u ? u.id : null;
@@ -1554,6 +1555,7 @@
                     project_code_id: $('#project_code_id').val(),
                     source_id: $('#source_id').val(),
                     department_id: $('#department_id').val(),
+                    order_no: $('#order_number_in').val(),
                 }, extra);
                 return $.ajax({url: '/crm/invoices/' + invoiceId(), method: 'PUT', data: payload});
             }
@@ -1794,6 +1796,10 @@
                         }
                     });
                 });
+            });
+
+            $('#order_number_in').on('blur', function () {
+                debouncedSave();
             });
 
             loadAll();

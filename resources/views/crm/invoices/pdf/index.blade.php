@@ -255,7 +255,7 @@
                 </tr>
                 <tr style="">
                     <td class="meta-k">Order Number:</td>
-                    <td class="meta-v"></td>
+                    <td class="meta-v">{{ $order_number }}</td>
                 </tr>
                 <tr>
                     <td class="meta-k">Invoice Status:</td>
