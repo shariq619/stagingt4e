@@ -94,7 +94,8 @@
         font-size: .72rem
     }
 </style>
-<div class="modal" id="stripeModal" tabindex="-1" style="display:none; background:rgba(0,0,0,.45);z-index:99999;">
+
+<div class="modal" id="stripeModal" tabindex="-1" style="display:none; background:rgba(0,0,0,.45);z-index:5000;">
     <div class="modal-dialog" style="max-width:640px">
         <div class="modal-content" style="border-radius:12px">
             <div class="modal-header">
@@ -129,7 +130,7 @@
     </div>
 </div>
 
-<div class="modal" id="stripeBRModal" tabindex="-1" style="display:none; background:rgba(0,0,0,.45);z-index:99999;">
+<div class="modal" id="stripeBRModal" tabindex="-1" style="display:none; background:rgba(0,0,0,.45);z-index:5000;">
     <div class="modal-dialog" style="max-width:680px">
         <div class="modal-content" style="border-radius:12px">
             <div class="modal-header">
@@ -190,4 +191,3 @@
         </div>
     </div>
 </div>
-

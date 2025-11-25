@@ -412,7 +412,7 @@
         <div class="pm-kpi" style="margin-top:12px">
             <div class="pm-card total">
                 <div class="num" id="kpi-net">0.00</div>
-                <div class="lbl">Total Revenue (All Invoices)</div>
+                <div class="lbl">Total Net (All Invoices)</div>
             </div>
             <div class="pm-card vat">
                 <div class="num" id="kpi-vat">0.00</div>

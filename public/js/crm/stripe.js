@@ -202,8 +202,10 @@
             const intent = await createIntent(amount, currency);
             const res = await stripe.confirmCardPayment(intent.client_secret, {payment_method: {card}});
             if (res.error) throw new Error(res.error.message || 'Card authorization failed');
-            if (res.paymentIntent?.status === 'succeeded') {
-                await allocate(res.paymentIntent.id);
+            const pi = res.paymentIntent;
+            if (!pi) throw new Error('No payment intent returned');
+            if (pi.status === 'succeeded' || pi.status === 'processing') {
+                await allocate(pi.id);
                 hide(modal);
                 resetChargeModal();
                 if (window.Swal) Swal.fire({
@@ -219,7 +221,9 @@
                         if (typeof recalcAllClient === 'function') recalcAllClient(p.allocated)
                     })
                 }
-            } else throw new Error('Payment not completed')
+            } else {
+                throw new Error('Payment not completed (status: ' + pi.status + ')')
+            }
         } catch (e) {
             const err = qs('stripe-card-errors');
             if (err) err.textContent = e.message || 'Error'
