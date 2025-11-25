@@ -4,6 +4,7 @@ namespace App\Http\Controllers\CRM;
 
 use App\Http\Controllers\Backend\OrderController;
 use App\Http\Controllers\Controller;
+use App\Models\Cohort;
 use App\Models\FrontOrder;
 use App\Models\ProductInvoicePayment;
 use App\Models\User;
@@ -26,12 +27,18 @@ class DashboardController extends Controller
         $recent_learners = User::with('profilePhoto')
             ->role('Learner')
             ->latest()
-            ->take(9)
+            ->take(20)
+            ->get();
+
+        $recent_cohorts = Cohort::with('course')
+            ->withCount('learners')
+            ->latest('start_date_time')
+            ->take(20)
             ->get();
 
         $payments = ProductInvoicePayment::with(['invoice.user'])
             ->latest('payment_date')
-            ->take(10)
+            ->take(20)
             ->get();
 
         return view('crm.dashboard.index', compact(
@@ -40,8 +47,10 @@ class DashboardController extends Controller
             'orders',
             'sales',
             'recent_learners',
+            'recent_cohorts',
             'payments'
         ));
     }
+
 
 }
