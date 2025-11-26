@@ -627,6 +627,12 @@ abstract class BaseUserDirectoryController extends Controller
         return DataTables::eloquent($query)
             ->addColumn('full_name', fn($u) => ucfirst(trim(($u->name ?? '') . ' ' . ($u->last_name ?? ''))))
             ->addColumn('postal', fn($u) => $u->postal_code ?: $u->postcode ?: '—')
+            ->editColumn('learner_code', function ($u) {
+                $url = route('crm.learner.delegates.show', $u->id);
+                return '<a href="' . $url . '" class="text-primary fw-bold">'
+                    . $u->learner_code .
+                    '</a>';
+            })
             ->editColumn('telephone', fn($u) => $u->telephone ?: '—')
             ->editColumn('town', fn($u) => $u->town ?: '—')
             ->editColumn('email', fn($u) => $u->email ?: '—')
