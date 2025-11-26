@@ -363,8 +363,38 @@
             margin: 15px;
         }
 
-        .pagination{
+        .pagination {
             margin: 10px !important;
+        }
+
+        .quick-range {
+            display: inline-flex;
+            margin-left: .35rem;
+            gap: .2rem;
+        }
+
+        .quick-range .q-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            border: 1px solid var(--soft);
+            background: #ffffff;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: var(--muted);
+            padding: 0;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .quick-range .q-btn.active {
+            background: var(--pri);
+            border-color: var(--pri);
+            color: #fff;
+            box-shadow: 0 0 0 1px rgba(17, 104, 230, .25);
         }
     </style>
 
@@ -498,6 +528,12 @@
                                    placeholder="Contact (To date)"
                                    autocomplete="off"
                                    style="width:160px">
+                            <div class="quick-range">
+                                <button type="button" class="q-btn" data-range="today">T</button>
+                                <button type="button" class="q-btn" data-range="week">W</button>
+                                <button type="button" class="q-btn" data-range="month">M</button>
+                                <button type="button" class="q-btn" data-range="clear">C</button>
+                            </div>
                         </div>
 
                         <div class="d-flex align-items-center flex-grow-1" style="gap:.5rem; max-width:1080px">
@@ -891,6 +927,46 @@
             reloadTable();
         }
 
+        function setDateInputs(from, to) {
+            $('#filterDateFrom').val(from || '');
+            $('#filterDateTo').val(to || '');
+            var drpFrom = $('#filterDateFrom').data('daterangepicker');
+            var drpTo = $('#filterDateTo').data('daterangepicker');
+            if (drpFrom && from) {
+                drpFrom.setStartDate(from);
+                drpFrom.setEndDate(from);
+            }
+            if (drpTo && to) {
+                drpTo.setStartDate(to);
+                drpTo.setEndDate(to);
+            }
+        }
+
+        function applyQuickRange(rangeKey) {
+            var today = moment().startOf('day');
+            var from = '';
+            var to = '';
+            if (rangeKey === 'today') {
+                from = today.format('YYYY-MM-DD');
+                to = from;
+            } else if (rangeKey === 'week') {
+                from = today.clone().subtract(6, 'days').format('YYYY-MM-DD');
+                to = today.format('YYYY-MM-DD');
+            } else if (rangeKey === 'month') {
+                from = today.clone().startOf('month').format('YYYY-MM-DD');
+                to = today.clone().endOf('month').format('YYYY-MM-DD');
+            } else if (rangeKey === 'clear') {
+                setDateInputs('', '');
+                $('.quick-range .q-btn').removeClass('active');
+                reloadTable();
+                return;
+            }
+            setDateInputs(from, to);
+            $('.quick-range .q-btn').removeClass('active');
+            $('.quick-range .q-btn[data-range="' + rangeKey + '"]').addClass('active');
+            reloadTable();
+        }
+
         function initComposeOnce() {
             if (composeEd) return;
             tinymce.init({
@@ -1029,12 +1105,10 @@
                 Swal.fire({icon: 'error', title: 'Body is required'});
                 return;
             }
-
             if (!sub) {
                 Swal.fire({icon: 'error', title: 'Subject is required'});
                 return;
             }
-
             var token = $('meta[name="csrf-token"]').attr('content');
             $('#sendStatus').text('Sending…');
             $('#btnSendMail').prop('disabled', true);
@@ -1211,6 +1285,11 @@
                 $(this).val('');
             });
 
+            $('.quick-range').on('click', '.q-btn', function () {
+                var key = $(this).data('range');
+                applyQuickRange(key);
+            });
+
             $('#btnFilter').on('click', function () {
                 reloadTable();
             });
@@ -1226,6 +1305,7 @@
                 $('#filterSearch').val('');
                 $('#filterDateFrom').val('');
                 $('#filterDateTo').val('');
+                $('.quick-range .q-btn').removeClass('active');
                 $('.kpis .k').removeClass('k-active');
                 $('.kpis .k-total').addClass('k-active');
                 reloadTable();

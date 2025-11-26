@@ -1841,6 +1841,11 @@ class TrainingCoursesController extends Controller
         return response()->json(['ok' => true]);
     }
 
+    use App\Events\LearnerStatusUpdated;
+    use App\Models\FrontOrderDetails;
+    use Illuminate\Http\Request;
+    use Illuminate\Support\Facades\DB;
+
     public function bulkUpdateLearnerCourseStatus(Request $request, $cohortId)
     {
         $validated = $request->validate([
@@ -1896,6 +1901,7 @@ class TrainingCoursesController extends Controller
             ], 500);
         }
     }
+
 
 }
 
