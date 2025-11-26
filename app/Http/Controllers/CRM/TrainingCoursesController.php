@@ -1844,41 +1844,48 @@ class TrainingCoursesController extends Controller
     public function bulkUpdateLearnerCourseStatus(Request $request, $cohortId)
     {
         $validated = $request->validate([
-            'status'       => ['required', 'string'],
-            'learner_ids'  => ['required', 'array', 'min:1'],
-            'learner_ids.*'=> ['integer'],
+            'status'        => ['required', 'string'],
+            'learner_ids'   => ['required', 'array', 'min:1'],
+            'learner_ids.*' => ['integer'],
         ]);
+
+        $status     = $validated['status'];
+        $learnerIds = $validated['learner_ids'];
+
+        $items = FrontOrderDetails::with('learner')
+            ->where('cohort_id', $cohortId)
+            ->whereIn('user_id', $learnerIds)
+            ->get();
+
+        if ($items->isEmpty()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'No matching learners found for this cohort.',
+            ], 404);
+        }
 
         DB::beginTransaction();
 
         try {
-            $status    = $validated['status'];
-            $learnerIds = $validated['learner_ids'];
+            $updated = 0;
 
-            $query = FrontOrderDetails::where('cohort_id', $cohortId)
-                ->whereIn('user_id', $learnerIds);
+            foreach ($items as $orderDetail) {
+                if ($orderDetail->course_status === $status) {
+                    continue;
+                }
 
-            $count = (clone $query)->count();
+                $orderDetail->course_status = $status;
+                $orderDetail->save();
 
-            if ($count === 0) {
-                DB::rollBack();
-
-                return response()->json([
-                    'status'  => 'error',
-                    'message' => 'No matching learners found for this cohort.',
-                ], 404);
+                $updated++;
             }
-
-            $query->update([
-                'course_status' => $status,
-            ]);
 
             DB::commit();
 
             return response()->json([
                 'status'  => 'success',
-                'message' => "Status updated for {$count} learner(s).",
-                'updated' => $count,
+                'message' => "Status updated for {$updated} learner(s).",
+                'updated' => $updated,
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
