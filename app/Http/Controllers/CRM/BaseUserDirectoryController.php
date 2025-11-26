@@ -620,7 +620,6 @@ abstract class BaseUserDirectoryController extends Controller
                 'users.postcode',
                 'users.telephone',
                 'users.email',
-                'users.status',
                 'users.created_at',
             ]);
 
@@ -636,16 +635,6 @@ abstract class BaseUserDirectoryController extends Controller
             ->editColumn('telephone', fn($u) => $u->telephone ?: '—')
             ->editColumn('town', fn($u) => $u->town ?: '—')
             ->editColumn('email', fn($u) => $u->email ?: '—')
-            ->editColumn('status', function ($u) {
-                $status = strtolower($u->status ?? 'inactive');
-                $classes = [
-                    'active' => 'delegate-status active',
-                    'pending' => 'delegate-status pending',
-                    'inactive' => 'delegate-status inactive',
-                ];
-                $class = $classes[$status] ?? $classes['inactive'];
-                return '<span class="' . $class . '">' . ucfirst($status) . '</span>';
-            })
             ->rawColumns(['status', 'learner_code'])
             ->toJson();
     }
