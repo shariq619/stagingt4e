@@ -823,10 +823,10 @@
             </div>
 
             <div class="row g-3 mt-2 erp-toolbar align-items-end">
-                <div class="col-lg-3">
+                <div class="col-lg-3 d-none">
                     <input type="search" class="form-control" id="search_input" placeholder="Search Name">
                 </div>
-                <div class="col-lg-3">
+                <div class="col-lg-2">
                     <select class="form-select" id="status_select">
                         <option value="">Select Status</option>
                         @foreach(getLearnerStatuses() as $s)
@@ -838,7 +838,7 @@
                     <button class="btn btn-blue d-none" id="filter_btn">Filter</button>
                     <button class="btn btn-gray" id="reset_btn">Refresh</button>
                 </div>
-                <div class="col-lg-4 d-flex justify-content-end gap-2">
+                <div class="col-lg-8 d-flex justify-content-end gap-2">
                     <select class="form-select w-auto" id="print_list">
                         <option value="">Select Checklist</option>
                         <option value="efaw">Check List First Aid</option>

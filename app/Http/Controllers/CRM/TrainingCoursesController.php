@@ -120,7 +120,7 @@ class TrainingCoursesController extends Controller
             ])
             ->whereYear('c.start_date_time', $year)
             ->whereMonth('c.start_date_time', $month)
-            ->whereNull('c.deleted_at');
+            ->where('c.deleted_at', null);
 
         if (!empty($day)) {
             $query->whereDay('c.start_date_time', $day);
@@ -136,20 +136,15 @@ class TrainingCoursesController extends Controller
 
         if (!empty($q)) {
             $query->where(function ($w) use ($q) {
-                $w->where('crs.name', 'like', '%' . $q . '%')
-                    ->orWhere('c.status', 'like', '%' . $q . '%')
-                    ->orWhere('t.name', 'like', '%' . $q . '%')
-                    ->orWhere('v.venue_name', 'like', '%' . $q . '%');
+                $w->where('crs.name', 'like', "%{$q}%")
+                    ->orWhere('c.status', 'like', "%{$q}%")
+                    ->orWhere('t.name', 'like', "%{$q}%")
+                    ->orWhere('v.venue_name', 'like', "%{$q}%");
             });
         }
 
         $baseCount = (clone $query)->count();
         $cohortIds = (clone $query)->pluck('c.id')->all();
-
-        $maxId = null;
-        if (!empty($cohortIds)) {
-            $maxId = max($cohortIds);
-        }
 
         $financialsByCohort = [];
         $subTotal  = 0.0;
@@ -170,13 +165,13 @@ class TrainingCoursesController extends Controller
             $lineAgg = DB::table($lineTable . ' as l')
                 ->join($invTable . ' as i', 'i.id', '=', 'l.invoice_id')
                 ->selectRaw("
-                    i.cohort_id,
-                    l.is_reassigned,
-                    COALESCE(SUM(l.qty * l.unit_cost), 0) AS sub_total,
-                    COALESCE(SUM(l.discount), 0) AS discount,
-                    COALESCE(SUM(l.net_amount), 0) AS total_cost,
-                    COALESCE(SUM(l.vat_amount), 0) AS vat
-                ")
+                i.cohort_id,
+                l.is_reassigned,
+                COALESCE(SUM(l.qty * l.unit_cost), 0)       AS sub_total,
+                COALESCE(SUM(l.discount), 0)                AS discount,
+                COALESCE(SUM(l.net_amount), 0)              AS total_cost,
+                COALESCE(SUM(l.vat_amount), 0)              AS vat
+            ")
                 ->whereIn('i.cohort_id', $cohortIds)
                 ->whereNull('i.deleted_at')
                 ->whereNull('l.deleted_at')
@@ -211,10 +206,10 @@ class TrainingCoursesController extends Controller
 
             $miscAgg = DB::table($miscTable)
                 ->selectRaw("
-                    cohort_id,
-                    COALESCE(SUM(net_cost), 0) AS misc_net,
-                    COALESCE(SUM(vat), 0) AS misc_vat
-                ")
+                cohort_id,
+                COALESCE(SUM(net_cost), 0) AS misc_net,
+                COALESCE(SUM(vat), 0)      AS misc_vat
+            ")
                 ->whereIn('cohort_id', $cohortIds)
                 ->groupBy('cohort_id')
                 ->get()
@@ -299,7 +294,7 @@ class TrainingCoursesController extends Controller
             ->addColumn('course_name', function ($row) {
                 $name = e($row->course_plain ?? '');
                 $url  = route('crm.training-courses.show', $row->id);
-                return '<a class="text-decoration-underline" href="' . $url . '">' . $name . '</a>';
+                return '<a class="text-decoration-underline" href="' . $url . '" target="_blank" rel="noopener noreferrer">' . $name . '</a>';
             })
             ->addColumn('days', function ($row) {
                 return $row->days_plain ?? '';
@@ -344,9 +339,8 @@ class TrainingCoursesController extends Controller
             ->rawColumns(['course_name', 'availability', 'invoice_total', 'customer'])
             ->orderColumn('course_date', 'c.start_date_time $1')
             ->with([
-                'total'   => $baseCount,
-                'totals'  => $totals,
-                'max_id'  => $maxId,
+                'total'  => $baseCount,
+                'totals' => $totals,
             ])
             ->make(true);
     }
@@ -1807,7 +1801,7 @@ class TrainingCoursesController extends Controller
         $clone->save();
 
         if (!$request->boolean('exclude_delegates')) {
-            $oldDelegates = \DB::table('cohort_user')
+            $oldDelegates = DB::table('cohort_user')
                 ->where('cohort_id', $cohortId)
                 ->pluck('user_id');
 
@@ -1828,6 +1822,7 @@ class TrainingCoursesController extends Controller
             'success' => true,
             'message' => 'Course copied successfully',
             'id' => $clone->id,
+            'cohort_id' => $clone->id,
         ]);
     }
 

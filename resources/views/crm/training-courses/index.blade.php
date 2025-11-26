@@ -221,11 +221,6 @@
         .form-select {
             border-radius: 12px;
         }
-        .table-modern tbody tr.row-copied {
-            background: #dcfce7 !important;
-            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.4) inset;
-            transition: background-color .4s ease, box-shadow .4s ease;
-        }
     </style>
 
     <style>
@@ -639,7 +634,7 @@
             <form id="filters" class="ribbon mb-3">
                 <div class="group">
                     <select name="year" id="year">
-                        @for ($y = now()->year; $y >= 2016; $y--)
+                        @for ($y = now()->year + 1; $y >= 2016; $y--)
                             <option value="{{ $y }}" {{ request('year', now()->year) == $y ? 'selected' : '' }}>{{ $y }}</option>
                         @endfor
                     </select>
@@ -874,6 +869,7 @@
     </div>
 @endsection
 
+
 @push('js')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
@@ -883,8 +879,6 @@
     <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
         var table;
-        var highlightLatestOnce = false;
-        var latestId = null;
 
         function params() {
             return {
@@ -932,37 +926,11 @@
                     {data: 'trainer_name', name: 'trainer.name', orderable: false, searchable: false},
                     {data: 'venue_name', name: 'venue.venue_name', orderable: false, searchable: false}
                 ],
-                drawCallback: function (s) {
+                drawCallback: function (settings) {
                     const api = this.api();
 
-                    if (s.json && typeof s.json.total !== 'undefined') {
-                        $('#totalBadge').text(new Intl.NumberFormat().format(s.json.total) + ' total');
-                    }
-
-                    if (s.json && typeof s.json.max_id !== 'undefined') {
-                        latestId = s.json.max_id;
-                    }
-
-                    $(api.rows().nodes()).removeClass('row-copied');
-
-                    if (highlightLatestOnce && latestId) {
-                        api.rows().every(function () {
-                            const d = this.data();
-                            if (!d || !d.id) {
-                                return;
-                            }
-                            if (parseInt(d.id, 10) === parseInt(latestId, 10)) {
-                                const $row = $(this.node());
-                                $row.addClass('row-copied');
-                                setTimeout(function () {
-                                    const offset = $row.offset().top;
-                                    $('html, body').animate({
-                                        scrollTop: offset - 20
-                                    }, 400);
-                                }, 120);
-                            }
-                        });
-                        highlightLatestOnce = false;
+                    if (settings.json && typeof settings.json.total !== 'undefined') {
+                        $('#totalBadge').text(new Intl.NumberFormat().format(settings.json.total) + ' total');
                     }
 
                     api.columns.adjust();
@@ -1187,9 +1155,7 @@
                         showConfirmButton: false
                     });
 
-                    highlightLatestOnce = true;
-
-                    table.ajax.reload(null, false);
+                    table.ajax.reload();
                 });
             }
 
