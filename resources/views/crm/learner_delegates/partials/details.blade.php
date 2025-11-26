@@ -11,10 +11,12 @@
                 <div class="rowline">
                     <div class="label">Name:</div>
                     <div class="input">
-                        <input class="fx" name="name" data-f="name" placeholder="-" autocomplete="off">
-                        <input class="fx" name="last_name" data-f="last_name" placeholder="-" autocomplete="off">
+                        <input class="fx" name="name" data-f="name" placeholder="First name" autocomplete="off">
+                        <input class="fx" name="middle_name" data-f="middle_name" placeholder="Middle name (optional)" autocomplete="off">
+                        <input class="fx" name="last_name" data-f="last_name" placeholder="Last name" autocomplete="off">
                     </div>
                 </div>
+
                 <div class="rowline">
                     <div class="label">Unknown Delegate Name:</div>
                     <div class="input">

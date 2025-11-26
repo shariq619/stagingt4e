@@ -909,6 +909,7 @@
                 var d = res.delegate || {};
                 d.created_at = fmtNice(d.created_at);
                 fill('name', d.name);
+                fill('middle_name', d.middle_name);
                 fill('last_name', d.last_name);
                 fill('unknown_delegate_name', d.unknown_delegate_name);
                 fill('house_number', d.house_number);

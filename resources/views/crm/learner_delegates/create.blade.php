@@ -393,9 +393,11 @@
                                 <div class="label">Name:</div>
                                 <div class="input">
                                     <input class="fx" name="name" placeholder="First name">
+                                    <input class="fx" name="middle_name" placeholder="Middle name (optional)">
                                     <input class="fx" name="last_name" placeholder="Last name">
                                 </div>
                             </div>
+
 
                             <div class="rowline">
                                 <div class="label">Unknown Delegate Name:</div>

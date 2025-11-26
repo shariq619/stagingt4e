@@ -31,6 +31,7 @@ abstract class BaseUserDirectoryController extends Controller
             DB::raw('learner_status as status'),
             DB::raw('birth_date as dob'),
             'users.name',
+            'users.middle_name',
             'users.last_name',
             'users.email',
             'users.work_email',
@@ -268,6 +269,7 @@ abstract class BaseUserDirectoryController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['nullable', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -364,6 +366,7 @@ abstract class BaseUserDirectoryController extends Controller
 
                 $assign = [
                     'name',
+                    'middle_name',
                     'last_name',
                     'client_id',
                     'email',
