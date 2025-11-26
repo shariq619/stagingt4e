@@ -478,7 +478,7 @@
                         <div class="filter-chip">
                             <i class="bi bi-funnel"></i>
                             <select id="filterStatus" class="form-select border-0" style="width:200px">
-                                <option value="">All Statuses</option>
+                                <option value="">All Status</option>
                                 @foreach($statuses as $k=>$v)
                                     <option value="{{ $k }}">{{ $v }}</option>
                                 @endforeach
