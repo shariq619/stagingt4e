@@ -650,8 +650,14 @@
                             </div>
                             <div class="ro-field">
                                 <div class="ro-label">Course Status:</div>
-                                <div class="ro-value" id="tc_status">Training Completed</div>
+                                <div class="ro-value d-flex align-items-center gap-2 flex-wrap">
+                                    <span id="tc_status">Training Completed</span>
+                                    <button type="button" class="btn btn-gray btn-sm" id="btnChangeCourseStatus">
+                                        Change Status
+                                    </button>
+                                </div>
                             </div>
+
                             <div class="ro-field">
                                 <div class="ro-label">Course Venue:</div>
                                 <div class="ro-value" id="tc_venue">
@@ -837,6 +843,7 @@
                 <div class="col-lg-2 d-flex gap-2">
                     <button class="btn btn-blue d-none" id="filter_btn">Filter</button>
                     <button class="btn btn-gray" id="reset_btn">Refresh</button>
+                    <button class="btn btn-blue" id="bulk_status_btn">Bulk Status</button>
                 </div>
                 <div class="col-lg-8 d-flex justify-content-end gap-2">
                     <select class="form-select w-auto" id="print_list">
@@ -1007,10 +1014,91 @@
     </div>
 </div>
 
+<div class="modal fade" id="courseStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background:linear-gradient(90deg,#e5edf7,#d9e2f2);border-bottom:1px solid #cbd5e1;">
+                <h5 class="modal-title">Course Status Database</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" style="background:#f9fafb;">
+                <div class="d-flex justify-content-between align-items-center mb-2 small text-muted">
+                    <div>Select a status to apply to this training course.</div>
+                    <div class="fw-semibold">
+                        Current Status:
+                        <span id="courseStatusModalCurrent" class="badge bg-light text-dark border"></span>
+                    </div>
+                </div>
+
+                <div class="border bg-white">
+                    <div class="d-grid" style="grid-template-columns:1.2fr 2fr;">
+                        <div class="px-2 py-1 text-white fw-semibold" style="background:#4b5563;">Code</div>
+                        <div class="px-2 py-1 text-white fw-semibold" style="background:#4b5563;">Name</div>
+                    </div>
+
+                    <button type="button" class="w-100 d-grid course-status-option"
+                            data-status="Cancelled"
+                            style="grid-template-columns:1.2fr 2fr;border:0;background:#ffffff;font-size:.8rem;">
+                        <div class="px-2 py-1 border-bottom">Cancelled</div>
+                        <div class="px-2 py-1 border-bottom">Cancelled</div>
+                    </button>
+
+                    <button type="button" class="w-100 d-grid course-status-option"
+                            data-status="Complete"
+                            style="grid-template-columns:1.2fr 2fr;border:0;background:#f9fafb;font-size:.8rem;">
+                        <div class="px-2 py-1 border-bottom">Completed</div>
+                        <div class="px-2 py-1 border-bottom">Training Completed</div>
+                    </button>
+
+                    <button type="button" class="w-100 d-grid course-status-option"
+                            data-status="Confirmed"
+                            style="grid-template-columns:1.2fr 2fr;border:0;background:#ffffff;font-size:.8rem;">
+                        <div class="px-2 py-1 border-bottom">Confirmed Course</div>
+                        <div class="px-2 py-1 border-bottom">Confirmed Course</div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="border-top:1px solid #e5e7eb;">
+                <button type="button" class="btn btn-gray" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="rowCtxMenu" class="ctx-menu">
     <a href="#" class="d-none" data-action="tick-customer">Assign Tickbox For All Delegates Related To Customer</a>
     <a href="#" data-action="reassign">Reassign to Other Course</a>
+</div>
+
+<div class="modal fade" id="bulkStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Confirmation Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label class="small-lab d-block mb-1">Confirmation Status:</label>
+                    <select id="bulk_status_value" class="form-select">
+                        <option value="">Select Status</option>
+                        @foreach(getLearnerStatuses() as $s)
+                            <option value="{{ $s }}">{{ $s }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div id="bulk_status_error" class="text-danger small mt-1" style="display:none;">
+                    Please select a status.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-blue" id="bulk_status_proceed">Proceed</button>
+                <button type="button" class="btn btn-gray" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @include('crm.training-courses.partials.reassign')
@@ -1037,6 +1125,7 @@
                 const m = location.pathname.match(/training-courses\/(\d+)/);
                 return m ? m[1] : $('#gi_cohort_id').val() || null;
             }
+
 
             function cohortId2() {
                 const m = location.pathname.match(/training-courses\/(\d+)/);
@@ -1086,7 +1175,7 @@
             const learnersPageSize = 10;
             let learnersCurrentPage = 1;
 
-            function renderLearners(items, page = 1) {
+            function renderLearners(items, page = 1, showAll = false) {
                 learnersAllItems = items || learnersAllItems;
                 learnersCurrentPage = page;
 
@@ -1099,14 +1188,15 @@
                 });
 
                 const totalItems = sortedItems.length;
-                const totalPages = Math.max(1, Math.ceil(totalItems / learnersPageSize));
+                const pageSize = showAll ? totalItems : learnersPageSize;
+                const totalPages = Math.max(1, Math.ceil(totalItems / (pageSize || 1)));
 
                 if (learnersCurrentPage > totalPages) {
                     learnersCurrentPage = totalPages;
                 }
 
-                const start = (learnersCurrentPage - 1) * learnersPageSize;
-                const pageItems = sortedItems.slice(start, start + learnersPageSize);
+                const start = (learnersCurrentPage - 1) * pageSize;
+                const pageItems = sortedItems.slice(start, start + pageSize);
 
                 let html = '';
 
@@ -1208,7 +1298,9 @@
                 });
 
                 let pagHtml = '';
-                if (totalPages > 1) {
+
+                // no pagination when showAll === true
+                if (!showAll && totalPages > 1) {
                     const isFirstPage = (learnersCurrentPage === 1);
                     const isLastPage = (learnersCurrentPage === totalPages);
 
@@ -1233,7 +1325,6 @@
                     pagHtml += '<a class="page-link" href="#" data-page="' + (learnersCurrentPage + 1) + '">Next &rsaquo;</a>';
                     pagHtml += '</li>';
 
-
                     pagHtml += '<li class="page-item' + (isLastPage ? ' disabled' : '') + '">';
                     pagHtml += '<a class="page-link" href="#" data-page="' + totalPages + '">Last &raquo;</a>';
                     pagHtml += '</li>';
@@ -1243,7 +1334,6 @@
                 }
 
                 $('#delegates-pagination').html(pagHtml);
-
             }
 
             $(document).on('click', '#delegates-pagination .page-link', function (e) {
@@ -1252,17 +1342,23 @@
                 if (!page || page < 1) {
                     return;
                 }
-                renderLearners(learnersAllItems, page);
+                renderLearners(learnersAllItems, page, false);
             });
+
 
             function loadLearners() {
                 const id = cohortId();
                 if (!id) return;
+
+                const search = $('#search_input').val().trim();
+                const learnerStatus = $('#status_select').val();
+                const showAll = !!(search || learnerStatus);
+
                 $.get('/crm/training-courses/' + id + '/learners', {
-                    search: $('#search_input').val().trim(),
-                    learner_status: $('#status_select').val()
+                    search: search,
+                    learner_status: learnerStatus
                 }).done(function (r) {
-                    renderLearners(r.items || []);
+                    renderLearners(r.items || [], 1, showAll);
 
                     $('#sum-subtotal').text(money(r.totals?.sub_total || 0));
                     $('#sum-discount').text(money(r.totals?.discount || 0));
@@ -1280,6 +1376,27 @@
                     $('#total-items').text('Total = ' + (r.totals?.count || 0));
                 });
             }
+
+            $('#filter_btn').on('click', function () {
+                loadLearners();
+            });
+
+            $('#status_select').on('change', function () {
+                $('#filter_btn').trigger('click');
+            });
+
+            $('#search_input').on('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $('#filter_btn').trigger('click');
+                }
+            });
+
+            $('#reset_btn').on('click', function () {
+                $('#search_input').val('');
+                $('#status_select').val('');
+                $('#filter_btn').trigger('click');
+            });
 
             window.loadLearners = loadLearners;
 
@@ -1692,15 +1809,26 @@
                 if (!cohort || !type) return;
 
                 const base = `/crm/training-courses/generate-checklist/${encodeURIComponent(cohort)}`;
-                const selected = $('input[name="learners"]:checked').map((i, el) => el.value).get();
+
+                let selected = $('input[name="learners"]:checked').map((i, el) => el.value).get();
+
+                if (selected.length === 0) {
+                    selected = $('#delegates-tbody tr')
+                        .filter(function () {
+                            const od = $(this).find('input[name="order_detail_id"]').val();
+                            return Number(od) !== 0;
+                        })
+                        .map(function () {
+                            return $(this).data('id');
+                        })
+                        .get();
+                }
 
                 if (selected.length === 0) {
                     Swal.fire({
-                        icon: 'warning',
-                        title: 'No Learners Selected',
-                        text: 'Please select at least one learner first.',
-                        confirmButtonText: 'OK',
-                        confirmButtonColor: '#1168e6'
+                        icon: 'error',
+                        title: 'No eligible learners found',
+                        text: 'All rows are disabled or unavailable.'
                     });
                     return;
                 }
@@ -1717,7 +1845,6 @@
                 const url = `${base}/${encodeURIComponent(type)}`;
                 postToNewTab(url, {user_ids: selected});
             });
-
 
             $('#save_note_btn').on('click', function () {
                 $.post('/crm/training-courses/save-note', {
@@ -1939,6 +2066,183 @@
                     $i.val('');
                 }
             }
+
+            function esc(str) {
+                return String(str)
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#39;");
+            }
+
+
+            $(document).on('click', '#btnChangeCourseStatus', function () {
+                var current = $('#tc_status').text() || '-';
+                $('#courseStatusModalCurrent').text(current);
+                var modalEl = document.getElementById('courseStatusModal');
+                var modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            });
+
+            $(document).on('click', '.course-status-option', function () {
+                var newStatus = $(this).data('status');
+                var cid = cohortId2();
+                if (!cid || !newStatus) return;
+
+                $.post("{{ route('crm.training-courses.update-status') }}", {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    cohort_id: cid,
+                    status: newStatus
+                }).done(function () {
+                        $('#tc_status').text(newStatus);
+                        var modalEl = document.getElementById('courseStatusModal');
+                        var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInstance) modalInstance.hide();
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Course status updated',
+                            timer: 900,
+                            showConfirmButton: false
+                        });
+                    }).fail(function (xhr) {
+                        var msg = xhr.responseJSON && xhr.responseJSON.message
+                            ? xhr.responseJSON.message
+                            : 'Failed to update status';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: msg
+                        });
+                });
+            });
+            const bulkStatusUrlTemplate = @json(
+                route('crm.training-courses.bulk_update_learner_course_status', ['cohort' => 'COHORT_ID_PLACEHOLDER'])
+            );
+            $('#bulk_status_btn').on('click', function () {
+                $('#bulk_status_value').val('');
+                $('#bulk_status_error').hide();
+                $('#bulkStatusModal').modal('show');
+            });
+
+            $('#bulk_status_proceed').on('click', function () {
+                const status = $('#bulk_status_value').val();
+
+                if (!status) {
+                    $('#bulk_status_error').show();
+                    return;
+                }
+
+                let ids = [];
+                let names = [];
+
+                const $checkedRows = $('#delegates-tbody input[name="learners"]:checked').closest('tr');
+
+                if ($checkedRows.length) {
+                    $checkedRows.each(function () {
+                        const $row = $(this);
+                        const id = $row.data('id');
+                        const name = $.trim($row.find('.delegate-name').text());
+                        if (id) {
+                            ids.push(id);
+                            if (names.length < 5) {
+                                names.push(name || ('ID ' + id));
+                            }
+                        }
+                    });
+                } else {
+                    $('#delegates-tbody tr').each(function () {
+                        const $row = $(this);
+                        const od = Number($row.find('input[name="order_detail_id"]').val() || 0);
+                        if (od === 0) return;
+
+                        const id = $row.data('id');
+                        const name = $.trim($row.find('.delegate-name').text());
+                        if (id) {
+                            ids.push(id);
+                            if (names.length < 5) {
+                                names.push(name || ('ID ' + id));
+                            }
+                        }
+                    });
+                }
+
+                if (!ids.length) {
+                    $('#bulkStatusModal').modal('hide');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No eligible learners',
+                        text: 'There are no learners that can be updated on this list.'
+                    });
+                    return;
+                }
+
+                const url = bulkStatusUrlTemplate.replace('COHORT_ID_PLACEHOLDER', cohortId2());
+
+                const listHtml = names.length
+                    ? '<ul style="margin:8px 0 0;padding-left:18px;text-align:left;font-size:13px;">' +
+                    names.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') +
+                    (ids.length > names.length ? '<li>… and ' + (ids.length - names.length) + ' more</li>' : '') +
+                    '</ul>'
+                    : '';
+
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    html: `
+            <div style="font-size:14px; margin-top:8px;">
+                You are about to update <b>${ids.length}</b> learner(s)<br>
+                to status: <b>${status}</b>.
+                ${listHtml}
+            </div>
+        `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Update',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#2563eb',
+                    cancelButtonColor: '#9ca3af'
+                }).then(function (result) {
+
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Updating status…',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
+                    $.post(url, {
+                        _token: csrf2(),
+                        learner_ids: ids,
+                        status: status
+                    })
+                        .done(function (r) {
+                            Swal.close();
+                            $('#bulkStatusModal').modal('hide');
+                            loadLearners();
+                            Swal.fire({
+                                icon: 'success',
+                                title: (r && r.message) || 'Status updated',
+                                timer: 1200,
+                                showConfirmButton: false
+                            });
+                        })
+                        .fail(function (xhr) {
+                            Swal.close();
+                            const msg = xhr?.responseJSON?.message || 'Failed to update status.';
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: msg
+                            });
+                        });
+                });
+            });
+
 
             initPicker($('input[name="registration_date"]'));
             initPicker($('input[name="date_of_last_expiry"]'));

@@ -53,7 +53,8 @@ Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], func
         Route::post('/verify-password', 'verify')->name('verify.password');
         Route::post('{cohort}/copy', 'copy')->name('copy');
         Route::post('update-status', 'updateStatus')->name('update-status');
-
+        Route::post('bulk-update-learner-course-status/{cohort}', 'bulkUpdateLearnerCourseStatus')
+            ->name('bulk_update_learner_course_status');
     });
 
     Route::post('/invoices/pdf-bulk', [InvoicePDFController::class, 'selected'])

@@ -127,6 +127,36 @@ if (!function_exists('getFirstLettersOfWord')) {
         return $code;
     }
 }
+
+if (! function_exists('crmGetFirstLettersOfWord')) {
+    function crmGetFirstLettersOfWord(?string $text): string
+    {
+        if (!$text) {
+            return '';
+        }
+
+        $ignore = [
+            'at', 'in', 'on', 'of', 'for', 'and', 'the',
+            'to', 'a', 'an', 'by', 'with', 'from'
+        ];
+
+        $text = trim(preg_replace('/\s+/', ' ', $text));
+        $words = explode(' ', $text);
+
+        $letters = [];
+
+        foreach ($words as $word) {
+            $clean = strtolower(preg_replace('/[^a-zA-Z]/', '', $word));
+            if ($clean === '' || in_array($clean, $ignore, true)) {
+                continue;
+            }
+            $letters[] = strtoupper(mb_substr($clean, 0, 1));
+        }
+
+        return implode('', $letters);
+    }
+}
+
 if (!function_exists('limit_text')) {
     /**
      * Limit the text to a specified number of characters.

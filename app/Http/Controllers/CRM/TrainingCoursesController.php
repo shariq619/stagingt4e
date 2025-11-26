@@ -72,7 +72,7 @@ class TrainingCoursesController extends Controller
         $c = Cohort::with(['course.user', 'trainer', 'venue'])->findOrFail($id);
         return response()->json([
             'id' => $c->id,
-            'training_course_initials' => getFirstLettersOfWord(optional($c->course)->name ?? '-'),
+            'training_course_initials' => crmGetFirstLettersOfWord(optional($c->course)->name ?? '-'),
             'course_name' => optional($c->course)->name ?? '-',
             'start_date' => Carbon::parse($c->start_date_time)->format('d-m-Y'),
             'end_date' => Carbon::parse($c->end_date_time)->format('d-m-Y'),
@@ -1839,6 +1839,55 @@ class TrainingCoursesController extends Controller
         $cohort->save();
 
         return response()->json(['ok' => true]);
+    }
+
+    public function bulkUpdateLearnerCourseStatus(Request $request, $cohortId)
+    {
+        $validated = $request->validate([
+            'status'       => ['required', 'string'],
+            'learner_ids'  => ['required', 'array', 'min:1'],
+            'learner_ids.*'=> ['integer'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $status    = $validated['status'];
+            $learnerIds = $validated['learner_ids'];
+
+            $query = FrontOrderDetails::where('cohort_id', $cohortId)
+                ->whereIn('user_id', $learnerIds);
+
+            $count = (clone $query)->count();
+
+            if ($count === 0) {
+                DB::rollBack();
+
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'No matching learners found for this cohort.',
+                ], 404);
+            }
+
+            $query->update([
+                'course_status' => $status,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => "Status updated for {$count} learner(s).",
+                'updated' => $count,
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
 }
