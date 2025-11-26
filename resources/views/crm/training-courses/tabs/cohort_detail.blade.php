@@ -2120,11 +2120,13 @@
             const bulkStatusUrlTemplate = @json(
                 route('crm.training-courses.bulk_update_learner_course_status', ['cohort' => 'COHORT_ID_PLACEHOLDER'])
             );
+
             $('#bulk_status_btn').on('click', function () {
                 $('#bulk_status_value').val('');
                 $('#bulk_status_error').hide();
                 $('#bulkStatusModal').modal('show');
             });
+
 
             $('#bulk_status_proceed').on('click', function () {
                 const status = $('#bulk_status_value').val();
@@ -2134,39 +2136,18 @@
                     return;
                 }
 
-                let ids = [];
-                let names = [];
+                let rows = $('#delegates-tbody input[name="learners"]:checked').closest('tr');
 
-                const $checkedRows = $('#delegates-tbody input[name="learners"]:checked').closest('tr');
-
-                if ($checkedRows.length) {
-                    $checkedRows.each(function () {
-                        const $row = $(this);
-                        const id = $row.data('id');
-                        const name = $.trim($row.find('.delegate-name').text());
-                        if (id) {
-                            ids.push(id);
-                            if (names.length < 5) {
-                                names.push(name || ('ID ' + id));
-                            }
-                        }
-                    });
-                } else {
-                    $('#delegates-tbody tr').each(function () {
-                        const $row = $(this);
-                        const od = Number($row.find('input[name="order_detail_id"]').val() || 0);
-                        if (od === 0) return;
-
-                        const id = $row.data('id');
-                        const name = $.trim($row.find('.delegate-name').text());
-                        if (id) {
-                            ids.push(id);
-                            if (names.length < 5) {
-                                names.push(name || ('ID ' + id));
-                            }
-                        }
+                if (!rows.length) {
+                    rows = $('#delegates-tbody tr').filter(function () {
+                        const od = $(this).find('input[name="order_detail_id"]').val() || 0;
+                        return Number(od) !== 0;
                     });
                 }
+
+                const ids = rows.map(function () {
+                    return $(this).data('id');
+                }).get();
 
                 if (!ids.length) {
                     $('#bulkStatusModal').modal('hide');
@@ -2178,33 +2159,80 @@
                     return;
                 }
 
+                const names = rows.map(function () {
+                    const name = $(this).find('.delegate-name').text();
+                    const id = $(this).data('id');
+                    return name || ('ID ' + id);
+                }).get();
+
+                const maxPreview = 5;
+                let listHtml = '';
+
+                if (names.length <= maxPreview) {
+                    listHtml =
+                        '<ul style="margin:8px 0 0;padding-left:18px;text-align:left;font-size:13px;">' +
+                        names.map(function (n) {
+                            return '<li>' + (n || '') + '</li>';
+                        }).join('') +
+                        '</ul>';
+                } else {
+                    const first = names.slice(0, maxPreview);
+                    const rest = names.slice(maxPreview);
+
+                    listHtml = '<ul id="bulkStatusList" style="margin:8px 0 0;padding-left:18px;text-align:left;font-size:13px;">';
+
+                    first.forEach(function (n) {
+                        listHtml += '<li>' + (n || '') + '</li>';
+                    });
+
+                    rest.forEach(function (n) {
+                        listHtml += '<li class="bulk-extra d-none">' + (n || '') + '</li>';
+                    });
+
+                    listHtml +=
+                        '<li>' +
+                        '<a href="#" class="bulk-toggle-more" data-state="collapsed">' +
+                        '… and ' + rest.length + ' more' +
+                        '</a>' +
+                        '</li>';
+
+                    listHtml += '</ul>';
+                }
+
                 const url = bulkStatusUrlTemplate.replace('COHORT_ID_PLACEHOLDER', cohortId2());
 
-                const listHtml = names.length
-                    ? '<ul style="margin:8px 0 0;padding-left:18px;text-align:left;font-size:13px;">' +
-                    names.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') +
-                    (ids.length > names.length ? '<li>… and ' + (ids.length - names.length) + ' more</li>' : '') +
-                    '</ul>'
-                    : '';
-
-
                 Swal.fire({
-                    title: 'Are you sure?',
-                    html: `
-            <div style="font-size:14px; margin-top:8px;">
-                You are about to update <b>${ids.length}</b> learner(s)<br>
-                to status: <b>${status}</b>.
-                ${listHtml}
-            </div>
-        `,
-                    icon: 'warning',
+                    title: 'Update status?',
+                    html:
+                        '<div style="text-align:left;font-size:13px;">' +
+                        '<p style="margin-bottom:4px;">Are you sure you want to set the status to <strong>' + status + '</strong> for these learners?</p>' +
+                        listHtml +
+                        '</div>',
                     showCancelButton: true,
-                    confirmButtonText: 'Yes, Update',
+                    confirmButtonText: 'Proceed',
                     cancelButtonText: 'Cancel',
-                    confirmButtonColor: '#2563eb',
-                    cancelButtonColor: '#9ca3af'
-                }).then(function (result) {
+                    reverseButtons: true,
+                    didOpen: function () {
+                        const $container = $(Swal.getHtmlContainer());
 
+                        $container.on('click', '.bulk-toggle-more', function (e) {
+                            e.preventDefault();
+                            const $link = $(this);
+                            const state = $link.attr('data-state');
+
+                            if (state === 'collapsed') {
+                                $container.find('.bulk-extra').removeClass('d-none');
+                                $link.text('Show less');
+                                $link.attr('data-state', 'expanded');
+                            } else {
+                                const extraCount = $container.find('.bulk-extra').length;
+                                $container.find('.bulk-extra').addClass('d-none');
+                                $link.text('… and ' + extraCount + ' more');
+                                $link.attr('data-state', 'collapsed');
+                            }
+                        });
+                    }
+                }).then(function (result) {
                     if (!result.isConfirmed) {
                         return;
                     }
@@ -2242,6 +2270,7 @@
                         });
                 });
             });
+
 
 
             initPicker($('input[name="registration_date"]'));
