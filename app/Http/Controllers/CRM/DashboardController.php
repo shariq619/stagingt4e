@@ -22,6 +22,7 @@ class DashboardController extends Controller
             ->get();
 
         $recent_cohorts = Cohort::with('course')
+            ->whereNull('deleted_at')
             ->orderByDesc('start_date_time')
             ->take(20)
             ->get();
