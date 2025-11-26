@@ -646,7 +646,7 @@ abstract class BaseUserDirectoryController extends Controller
                 $class = $classes[$status] ?? $classes['inactive'];
                 return '<span class="' . $class . '">' . ucfirst($status) . '</span>';
             })
-            ->rawColumns(['status'])
+            ->rawColumns(['status', 'learner_code'])
             ->toJson();
     }
 }
