@@ -3070,3 +3070,11 @@ Test from Laravel SMTP
 #18 C:\\laragon\\www\\jetbrains\\public\\index.php(55): Illuminate\\Foundation\\Http\\Kernel->terminate(Object(Illuminate\\Http\\Request), Object(Illuminate\\Http\\JsonResponse))
 #19 {main}
 "} 
+[2025-11-26 14:18:01] local.ERROR: Trait "App\Http\Controllers\CRM\App\Events\LearnerStatusUpdated" not found {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Trait \"App\\Http\\Controllers\\CRM\\App\\Events\\LearnerStatusUpdated\" not found at C:\\laragon\\www\\jetbrains\\app\\Http\\Controllers\\CRM\\TrainingCoursesController.php:37)
+[stacktrace]
+#0 {main}
+"} 
+[2025-11-26 14:18:25] local.ERROR: Trait "App\Http\Controllers\CRM\App\Events\LearnerStatusUpdated" not found {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Trait \"App\\Http\\Controllers\\CRM\\App\\Events\\LearnerStatusUpdated\" not found at C:\\laragon\\www\\jetbrains\\app\\Http\\Controllers\\CRM\\TrainingCoursesController.php:36)
+[stacktrace]
+#0 {main}
+"} 
