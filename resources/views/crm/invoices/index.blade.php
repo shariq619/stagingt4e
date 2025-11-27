@@ -1036,8 +1036,6 @@
                                 <th style="width: 120px;">Net Amount</th>
                                 <th style="width: 120px;">VAT Amount</th>
                                 <th style="width: 120px;">Total Amount</th>
-                                <th style="width: 95px;">Assembly</th>
-                                <th style="width: 100px;">Weight</th>
                                 <th style="width: 90px;">Action</th>
                             </tr>
                             </thead>
@@ -1241,8 +1239,6 @@
                                 <th style="width: 120px;">Net After</th>
                                 <th style="width: 120px;">VAT After</th>
                                 <th style="width: 120px;">Gross After</th>
-                                <th style="width: 95px;">Assembly</th>
-                                <th style="width: 100px;">Weight</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1291,8 +1287,7 @@
                 <td class="text-end">${money(r.net1)}</td>
                 <td class="text-end">${money(r.vat1)}</td>
                 <td class="text-end">${money(r.gross1)}</td>
-                <td class="text-end">${x.assembly ? 'Yes' : 'No'}</td>
-                <td class="text-end">${x.weight != null ? Number(x.weight) : ''}</td>
+
               </tr>`;
                 });
                 $tb.html(rows);
@@ -1342,8 +1337,7 @@
             <td class="text-end"><span class="v-net">${net}</span><span class="cell-edit calc-net" style="display:none">${net}</span></td>
             <td class="text-end"><span class="v-vat">${vatAmt}</span><span class="cell-edit calc-vat" style="display:none">${vatAmt}</span></td>
             <td class="text-end"><span class="v-gross">${gross}</span><span class="cell-edit calc-gross" style="display:none">${gross}</span></td>
-            <td class="text-end"><span class="cell-view">${asm}</span><input class="cell-edit chk line-assembly" type="checkbox" ${x.assembly ? 'checked' : ''} ${dis}></td>
-            <td class="text-end"><span class="cell-view">${weight === '' ? '' : weight}</span><input class="cell-edit line-weight" type="number" step="0.001" value="${weight === '' ? '' : weight}" ${dis}></td>
+
             <td class="line-actions">
                 <div class="cell-view" ${isRe ? 'style="display:none"' : ''}><a href="javascript:void(0)" class="edit-line">Edit</a><a href="javascript:void(0)" class="delete-line">Delete</a></div>
                 <div class="cell-edit">

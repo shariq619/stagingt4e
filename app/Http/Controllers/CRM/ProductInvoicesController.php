@@ -49,18 +49,6 @@ class ProductInvoicesController extends Controller
             'lines'
         ]);
 
-//        $latestReassignedLine = $invoice->lines->where('is_reassigned', 1)->sortByDesc('id')->first();
-//
-//        $latestNormalLine = $invoice->lines->where('is_reassigned', 0)->sortByDesc('id')->first();
-//
-//        $lines = [];
-//        if ($latestReassignedLine) {
-//            $lines[] = $latestReassignedLine;
-//        }
-//        if ($latestNormalLine) {
-//            $lines[] = $latestNormalLine;
-//        }
-
         return response()->json([
             'header' => [
                 'id' => $invoice->id,
@@ -108,7 +96,6 @@ class ProductInvoicesController extends Controller
                 ],
                 'pdf_url' => $invoice->pdf_url ? asset('storage/' . $invoice->pdf_url) : null,
             ],
-//            'lines' => collect($lines)->map(fn($l) => [
             'lines' => $invoice->lines->sortBy('is_reassigned')->map(fn($l) => [
                 'id' => $l->id,
                 'qty' => (int)$l->qty,
@@ -120,8 +107,6 @@ class ProductInvoicesController extends Controller
                 'net_amount' => (float)$l->net_amount,
                 'vat_amount' => (float)$l->vat_amount,
                 'gross_amount' => (float)$l->gross_amount,
-                'assembly' => (bool)$l->assembly,
-                'weight' => $l->weight !== null ? (float)$l->weight : null,
                 'is_reassigned' => (bool)$l->is_reassigned,
             ])->values(),
         ]);
@@ -253,8 +238,6 @@ class ProductInvoicesController extends Controller
                     'unit_cost'           => ['required', 'numeric', 'min:0'],
                     'vat_rate'            => ['required', 'numeric', 'min:0'],
                     'discount'            => ['nullable', 'numeric', 'min:0'],
-                    'assembly'            => ['sometimes', 'boolean'],
-                    'weight'              => ['nullable', 'numeric', 'min:0'],
                 ]);
 
                 $qty     = (int) $data['qty'];
@@ -279,11 +262,7 @@ class ProductInvoicesController extends Controller
                     'product_description' => $data['product_description'] ?? $line->product_description,
                     'unit_cost'           => $data['unit_cost'],
                     'vat_rate'            => $data['vat_rate'],
-                    'weight'              => $data['weight'] ?? $line->weight,
                 ]);
-                if (array_key_exists('assembly', $data)) {
-                    $line->assembly = (bool) $data['assembly'];
-                }
 
                 $isReassigned = (bool) $line->is_reassigned;
 
