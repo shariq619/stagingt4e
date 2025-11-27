@@ -27,6 +27,7 @@ class Lead extends Model
         'follow_up_final_at',
         'course_id',
         'user_id',
+        'lead_grab_person',
     ];
 
     protected $casts = [
@@ -35,6 +36,16 @@ class Lead extends Model
         'follow_up_at'=>'datetime',
         'follow_up2_at'=>'datetime',
         'follow_up_final_at'=>'datetime',
+    ];
+
+    public const LEAD_GRAB_PERSONS = [
+        'Anas rizwan',
+        'Kiran Khan',
+        'Sajjad Ali',
+        'Farhan',
+        'Aman Hussain',
+        'Hamza',
+        'Mutahar',
     ];
 
     public const STATUSES = [

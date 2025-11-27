@@ -18,9 +18,11 @@ class LeadController extends Controller
 {
     public function index()
     {
-        $statuses = Lead::STATUSES;
-        $courses = Course::select('id', 'name')->orderBy('name')->get();
-        return view('crm.leads.index', compact('statuses', 'courses'));
+        $statuses        = Lead::STATUSES;
+        $courses         = Course::select('id', 'name')->orderBy('name')->get();
+        $leadGrabPersons = Lead::LEAD_GRAB_PERSONS;
+
+        return view('crm.leads.index', compact('statuses', 'courses', 'leadGrabPersons'));
     }
 
     public function dt(Request $request)
@@ -40,6 +42,7 @@ class LeadController extends Controller
                     ->orWhere('source', 'like', $like)
                     ->orWhere('notes', 'like', $like)
                     ->orWhere('status', 'like', $like)
+                    ->orWhere('lead_grab_person', 'like', $like)
                     ->orWhereHas('creator', function ($cq) use ($like) {
                         $cq->where('name', 'like', $like);
                     });
@@ -87,6 +90,7 @@ class LeadController extends Controller
             ->editColumn('city', fn(Lead $x) => $x->city ?: '-')
             ->editColumn('platform', fn(Lead $x) => $x->platform ?: '-')
             ->editColumn('source', fn(Lead $x) => $x->source ?: '-')
+            ->editColumn('lead_grab_person', fn(Lead $x) => $x->lead_grab_person ?: '-')
             ->editColumn('notes', fn(Lead $x) => $x->notes ?: '-')
             ->addColumn('actions', function (Lead $x) {
                 return '<div class="btn-group">
@@ -424,6 +428,7 @@ class LeadController extends Controller
             'follow_up_final_at' => ['nullable', 'date'],
             'course_id' => ['nullable', 'exists:courses,id'],
             'user_id' => ['nullable', 'exists:users,id'],
+            'lead_grab_person'  => ['required', 'string', 'max:120'],
         ]);
     }
 

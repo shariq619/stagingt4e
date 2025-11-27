@@ -69,7 +69,7 @@
                 <table class="header-table-inner">
                     <tr>
                         <td>Centre Number:</td>
-                        <td>{{ $venue->code ?? '' }}</td>
+                        <td>11396</td>
                     </tr>
                     <tr>
                         <td>Venue:</td>
@@ -77,11 +77,11 @@
                     </tr>
                     <tr>
                         <td>Tutor Name:</td>
-                        <td>{{ $trainer->name .' '. $trainer->middle_name .' '. $trainer->last_name ?? '' }}</td>
+                        <td>{{ $trainer?->name .' '. $trainer?->middle_name .' '. $trainer?->last_name ?? '' }}</td>
                     </tr>
                     <tr>
                         <td>Tutor Number:</td>
-                        <td>{{ $trainer->phone_number ?? ($trainer->telephone ?? '') }}</td>
+                        <td>{{ $trainerExternalNumber }}</td>
                     </tr>
                     <tr>
                         <td>Course ID:</td>

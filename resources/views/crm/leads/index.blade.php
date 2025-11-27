@@ -591,6 +591,7 @@
                                 <th>Contact Created by</th>
                                 <th>Platform</th>
                                 <th>Source</th>
+                                <th>Lead grab person</th>
                                 <th>Notes</th>
                                 <th>Follow up</th>
                                 <th>2nd Follow Up</th>
@@ -718,6 +719,17 @@
                                        name="source"
                                        placeholder="e.g. Google Ads, Referral, Instagram">
                             </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label">Lead grab person</label>
+                                <select class="form-select" name="lead_grab_person" required>
+                                    <option value="">Choose person…</option>
+                                    @foreach($leadGrabPersons as $person)
+                                        <option value="{{ $person }}">{{ $person }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
 
                             <div class="col-12">
                                 <label class="form-label">Notes</label>
@@ -1244,6 +1256,7 @@
                     {data: 'created_by'},
                     {data: 'platform'},
                     {data: 'source'},
+                    {data: 'lead_grab_person'},
                     {data: 'notes'},
                     {data: 'follow_up_at'},
                     {data: 'follow_up2_at'},
@@ -1363,6 +1376,7 @@
                     $('[name=email]').val(res.email || '');
                     $('[name=course_interested]').val(res.course_interested || '');
                     $('[name=city]').val(res.city || '');
+                    $('[name=lead_grab_person]').val(res.lead_grab_person || '');
                     $('[name=status]').val(res.status || '');
                     $('[name=enrolment_date]').val(res.enrolment_date ? res.enrolment_date.substring(0, 10) : '');
                     $('[name=platform]').val(res.platform || '');

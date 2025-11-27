@@ -893,6 +893,18 @@ class TrainingCoursesController extends Controller
         $course = $training->course;
         $trainer = $training->trainer;
 
+        $trainerExternalNumber = null;
+        if ($trainer) {
+            $trainerEmail = $trainer->email ?? $trainer->email_address ?? null;
+
+            if ($trainerEmail) {
+                $map = config('tutor_numbers');
+                if (isset($map[$trainerEmail])) {
+                    $trainerExternalNumber = $map[$trainerEmail];
+                }
+            }
+        }
+
         $selectedIds = collect();
 
         $userIdsFromArray = $request->input('user_ids', []);
@@ -1008,6 +1020,7 @@ class TrainingCoursesController extends Controller
             'course' => $course,
             'trainer' => $trainer,
             'training_course' => $training,
+            'trainerExternalNumber' => $trainerExternalNumber,
         ]);
 
         return $pdf->stream("$path.pdf");
