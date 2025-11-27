@@ -97,7 +97,7 @@
                     <i class="fas fa-random me-1"></i> Email Mappings
                 </a>
                 <a href="{{ route('crm.newsletters.index') }}" class="tb-link {{ Request::is('crm/newsletters*') ? 'active' : '' }}">
-                    <i class="fas fa-envelope-open-text"></i><span>Newsletters</span>
+                    <i class="fas fa-envelope-open"></i><span>Newsletters</span>
                 </a>
             </div>
         </div>
