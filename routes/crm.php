@@ -19,8 +19,12 @@ use App\Http\Controllers\CRM\CustomersController;
 use App\Http\Controllers\CRM\NewsletterController;
 use App\Http\Controllers\CRM\NewsletterCampaignController;
 use App\Http\Controllers\CRM\EmailUtilityController;
+use App\Http\Controllers\CRM\ErrorPageController;
 
 Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], function () {
+
+    Route::fallback([ErrorPageController::class, 'notFound'])
+        ->name('fallback');
 
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard.index');
