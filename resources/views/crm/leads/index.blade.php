@@ -721,7 +721,7 @@
                             </div>
 
                             <div class="col-md-4">
-                                <label class="form-label">Lead contacted person</label>
+                                <label class="form-label">Lead Contacted Person</label>
                                 <select class="form-select" name="lead_grab_person" required>
                                     <option value="">Choose person…</option>
                                     @foreach($leadGrabPersons as $person)
