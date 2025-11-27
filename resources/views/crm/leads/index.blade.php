@@ -722,7 +722,7 @@
 
                             <div class="col-md-4">
                                 <label class="form-label">Lead Contacted Person</label>
-                                <select class="form-select" name="lead_grab_person" required>
+                                <select class="form-select" name="lead_grab_person">
                                     <option value="">Choose person…</option>
                                     @foreach($leadGrabPersons as $person)
                                         <option value="{{ $person }}">{{ $person }}</option>
@@ -1473,9 +1473,32 @@
                         });
                         reloadTable();
                     },
-                    error: function (x) {
-                        Swal.fire({icon: 'error', title: (x.responseJSON && x.responseJSON.message) || 'Error'});
+                    error: function (xhr) {
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            var errors = xhr.responseJSON.errors;
+                            var html = '<ul class="text-start mb-0">';
+
+                            Object.keys(errors).forEach(function (field) {
+                                errors[field].forEach(function (msg) {
+                                    html += '<li>' + msg + '</li>';
+                                });
+                            });
+
+                            html += '</ul>';
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Please fix the following:',
+                                html: html
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: (xhr.responseJSON && xhr.responseJSON.message) || 'Error'
+                            });
+                        }
                     }
+
                 });
             });
 

@@ -411,25 +411,35 @@ class LeadController extends Controller
 
     protected function rules(Request $request, $id = null)
     {
-        return $request->validate([
-            'contact_date' => ['nullable', 'date'],
-            'candidate_name' => ['required', 'string', 'max:150'],
-            'contact_number' => ['nullable', 'string', 'max:50'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'course_interested' => ['nullable', 'string', 'max:150'],
-            'city' => ['nullable', 'string', 'max:120'],
-            'status' => ['required', Rule::in(array_keys(Lead::STATUSES))],
-            'enrolment_date' => ['nullable', 'date'],
-            'platform' => ['nullable', 'string', 'max:120'],
-            'source' => ['nullable', 'string', 'max:120'],
-            'notes' => ['nullable', 'string'],
-            'follow_up_at' => ['nullable', 'date'],
-            'follow_up2_at' => ['nullable', 'date'],
-            'follow_up_final_at' => ['nullable', 'date'],
-            'course_id' => ['nullable', 'exists:courses,id'],
-            'user_id' => ['nullable', 'exists:users,id'],
-            'lead_grab_person'  => ['required', 'string', 'max:120'],
-        ]);
+        $rules = [
+            'contact_date'        => ['nullable', 'date'],
+            'candidate_name'      => ['required', 'string', 'max:150'],
+            'contact_number'      => ['nullable', 'string', 'max:50'],
+            'email'               => ['nullable', 'email', 'max:255'],
+            'course_interested'   => ['nullable', 'string', 'max:150'],
+            'city'                => ['nullable', 'string', 'max:120'],
+            'status'              => ['required', Rule::in(array_keys(Lead::STATUSES))],
+            'enrolment_date'      => ['nullable', 'date'],
+            'platform'            => ['nullable', 'string', 'max:120'],
+            'source'              => ['nullable', 'string', 'max:120'],
+            'lead_grab_person'    => ['required', 'string', 'max:150'],
+            'notes'               => ['nullable', 'string'],
+            'follow_up_at'        => ['nullable', 'date'],
+            'follow_up2_at'       => ['nullable', 'date'],
+            'follow_up_final_at'  => ['nullable', 'date'],
+            'course_id'           => ['nullable', 'exists:courses,id'],
+            'user_id'             => ['nullable', 'exists:users,id'],
+        ];
+
+        $messages = [];
+
+        $attributes = [
+            'candidate_name'   => "candidate's name",
+            'lead_grab_person' => 'lead contact person',
+            'status'           => 'status',
+        ];
+
+        return $request->validate($rules, $messages, $attributes);
     }
 
     protected function normalizePhoneVariants(?string $raw): array
