@@ -326,6 +326,55 @@
             color: #0f172a;
         }
     </style>
+
+    <style>
+        @media (max-width: 991.98px) {
+            .nav-strip {
+                display: none;
+            }
+
+            .tb-actions {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .nav-strip {
+                display: flex;
+            }
+
+            #quickMenu.collapse {
+                display: none !important;
+            }
+        }
+
+        #quickMenu.collapse {
+            border-top: 1px solid var(--tb-border);
+            background: #fff;
+            box-shadow: inset 0 2px 6px rgba(15, 23, 42, .04);
+        }
+
+        #quickMenu .quickmenu-shell {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            padding: 0;
+            transition: all .3s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        #quickMenu.collapse.show .quickmenu-shell {
+            max-height: 320px;
+            opacity: 1;
+            padding: .6rem .9rem .9rem;
+        }
+
+        .tb-btn[aria-expanded="true"] {
+            background: #eef2ff;
+            border-color: rgba(129, 140, 248, .8);
+            transform: rotate(90deg);
+        }
+    </style>
+
     @stack('css')
 </head>
 
