@@ -126,6 +126,7 @@ class LeadController extends Controller
 
         $data['created_by_id'] = auth()->id();
 
+
         $lead = Lead::create($data);
 
         return response()->json(['ok' => true, 'id' => $lead->id]);

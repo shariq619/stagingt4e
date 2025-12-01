@@ -9,7 +9,7 @@ class MailProvider
 {
     public function send($to, $subject, $htmlBody, $textBody, array $meta = [])
     {
-        Mail::send([], [], function ($message) use ($to, $subject, $htmlBody, $textBody, $meta) {
+        Mail::mailer('ses_newsletter')->send([], [], function ($message) use ($to, $subject, $htmlBody, $textBody, $meta) {
             $message->to($to)->subject($subject);
 
             if (!empty($meta['from_email'])) {

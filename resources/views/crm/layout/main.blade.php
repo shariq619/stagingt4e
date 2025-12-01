@@ -325,6 +325,9 @@
             background: #f8fafc;
             color: #0f172a;
         }
+        .dataTables_info{
+            margin: 10px;
+        }
     </style>
 
     <style>

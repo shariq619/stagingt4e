@@ -77,35 +77,51 @@ class NewsletterController extends Controller
 
     public function update(Request $r, Newsletter $newsletter)
     {
-        $htmlBody = $r->input('html_body', $newsletter->html_body);
-        $textBody = $r->input('text_body', $newsletter->text_body);
+        $htmlBody = $r->has('html_body')
+            ? $r->input('html_body')
+            : null;
+
+        $textBody = $r->has('text_body')
+            ? $r->input('text_body')
+            : null;
+
         if ($htmlBody) {
             $textBody = $this->htmlToText($htmlBody);
         }
 
-        $layoutHtml = $r->input('layout_html', $newsletter->layout_html);
+        $layoutHtml = $r->has('layout_html')
+            ? $r->input('layout_html')
+            : null;
+
+        $layoutText = $r->has('layout_text')
+            ? $r->input('layout_text')
+            : null;
+
 
         $newsletter->update([
-            'title' => $r->input('newsletter_name', $r->input('title', $newsletter->title)),
-            'subject' => $r->input('subject', $newsletter->subject),
-            'html_body' => $htmlBody,
-            'text_body' => $textBody,
-            'layout_html' => $layoutHtml,
-            'layout_text' => !empty($layoutText) ? $layoutText : "{{content}}",
-            'from_name' => $r->input('from_name', $newsletter->from_name),
-            'from_email' => $r->input('from_email', $newsletter->from_email),
-            'created_by_name' => $r->input('created_by_name', $newsletter->created_by_name),
-            'created_by_email' => $r->input('created_by_email', $newsletter->created_by_email),
-            'merge_field' => $r->input('merge_field', $newsletter->merge_field),
-            'to_recipients' => $r->input('to_recipients', $r->input('to', $newsletter->to_recipients)),
-            'cc_recipients' => $r->input('cc_recipients', $r->input('cc', $newsletter->cc_recipients)),
-            'bcc_recipients' => $r->input('bcc_recipients', $r->input('bcc', $newsletter->bcc_recipients)),
-            'attachments' => $r->input('attachments', $newsletter->attachments),
-            'active' => filter_var($r->input('active', $newsletter->active), FILTER_VALIDATE_BOOLEAN),
+            'title'            => $r->input('newsletter_name', $r->input('title')) ?? null,
+            'subject'          => $r->input('subject') ?? null,
+            'html_body'        => $htmlBody,
+            'text_body'        => $textBody,
+            'layout_html'      => $layoutHtml,
+            'layout_text'      => $layoutText,
+            'from_name'        => $r->input('from_name') ?? null,
+            'from_email'       => $r->input('from_email') ?? null,
+            'created_by_name'  => $r->input('created_by_name') ?? null,
+            'created_by_email' => $r->input('created_by_email') ?? null,
+            'merge_field'      => $r->input('merge_field') ?? null,
+            'to_recipients'    => $r->input('to_recipients', $r->input('to')) ?? null,
+            'cc_recipients'    => $r->input('cc_recipients', $r->input('cc')) ?? null,
+            'bcc_recipients'   => $r->input('bcc_recipients', $r->input('bcc')) ?? null,
+            'attachments'      => $r->input('attachments') ?? null,
+            'active'           => $r->has('active')
+                ? filter_var($r->input('active'), FILTER_VALIDATE_BOOLEAN)
+                : null,
         ]);
 
         return response()->json(['ok' => true]);
     }
+
 
     public function destroy(Newsletter $newsletter)
     {

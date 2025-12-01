@@ -45,6 +45,17 @@ return [
             'auth_mode' => null,
         ],
 
+        'ses_newsletter' => [
+            'transport' => 'smtp',
+            'host' => env('SES_MAIL_HOST', 'email-smtp.eu-north-1.amazonaws.com'),
+            'port' => env('SES_MAIL_PORT', 587),
+            'encryption' => env('SES_MAIL_ENCRYPTION', 'tls'),
+            'username' => env('SES_MAIL_USERNAME'),
+            'password' => env('SES_MAIL_PASSWORD'),
+            'timeout' => null,
+            'auth_mode' => null,
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],
