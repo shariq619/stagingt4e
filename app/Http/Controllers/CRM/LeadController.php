@@ -295,7 +295,6 @@ class LeadController extends Controller
 
         if ($scope === 'single') {
             $addresses = $manualAddresses;
-
         } elseif ($scope === 'selected') {
             $ids = $data['ids'] ?? [];
             if (!count($ids)) {
@@ -308,7 +307,6 @@ class LeadController extends Controller
                 ->all();
 
             $addresses = array_merge($addresses, $manualAddresses);
-
         } elseif ($scope === 'all_filtered') {
             $filters = $data['filters'] ?? [];
             $baseQuery = Lead::with(['creator:id,name'])->select('leads.*');
@@ -379,6 +377,7 @@ class LeadController extends Controller
                 'disk' => 'local',
                 'path' => $storedPath,
                 'name' => $file->getClientOriginalName(),
+                'original_name' => $file->getClientOriginalName(),
                 'mime' => $file->getClientMimeType(),
             ];
         }
