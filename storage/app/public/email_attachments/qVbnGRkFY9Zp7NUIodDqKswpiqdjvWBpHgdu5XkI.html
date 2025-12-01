@@ -1,0 +1,544 @@
+    <script>
+        $(function () {
+            function csrf() {
+                return $('meta[name="csrf-token"]').attr('content')
+            }
+            function cohortId() {
+                const m = location.pathname.match(/training-courses\/(\d+)/);
+                return m ? m[1] : $('#gi_cohort_id').val() || null
+            }
+            function money(n) {
+                return (parseFloat(n || 0)).toFixed(2)
+            }
+            function r2(n){return Math.round((parseFloat(n||0))*100)/100}
+            function calcAmounts(cost, discount){
+                const c=parseFloat(cost||0), d=parseFloat(discount||0);
+                const base=Math.max(0,c-d);
+                const vat=r2(base*0.20);
+                const gross=r2(base+vat);
+                return {base,vat,gross}
+            }
+            function hasDisc(v){
+                if(v===null||v===undefined) return false;
+                const s=(v+'').trim();
+                if(s==='') return false;
+                return parseFloat(s) > 0;
+            }
+            function payCls(s) {
+                s = (s || '').toLowerCase();
+                if (s === 'paid') return 'bg-green';
+                if (s.includes('partially')) return 'bg-amber';
+                if (s.includes('overdue') || s.includes('unpaid') || s.includes('zero')) return 'bg-red';
+                return 'bg-amber'
+            }
+            function statusCls(s) {
+                s = (s || '').toLowerCase();
+                if (['passed', 'confirmed', 'completed', 'approved', 'attending'].includes(s)) return 'bg-green';
+                if (['cancelled', 'failed', 'no show', 'declined', 'rejected'].includes(s)) return 'bg-red';
+                return 'bg-amber'
+            }
+            function loadCohort() {
+                const id = cohortId();
+                if (!id) return;
+                $.get('/crm/training-courses/' + id + '/json').done(function (r) {
+                    $('#tc_initials').text(r.training_course_initials || 'A-Z');
+                    $('#tc_name').text(r.course_name || '-');
+                    $('#tc_start').text(r.start_date || '-');
+                    $('#tc_end').text(r.end_date || '-');
+                    $('#tc_status').text(r.status || 'Open');
+                    $('#tc_postcode').text(r.venue?.post_code || '-');
+                    $('#tc_venue').text(`${r.venue?.post_code || '-'} (${r.venue?.venue_name || '-'})`);
+                    $('#tc_owner').text(r.owner || '-');
+                    $('#tc_max').text(r.max_learner || '20');
+                    $('#trainer_name').text(r.trainer?.name || 'Riz Dean');
+                    $('#trainer_tel').text(r.trainer?.telephone || '0121 630 2115');
+                    $('#trainer_cost_view').text(money(r.trainer_cost || 0));
+                    $('#trainer_cost_input').val(money(r.trainer_cost || 0));
+                    $('#additional_note').val(r.additional_details || '');
+                    if (r.course_id) $('#edit_course_link').attr('href', '/backend/courses/' + r.course_id + '/edit');
+                    $('#edit_cohort_link').attr('href', '/backend/cohorts/' + id + '/edit');
+                    $('#gi_cohort_id').val(id);
+                });
+            }
+            function renderLearners(items) {
+                const statusOpts = $('#tmpl_status_options').html();
+                const payOpts = $('#tmpl_payment_status_options').html();
+                let html = '';
+                items.forEach(function (x) {
+                    const invCls = payCls(x.invoice_status);
+                    const stCls = statusCls(x.status);
+                    const badge = x.invoice_number ? `<a class="view-badge ${invCls}" href="/crm/training-courses/${cohortId()}/invoice/${x.id}/${x.order_detail_id}">${x.invoice_number}</a>` : '';
+                    const pdfBtn = x.invoice_pdf_url ? `<a class="btn btn-blue btn-circle" target="_blank" href="${x.invoice_pdf_url}">P</a>` : `<button class="btn btn-outline btn-circle generate-pdf">I</button>`;
+
+                    let netDisplay, vatDisplay;
+                    if (hasDisc(x.discount)) {
+                        const a = calcAmounts(x.cost, x.discount);
+                        netDisplay = a.gross;
+                        vatDisplay = a.vat;
+                    } else {
+                        netDisplay = (x.net_cost!==null&&x.net_cost!==undefined)? parseFloat(x.net_cost) : r2(parseFloat(x.cost||0)*1.20);
+                        vatDisplay = (x.vat!==null&&x.vat!==undefined)? parseFloat(x.vat) : r2(parseFloat(x.cost||0)*0.20);
+                    }
+
+                    html += `<tr data-id="${x.id}">
+                <td class="w-36"><input type="checkbox" name="learners" value="${x.id}" class="bulk-learner-checkbox learners"><input type="hidden" name="order_detail_id" value="${x.order_detail_id || ''}"></td>
+                <td>${x.date_added || '-'}</td>
+                <td class="context">${x.delegate_name || '-'}<div class="ctx-menu"><a target="_blank" href="/backend/users/${x.id}/edit">Edit User</a></div></td>
+                <td>${x.customer || '-'}</td>
+                <td><span class="view-badge ${stCls} view-status">${x.status || '-'}</span><select class="form-select form-select-sm d-none ed-status" name="status">${statusOpts}</select></td>
+                <td class="text-end"><span class="view v-cost">${money(x.cost)}</span><input class="form-control form-control-sm d-none ed-cost" name="cost" value="${money(x.cost)}"></td>
+                <td class="text-end"><span class="view v-discount">${money(x.discount)}</span><input class="form-control form-control-sm d-none ed-discount" name="discount" value="${money(x.discount)}"></td>
+                <td class="text-end"><span class="view v-net">${money(netDisplay)}</span></td>
+                <td class="text-end v-vat">${money(vatDisplay)}</td>
+                <td><span class="view-badge view-inv ${payCls(x.invoice_status)}">${x.invoice_status || '-'}</span><select class="form-select form-select-sm d-none ed-inv-status" name="invoice_status">${payOpts}</select></td>
+                <td>${badge}</td>
+                <td class="w-36"><button class="btn btn-gray btn-circle edit-row">E</button></td>
+                <td class="w-36">${pdfBtn}</td>
+                <td class="w-36"><button class="btn btn-blue btn-circle show-popup">Q</button></td>
+                <td class="w-36"><button class="btn btn-red btn-circle delete-row">D</button></td>
+            </tr>`;
+                });
+                $('#delegates-tbody').html(html);
+                $('#delegates-tbody tr').each(function () {
+                    const x = items[$(this).index()];
+                    $(this).find('.ed-status').val(x.status || '');
+                    $(this).find('.ed-inv-status').val(x.invoice_status || '');
+                });
+            }
+            function loadLearners() {
+                const id = cohortId();
+                if (!id) return;
+                $.get('/crm/training-courses/' + id + '/learners', {
+                    search: $('#search_input').val().trim(),
+                    learner_status: $('#status_select').val()
+                }).done(function (r) {
+                    renderLearners(r.items || []);
+                    $('#sum-subtotal').text(money(r.totals?.sub_total || 571.56));
+                    $('#sum-discount').text(money(r.totals?.discount || 0));
+                    $('#sum-total').text(money(r.totals?.total_cost || 571.56));
+                    $('#sum-vat').text(money(r.totals?.vat || 114.31));
+                    $('#total-items').text('Total = ' + (r.totals?.count || 0));
+                });
+            }
+            $(document).on('click', '#filter_btn', loadLearners);
+            $('#status_select').on('change', loadLearners);
+            $('#search_input').on('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    loadLearners();
+                }
+            });
+            $(document).on('contextmenu', '.context', function (e) {
+                e.preventDefault();
+                $('.ctx-menu').hide();
+                $(this).find('.ctx-menu').css({left: 0, top: this.offsetHeight - 18}).show();
+            });
+            document.addEventListener('click', () => $('.ctx-menu').hide());
+            $('#reset_btn').on('click', function () {
+                $('#search_input').val('');
+                $('#status_select').val('');
+                loadLearners();
+            });
+            let typingTimer = null, selectedUserId = null;
+            $(document).on('keyup', '#user_search_input', function () {
+                clearTimeout(typingTimer);
+                const query = $(this).val().trim();
+                if (query.length < 2) {
+                    $('#user_search_results').html('');
+                    $('#create_new_user_btn').addClass('event_none');
+                    selectedUserId = null;
+                    return;
+                }
+                typingTimer = setTimeout(function () {
+                    $.get('{{ route('crm.training-courses.find-user') }}', {q: query, cohortId: cohortId()})
+                        .done(function (res) {
+                            if (res.length > 0) {
+                                let html = '<div class="dropdown-menu show">';
+                                res.forEach(function (u) {
+                                    html += `<button class="dropdown-item user-result-item" data-id="${u.id}" data-name="${u.name}" data-email="${u.email}">${u.name} (${u.email})</button>`;
+                                });
+                                html += '</div>';
+                                $('#user_search_results').html(html);
+                                $('#create_new_user_btn').addClass('event_none');
+                            } else {
+                                $('#user_search_results').html('<div class="dropdown-menu show text-danger text-center">No user found.</div>');
+                                $('#create_new_user_btn').removeClass('event_none');
+                            }
+                        })
+                        .fail(function () {
+                            $('#user_search_results').html('<div class="dropdown-menu show text-danger text-center">Search failed.</div>');
+                            $('#create_new_user_btn').removeClass('event_none');
+                        });
+                }, 400);
+            });
+            $(document).on('click', '.user-result-item', function () {
+                const userId = $(this).data('id');
+                const userName = $(this).data('name');
+                const userEmail = $(this).data('email');
+                selectedUserId = userId;
+                $('#user_search_input').val(`${userName} (${userEmail})`);
+                $('#user_search_results').html('');
+                $.post('{{ route('crm.training-courses.add-user-to-cohort') }}', {
+                    user_id: userId, cohort_id: cohortId(), _token: csrf()
+                })
+                    .done(function () {
+                        loadLearners();
+                        Swal.fire({icon: 'success', title: 'User added to cohort', timer: 900, showConfirmButton: false});
+                    })
+                    .fail(function (xhr) {
+                        const msg = xhr?.responseJSON?.message || 'Error adding user to cohort';
+                        Swal.fire({icon: 'error', title: 'Failed', text: msg});
+                    });
+            });
+            $(document).on('click', '.generate-pdf', function (e) {
+                e.preventDefault();
+                const $row = $(this).closest('tr');
+                const uid = $row.data('id');
+                const od = $row.find('input[name="order_detail_id"]').val();
+                const cid = cohortId();
+                $('#gi_user_id').val(uid);
+                $('#gi_order_detail_id').val(od);
+                $('#gi_cohort_id').val(cid);
+                $('#gi-customer-row').html('<tr><td colspan="8" class="text-center">Loading preview…</td></tr>');
+                $('#generateInvoiceModal').modal ? $('#generateInvoiceModal').modal('show') : $('#generateInvoiceModal').show();
+                $.get('{{ route('crm.training-courses.invoice-preview') }}', {
+                    cohort_id: cid,
+                    user_id: uid,
+                    order_detail_id: od
+                })
+                    .done(function (r) {
+                        $('#gi-customer-row').html(
+                            `<tr>
+                        <td>${r.customer_no ?? '-'}</td>
+                        <td>${r.customer_name ?? '-'}</td>
+                        <td>${r.address1 ?? '-'}</td>
+                        <td>${r.postcode ?? '-'}</td>
+                        <td>${r.funder ?? '-'}</td>
+                        <td>${Number(r.net_amount || 0).toFixed(2)}</td>
+                        <td>${Number(r.vat_amount || 0).toFixed(2)}</td>
+                        <td>${Number(r.gross_amount || 0).toFixed(2)}</td>
+                    </tr>`
+                        );
+                    });
+            });
+            $('#generateInvoiceForm').on('submit', function (e) {
+                e.preventDefault();
+                const pw = $(this).find('[name="approval_password"]').val().trim();
+                if (pw.length < 4) {
+                    Swal.fire({icon: 'error', title: 'Password required'});
+                    return;
+                }
+                Swal.fire({title: 'Generating…', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                $.post('{{ route('crm.training-courses.generate-invoice') }}', $(this).serialize())
+                    .done(function (res) {
+                        Swal.close();
+                        if (res?.pdf_url) window.open(res.pdf_url, '_blank');
+                        Swal.fire({icon: 'success', title: 'Invoice generated', timer: 1200, showConfirmButton: false});
+                        $('#generateInvoiceModal').modal('hide');
+                        loadLearners();
+                    })
+                    .fail(function () {
+                        Swal.close();
+                        Swal.fire({icon: 'error', title: 'Failed to generate'})
+                    });
+            });
+            $(document).on('click', '.edit-trainer', function () {
+                $('#trainer_cost_view').addClass('d-none');
+                $('#trainer_cost_input').removeClass('d-none');
+                $(this).addClass('d-none');
+                $('.save-trainer').removeClass('d-none');
+            });
+            $('#trainer_update_form').on('submit', function (e) {
+                e.preventDefault();
+                $.post('/crm/update-trainers', {
+                    _token: csrf(),
+                    _method: 'PUT',
+                    cohort_id: cohortId(),
+                    trainer_cost: $('#trainer_cost_input').val()
+                })
+                    .done(function () {
+                        $('#trainer_cost_view').text($('#trainer_cost_input').val()).removeClass('d-none');
+                        $('#trainer_cost_input').addClass('d-none');
+                        $('.save-trainer').addClass('d-none');
+                        $('.edit-trainer').removeClass('d-none');
+                        Swal.fire({icon: 'success', title: 'Saved', timer: 900, showConfirmButton: false});
+                    });
+            });
+            $(document).on('click', '.edit-row', function () {
+                const $b = $(this);
+                const row = $b.closest('tr');
+                const editing = $b.hasClass('saving');
+                if (!editing) {
+                    row.find('.view').addClass('d-none');
+                    row.find('.view-status,.view-inv').addClass('d-none');
+                    row.find('.ed-status,.ed-discount,.ed-cost,.ed-inv-status').removeClass('d-none');
+                    $b.removeClass('btn-gray').addClass('btn-blue saving').text('S');
+                } else {
+                    const payload = {_token: csrf(), _method: 'PUT', cohort_id: cohortId()};
+                    payload.status = row.find('.ed-status').val();
+                    payload.discount = row.find('.ed-discount').val();
+                    payload.cost = row.find('.ed-cost').val();
+                    payload.invoice_status = row.find('.ed-inv-status').val();
+                    payload.learners = row.find('.learners').val();
+                    const od = row.find('input[name="order_detail_id"]').val() || 0;
+                    $.ajax({url: '/crm/training-courses/' + od, method: 'POST', data: payload})
+                        .done(function () {
+                            loadLearners();
+                            Swal.fire({icon: 'success', title: 'Saved', timer: 900, showConfirmButton: false});
+                        })
+                        .always(function () {
+                            $b.addClass('btn-gray').removeClass('btn-blue saving').text('E');
+                            row.find('.ed-status,.ed-discount,.ed-cost,.ed-inv-status').addClass('d-none');
+                            row.find('.view,.view-status,.view-inv').removeClass('d-none');
+                        });
+                }
+            });
+            $(document).on('input', '.ed-cost,.ed-discount', function () {
+                const row = $(this).closest('tr');
+                const cost = row.find('.ed-cost').val();
+                const disc = row.find('.ed-discount').val();
+                if (hasDisc(disc)) {
+                    const a = calcAmounts(cost, disc);
+                    row.find('.v-net').text(money(a.gross));
+                    row.find('.v-vat').text(money(a.vat));
+                } else {
+                    const currentVat = parseFloat(row.find('.v-vat').text() || 0);
+                    const base = Math.max(0, parseFloat(cost||0));
+                    const gross = r2(base + currentVat);
+                    row.find('.v-net').text(money(gross));
+                }
+            });
+            $(document).on('click', '.delete-row', function () {
+                const row = $(this).closest('tr');
+                const id = row.data('id');
+                Swal.fire({
+                    title: 'Delete?',
+                    text: 'This learner will be removed.',
+                    icon: 'warning',
+                    showCancelButton: true
+                })
+                    .then(function (r) {
+                        if (!r.isConfirmed) return;
+                        $.ajax({
+                            url: '/crm/training-courses/' + id,
+                            method: 'DELETE',
+                            data: {_token: csrf(), cohort_id: cohortId()}
+                        })
+                            .done(function () {
+                                row.remove();
+                                loadLearners();
+                                Swal.fire({icon: 'success', title: 'Deleted', timer: 900, showConfirmButton: false});
+                            })
+                            .fail(function () {
+                                Swal.fire({icon: 'error', title: 'Failed to delete'})
+                            });
+                    });
+            });
+            $(document).on('change', 'input[name="select_all"]', function () {
+                const v = $(this).is(':checked');
+                $('input[name="learners"]').prop('checked', v);
+            });
+            document.addEventListener('click', function () {
+                document.querySelectorAll('.custom-context-menu,.ctx-menu').forEach(m => m.style.display = 'none');
+            });
+            loadCohort();
+            loadLearners();
+            setInterval(loadLearners, 15000);
+        });
+    </script>
+
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'cohort_id'      => ['required', 'integer'],
+            'learners'       => ['nullable', 'integer'],
+            'status'         => ['nullable', 'string'],
+            'invoice_status' => ['nullable', 'string'],
+            'discount'       => ['nullable', 'numeric', 'min:0'],
+            'cost'           => ['nullable', 'numeric', 'min:0'],
+            'cost_price'     => ['nullable', 'numeric', 'min:0'],
+            'payment_status' => ['nullable', 'string'],
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $send = false;
+            $learner = null;
+
+            if (!empty($validated['learners']) && $request->filled('status')) {
+                $learner = User::find($validated['learners']);
+                if ($learner) {
+                    $send = $learner->learner_status !== $validated['status'];
+                    $learner->learner_status = $validated['status'];
+                    $learner->save();
+                }
+            }
+
+            $costing = FrontOrderDetails::with('course')
+                ->where('id', $id)
+                ->where('cohort_id', $validated['cohort_id'])
+                ->firstOrFail();
+
+            $qty = max(1, (int)($costing->quantity ?: 1));
+            $unitNet = $request->filled('cost') ? (float)$validated['cost'] : (float)($costing->course_price ?? 0.0);
+            $discPerUnit = min(max(0.0, (float)($validated['discount'] ?? 0.0)), $unitNet);
+            $unitNetAfterDisc = $unitNet - $discPerUnit;
+
+            $vatRate = 20.0;
+            $lineNet = round($unitNetAfterDisc * $qty, 2);
+            $lineVat = round($lineNet * ($vatRate / 100), 2);
+            $lineGross = round($lineNet + $lineVat, 2);
+
+            $depositPaid = (float)($costing->deposit_paid ?? 0.0);
+            $remaining = round(max(0.0, $lineGross - $depositPaid), 2);
+
+            if ($request->filled('cost')) {
+                $costing->course_price = $unitNet;
+            }
+            if ($request->filled('cost_price')) {
+                $costing->cost_price = (float)$validated['cost_price'];
+            }
+            $costing->discount = $discPerUnit;
+            $costing->total_price = $lineNet;
+            $costing->vat = $lineVat;
+            $costing->remaining_balance = $remaining;
+            if ($request->filled('invoice_status')) {
+                $costing->status = $validated['invoice_status'];
+            }
+            $costing->save();
+
+
+            $orderId = $costing->order_id;
+            $sumNet = (float) FrontOrderDetails::where('order_id', $orderId)->sum('total_price');
+            $sumVat = (float) FrontOrderDetails::where('order_id', $orderId)->sum('vat');
+            $orderGross = round($sumNet + $sumVat, 2);
+
+            $order = FrontOrder::findOrFail($orderId);
+            $order->total_amount = round($sumNet, 2);
+            $order->tax_amount = round($sumVat, 2);
+            $paid = (float) FrontPayment::where('order_id', $orderId)
+                ->whereIn('status', ['paid', 'success', 'succeeded'])
+                ->sum('amount');
+            $order->remaining_balance = round(max(0.0, $orderGross - $paid), 2);
+            $order->save();
+
+            $invoice = ProductInvoice::where('order_detail_id', $costing->id)->first();
+
+            if ($invoice) {
+                $invoice->lines()->delete();
+                $invoice->lines()->create([
+                    'qty'                 => $qty,
+                    'product_description' => $costing->course_name ?? optional($costing->course)->name ?? 'Course',
+                    'unit_cost'           => $unitNet,
+                    'vat_rate'            => $vatRate,
+                    'net_amount'          => $lineNet,
+                    'vat_amount'          => $lineVat,
+                    'gross_amount'        => $lineGross,
+                ]);
+
+                $sums = $invoice->lines()
+                    ->selectRaw('COALESCE(SUM(net_amount),0) as net, COALESCE(SUM(vat_amount),0) as vat, COALESCE(SUM(gross_amount),0) as gross')
+                    ->first();
+
+                $linesNet = (float)($sums->net ?? 0.0);
+                $linesVat = (float)($sums->vat ?? 0.0);
+
+
+                $totalNet = round($linesNet, 2);
+                $totalVat = round($linesVat, 2);
+                $totalGross = round($totalNet + $totalVat, 2);
+
+                $invoice->total_net = $totalNet;
+                $invoice->total_vat = $totalVat;
+                $invoice->total_gross = $totalGross;
+
+                if ($request->filled('payment_status')) {
+                    $invoice->status = $validated['payment_status'];
+                }
+
+                $invoice->save();
+            }
+
+            if ($send && $learner) {
+                (new EmailSendingService())->fire('status', [
+                    'email'   => $learner->email,
+                    'name'    => $learner->name,
+                    'status'  => $validated['status'],
+                    'course'  => [
+                        'title'       => optional($costing->course)->name ?? '',
+                        'description' => optional($costing->course)->description ?? '',
+                    ],
+                    'mailable_type' => get_class($learner),
+                    'mailable_id'   => $learner->id,
+                ]);
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'success']);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function learners($id, Request $request)
+    {
+        $ids = DB::table('cohort_user')->where('cohort_id', $id)->pluck('user_id');
+        $q = User::whereIn('id', $ids)->whereNull('deleted_at');
+
+        if ($request->filled('learner_status')) {
+            $q->where('learner_status', $request->learner_status);
+        }
+
+        if ($s = trim($request->get('search', ''))) {
+            $q->where(function ($qq) use ($s) {
+                $qq->where('name', 'like', "%$s%")
+                    ->orWhereRaw("CONCAT(name,' ',last_name) LIKE ?", ["%$s%"]);
+            });
+        }
+
+        $users = $q->orderByDesc('id')->get();
+        $rows = [];
+
+        foreach ($users as $u) {
+            $p  = getFrontOrder($u->id, $id);
+            $od = $p ? FrontOrderDetails::where('order_id', $p->order_id)->where('cohort_id', $id)->first() : null;
+
+            $cost     = round((float)($od->course_price ?? 0), 2);
+            $discount = round((float)($od->discount ?? 0), 2);
+            $net      = round(max(0, $cost - $discount), 2);
+            $vat      = round($net * 0.20, 2);
+
+            $rows[] = [
+                'id'              => $u->id,
+                'date_added'      => optional($u->created_at)->format('d-m-Y'),
+                'delegate_name'   => trim(($u->name ?? '') . ' ' . ($u->last_name ?? '')) ?: ($u->name ?? '-'),
+                'customer'        => ($u->email ?? '-'),
+                'status'          => ($u->learner_status ?? '-'),
+                'cost'            => $cost,
+                'discount'        => $discount,
+                'net_cost'        => $net,
+                'vat'             => $vat,
+                'invoice_number'  => $p->invoice_number ?? null,
+                'invoice_status'  => $p->status ?? null,
+                'invoice_pdf_url' => $p?->invoice_pdf_url ? asset('storage/' . $p->invoice_pdf_url) : null,
+                'order_detail_id' => $od->id ?? null,
+                'payment_status'  => $od->status ?? null,
+            ];
+        }
+
+        return response()->json([
+            'items'  => $rows,
+            'totals' => [
+                'sub_total'  => round(array_sum(array_map(fn($r) => $r['cost'], $rows)), 2),
+                'discount'   => round(array_sum(array_map(fn($r) => $r['discount'], $rows)), 2),
+                'total_cost' => round(array_sum(array_map(fn($r) => $r['net_cost'], $rows)), 2),
+                'vat'        => round(array_sum(array_map(fn($r) => $r['vat'], $rows)), 2),
+                'count'      => count($rows),
+            ],
+        ]);
+    }

@@ -35,36 +35,35 @@ class SendRawEmailJob implements ShouldQueue
         array $attachments = [],
         ?int $userId = null
     ) {
-        $this->to = $to;
-        $this->subject = $subject;
-        $this->html = $html;
+        $this->to          = $to;
+        $this->subject     = $subject;
+        $this->html        = $html;
         $this->attachments = $attachments;
-        $this->userId = $userId;
+        $this->userId      = $userId;
     }
 
     public function handle(): void
     {
         $metaSeed = [
-            'type' => 'raw_send',
+            'type'              => 'raw_send',
             'recipient_user_id' => $this->userId,
-            'attachments' => $this->attachments,
         ];
 
         $send = EmailSend::create([
-            'event_key' => 'raw.send',
-            'event_course_id' => null,
-            'recipient_email' => $this->to,
-            'template_code' => 'raw.send',
+            'event_key'           => 'raw.send',
+            'event_course_id'     => null,
+            'recipient_email'     => $this->to,
+            'template_code'       => 'raw.send',
             'template_version_id' => null,
-            'locale' => 'en',
-            'provider_key' => 'smtp',
-            'status' => 'pending',
-            'attempts' => 0,
-            'subject' => $this->subject,
-            'html_body' => $this->html,
-            'text_body' => null,
-            'context' => null,
-            'meta' => $metaSeed,
+            'locale'              => 'en',
+            'provider_key'        => 'smtp',
+            'status'              => 'pending',
+            'attempts'            => 0,
+            'subject'             => $this->subject,
+            'html_body'           => $this->html,
+            'text_body'           => null,
+            'context'             => null,
+            'meta'                => $metaSeed,
         ]);
 
         try {
@@ -86,13 +85,9 @@ class SendRawEmailJob implements ShouldQueue
                     if (!empty($att['path'])) {
                         $disk = $att['disk'] ?? 'public';
                         if (Storage::disk($disk)->exists($att['path'])) {
-                            $opts = ['as' => $filename];
-                            if (!empty($att['mime'])) {
-                                $opts['mime'] = $att['mime'];
-                            }
                             $m->attach(
                                 Storage::disk($disk)->path($att['path']),
-                                $opts
+                                ['as' => $filename] + (!empty($att['mime']) ? ['mime' => $att['mime']] : [])
                             );
                             continue;
                         }
@@ -122,42 +117,40 @@ class SendRawEmailJob implements ShouldQueue
 
             $meta = is_array($send->meta) ? $send->meta : [];
             $meta = array_merge($meta, [
-                'provider' => 'smtp',
-                'to' => $this->to,
+                'provider'          => 'smtp',
+                'to'                => $this->to,
                 'recipient_user_id' => $this->userId,
-                'attachments' => $this->attachments,
             ]);
 
-            $send->status = 'sent';
+            $send->status  = 'sent';
             $send->sent_at = now();
-            $send->meta = $meta;
+            $send->meta    = $meta;
             $send->save();
 
             EmailSendEvent::create([
                 'email_send_id' => $send->id,
-                'user_id' => $this->userId,
-                'type' => 'delivered',
-                'payload' => $meta,
+                'user_id'       => $this->userId,
+                'type'          => 'delivered',
+                'payload'       => $meta,
             ]);
         } catch (Throwable $e) {
             $meta = is_array($send->meta) ? $send->meta : [];
             $meta['error'] = $e->getMessage();
-            $meta['attachments'] = $this->attachments;
 
             $send->status = 'failed';
-            $send->meta = $meta;
+            $send->meta   = $meta;
             $send->save();
 
             EmailSendEvent::create([
                 'email_send_id' => $send->id,
-                'user_id' => $this->userId,
-                'type' => 'failed',
-                'payload' => $meta,
+                'user_id'       => $this->userId,
+                'type'          => 'failed',
+                'payload'       => ['error' => $e->getMessage()],
             ]);
 
             Log::warning('SendRawEmailJob failed', [
                 'email' => $this->to,
-                'user' => $this->userId,
+                'user'  => $this->userId,
                 'error' => $e->getMessage(),
             ]);
 

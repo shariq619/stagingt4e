@@ -10,6 +10,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
@@ -268,7 +269,6 @@ class LeadController extends Controller
         return response()->json(['ok' => true, 'updated' => $n]);
     }
 
-
     public function bulkSendEmail(Request $request)
     {
         $data = $request->validate([
@@ -371,14 +371,16 @@ class LeadController extends Controller
                 continue;
             }
 
-            $storedPath = $file->store('email_attachments', 'local');
+            $storedPath = $file->store('email_attachments', 'public');
 
             $attachments[] = [
-                'disk' => 'local',
-                'path' => $storedPath,
-                'name' => $file->getClientOriginalName(),
+                'disk'          => 'public',
+                'path'          => $storedPath,
+                'url'           => Storage::disk('public')->url($storedPath),
+                'name'          => $file->getClientOriginalName(),
                 'original_name' => $file->getClientOriginalName(),
-                'mime' => $file->getClientMimeType(),
+                'mime'          => $file->getClientMimeType(),
+                'size'          => (string) $file->getSize(),
             ];
         }
 
@@ -408,6 +410,7 @@ class LeadController extends Controller
             ], 500);
         }
     }
+
 
     protected function rules(Request $request, $id = null)
     {
