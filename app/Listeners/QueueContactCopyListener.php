@@ -13,8 +13,7 @@ class QueueContactCopyListener
     {
         $message = $event->message;
 
-        $headers = $message->getHeaders();
-        if ($headers && $headers->has('X-Contact-Copy')) {
+        if ($message->getHeaders()->has('X-Contact-Copy')) {
             return;
         }
 
@@ -27,16 +26,15 @@ class QueueContactCopyListener
 
         $subject = $message->getSubject() ?? '';
         $body    = $message->getBody() ?? '';
-        $user = User::where('email', $originalRecipients[0] ?? null)->first();
 
+        $user = User::where('email', $originalRecipients[0])->first();
         if (!$user) {
             return;
         }
 
         $primaryEmail = strtolower(trim($user->email));
 
-        $contacts = UserContact::query()
-            ->where('user_id', $user->client_id)
+        $contacts = UserContact::where('user_id', $user->client_id)
             ->where('opt_out', 0)
             ->pluck('direct_email')
             ->filter()
@@ -46,10 +44,10 @@ class QueueContactCopyListener
             return;
         }
 
-        $normalizedOriginals = array_map(function ($e) {
-            return strtolower(trim($e));
-        }, $originalRecipients);
-
+        $normalizedOriginals = array_map(
+            fn($e) => strtolower(trim($e)),
+            $originalRecipients
+        );
 
         $contactEmails = collect($contacts)
             ->map(fn($e) => trim($e))
@@ -75,25 +73,6 @@ class QueueContactCopyListener
         }
 
         $attachments = [];
-        try {
-            if ($message instanceof \Swift_Message) {
-                foreach ($message->getChildren() as $child) {
-                    if ($child instanceof \Swift_Attachment) {
-                        $name = $child->getFilename() ?? 'attachment';
-                        $tempPath = storage_path('app/tmp_mail_' . uniqid() . '_' . $name);
-
-                        file_put_contents($tempPath, $child->getBody());
-
-                        $attachments[] = [
-                            'path' => $tempPath,
-                            'name' => $name,
-                        ];
-                    }
-                }
-            }
-        } catch (\Throwable $e) {
-            $attachments = [];
-        }
 
         foreach ($contactEmails as $email) {
             SendContactCopyJob::dispatch(
@@ -102,7 +81,7 @@ class QueueContactCopyListener
                 $body,
                 $attachments,
                 $originalRecipients
-            )->delay(now()->addSeconds( 5));
+            )->delay(now()->addSeconds(5));
         }
     }
 }

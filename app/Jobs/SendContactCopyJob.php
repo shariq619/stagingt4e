@@ -10,7 +10,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Mail\Message;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
@@ -44,38 +43,60 @@ class SendContactCopyJob implements ShouldQueue
 
     public function handle(): void
     {
+        $attachments = [];
+
+        if (!empty($this->originalRecipients)) {
+            $origEmail = $this->originalRecipients[0];
+
+            $originalSend = EmailSend::query()
+                ->where('recipient_email', $origEmail)
+                ->where('subject', $this->subject)
+                ->where('event_key', '!=', 'contact.copy')
+                ->orderByDesc('id')
+                ->first();
+
+            if ($originalSend) {
+                $meta = is_array($originalSend->meta) ? $originalSend->meta : [];
+                if (!empty($meta['attachments']) && is_array($meta['attachments'])) {
+                    $attachments = $meta['attachments'];
+                }
+            }
+        }
+
         $metaSeed = [
             'type'                => 'contact_copy',
             'original_recipients' => $this->originalRecipients,
         ];
 
         $send = EmailSend::create([
-            'event_key'          => 'contact.copy',
-            'event_course_id'    => null,
-            'recipient_email'    => $this->email,
-            'template_code'      => 'contact.copy',
-            'template_version_id'=> null,
-            'locale'             => 'en',
-            'provider_key'       => 'smtp',
-            'status'             => 'pending',
-            'attempts'           => 0,
-            'subject'            => $this->subject,
-            'html_body'          => $this->htmlBody,
-            'text_body'          => null,
-            'context'            => null,
-            'meta'               => $metaSeed,
+            'event_key'           => 'contact.copy',
+            'event_course_id'     => null,
+            'recipient_email'     => $this->email,
+            'template_code'       => 'contact.copy',
+            'template_version_id' => null,
+            'locale'              => 'en',
+            'provider_key'        => 'smtp',
+            'status'              => 'pending',
+            'attempts'            => 0,
+            'subject'             => $this->subject,
+            'html_body'           => $this->htmlBody,
+            'text_body'           => null,
+            'context'             => null,
+            'meta'                => array_merge($metaSeed, [
+                'attachments' => $attachments,
+            ]),
         ]);
 
         try {
             $send->attempts = ($send->attempts ?? 0) + 1;
             $send->save();
 
-            Mail::send([], [], function (Message $m) {
+            Mail::send([], [], function (Message $m) use ($attachments) {
                 $m->to($this->email)
                     ->subject($this->subject)
                     ->setBody($this->htmlBody, 'text/html');
 
-                foreach ($this->attachments as $att) {
+                foreach ($attachments as $att) {
                     if (!is_array($att)) {
                         continue;
                     }
@@ -84,12 +105,16 @@ class SendContactCopyJob implements ShouldQueue
 
                     if (!empty($att['path'])) {
                         $disk = $att['disk'] ?? 'public';
-                        if (Storage::disk($disk)->exists($att['path'])) {
+                        $path = $att['path'];
+
+                        if (Storage::disk($disk)->exists($path)) {
                             $opts = ['as' => $filename];
                             if (!empty($att['mime'])) {
                                 $opts['mime'] = $att['mime'];
                             }
-                            $m->attach(Storage::disk($disk)->path($att['path']), $opts);
+
+                            $fullPath = Storage::disk($disk)->path($path);
+                            $m->attach($fullPath, $opts);
                             continue;
                         }
                     }
@@ -142,6 +167,7 @@ class SendContactCopyJob implements ShouldQueue
                 'type'          => 'delivered',
                 'payload'       => $meta,
             ]);
+
         } catch (Throwable $e) {
             $meta = is_array($send->meta) ? $send->meta : [];
             $meta['error'] = $e->getMessage();
@@ -155,11 +181,6 @@ class SendContactCopyJob implements ShouldQueue
                 'user_id'       => null,
                 'type'          => 'failed',
                 'payload'       => ['error' => $e->getMessage()],
-            ]);
-
-            Log::warning('SendContactCopyEmailJob failed', [
-                'email' => $this->email,
-                'error' => $e->getMessage(),
             ]);
 
             throw $e;
