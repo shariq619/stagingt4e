@@ -96,7 +96,7 @@
                 <a href="javascript:void(0)" class=" qm-pill btn btn-outline-primary btn-sm email-tab-link" data-tab="#tab-mappings">
                     <i class="fas fa-random me-1"></i> Email Mappings
                 </a>
-                <a href="{{ route('crm.newsletters.index') }}" class="tb-link {{ Request::is('crm/newsletters*') ? 'active' : '' }}">
+                <a href="{{ route('crm.newsletters.index') }}" class="qm-pill btn btn-outline-primary btn-sm tb-link {{ Request::is('crm/newsletters*') ? 'active' : '' }}">
                     <i class="fas fa-envelope-open"></i><span>Newsletters</span>
                 </a>
             </div>

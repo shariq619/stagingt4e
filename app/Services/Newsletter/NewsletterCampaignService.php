@@ -35,24 +35,32 @@ class NewsletterCampaignService
         [$baseSubject, $baseHtml, $baseText] = $this->buildBaseContent($campaign);
         $baseMeta = $this->buildBaseMeta($campaign, $newsletter);
 
+        // batching config
+        $batchSize  = 50; // 50 emails per batch
+        $chunkSize  = 50; // process 50 recipients per DB chunk
+        $batchIndex = 0;  // 0 => immediate, 1 => +5 min, 2 => +10 min, ...
+
         NewsletterCampaignRecipient::query()
             ->where('campaign_id', $campaign->id)
             ->whereIn('status', ['pending', 'retry'])
             ->whereNotNull('email')
             ->orderBy('id')
-            ->chunkById(200, function (Collection $rows) use (
+            ->chunkById($chunkSize, function (Collection $rows) use (
                 $campaign,
                 $newsletter,
                 $baseSubject,
                 $baseHtml,
                 $baseText,
                 $baseMeta,
-                $locale
+                $locale,
+                $batchSize,
+                &$batchIndex
             ) {
                 $now = now();
 
-                $normalizedEmails = [];
-                $recipientEmailMap = [];
+                $normalizedEmails   = [];
+                $recipientEmailMap  = [];
+                $recipientIdsToMarkQueued = [];
 
                 foreach ($rows as $recipient) {
                     $normalized = $this->normalizeEmail($recipient->email);
@@ -72,7 +80,9 @@ class NewsletterCampaignService
                 $emails = array_keys($normalizedEmails);
                 $userMap = $this->mapUsersByEmail($emails);
 
-                $recipientIdsToMarkQueued = [];
+                $dispatchedInChunk = false;
+
+                $dispatchAt = $now->copy()->addMinutes($batchIndex * 5);
 
                 foreach ($rows as $recipient) {
                     $recipientId = $recipient->id;
@@ -94,10 +104,12 @@ class NewsletterCampaignService
                         $baseText,
                         $baseMeta,
                         $locale,
-                        $now
+                        $now,
+                        $dispatchAt
                     );
 
                     $recipientIdsToMarkQueued[] = $recipientId;
+                    $dispatchedInChunk = true;
                 }
 
                 if (!empty($recipientIdsToMarkQueued)) {
@@ -107,6 +119,10 @@ class NewsletterCampaignService
                             'status'     => 'queued',
                             'updated_at' => $now,
                         ]);
+                }
+
+                if ($dispatchedInChunk) {
+                    $batchIndex++;
                 }
             });
     }
@@ -176,7 +192,8 @@ class NewsletterCampaignService
         string $baseText,
         array $baseMeta,
         string $locale,
-        $now
+        $now,
+        $dispatchAt
     ): void {
         $context = $this->builder->build($campaign, $recipient, $user, $locale);
 
@@ -192,22 +209,22 @@ class NewsletterCampaignService
         $sendMeta = $baseMeta;
 
         $send = EmailSend::create([
-            'event_key'          => 'newsletter_campaign',
-            'event_course_id'    => null,
-            'recipient_email'    => $recipient->email,
-            'template_code'      => 'newsletter_campaign',
-            'template_version_id'=> null,
-            'locale'             => $locale,
-            'provider_key'       => 'smtp',
-            'status'             => 'queued',
-            'attempts'           => 0,
-            'subject'            => $subject,
-            'html_body'          => $html,
-            'text_body'          => $text,
-            'context'            => $context,
-            'meta'               => $sendMeta,
-            'created_at'         => $now,
-            'updated_at'         => $now,
+            'event_key'           => 'newsletter_campaign',
+            'event_course_id'     => null,
+            'recipient_email'     => $recipient->email,
+            'template_code'       => 'newsletter_campaign',
+            'template_version_id' => null,
+            'locale'              => $locale,
+            'provider_key'        => 'smtp',
+            'status'              => 'queued',
+            'attempts'            => 0,
+            'subject'             => $subject,
+            'html_body'           => $html,
+            'text_body'           => $text,
+            'context'             => $context,
+            'meta'                => $sendMeta,
+            'created_at'          => $now,
+            'updated_at'          => $now,
         ]);
 
         EmailSendEvent::create([
@@ -228,7 +245,7 @@ class NewsletterCampaignService
                 $user ? $user->id : null,
                 $recipient->id,
                 $campaign->id
-            ))->delay($now->copy()->addSeconds(5))
+            ))->delay($dispatchAt)
         );
     }
 }
