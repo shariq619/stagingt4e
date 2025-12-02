@@ -324,6 +324,7 @@ class LeadController extends Controller
                         ->orWhere('source', 'like', $like)
                         ->orWhere('notes', 'like', $like)
                         ->orWhere('status', 'like', $like)
+                        ->orWhere('lead_grab_person', 'like', $like)
                         ->orWhereHas('creator', function ($cq) use ($like) {
                             $cq->where('name', 'like', $like);
                         });
