@@ -91,7 +91,7 @@ trait UserCohortReassignment
 
         $line = $invoice->lines()->create([
             'qty'                 => 1,
-            'product_code'        => 'RS-FEE',
+            'product_code'        => 'Rescheduling Fee',
             'product_description' => $desc ?: 'Reschedule Fee',
             'unit_cost'           => $feeNet,
             'vat_rate'            => $vatRate,

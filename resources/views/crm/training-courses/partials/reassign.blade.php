@@ -120,7 +120,6 @@
         padding: .45rem .9rem !important;
         border-radius: 18px !important;
         font-size: 12.5px !important;
-        min-width: 100px !important;
     }
 
     #reassignModal .btn-blue:hover {

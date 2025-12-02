@@ -813,11 +813,14 @@
 
             <div class="row g-3">
                 <div class="col-md-6">
-                    <div class="pi-box" style="height: 269px;">
+                    <div class="pi-box h-100" style="height: 269px;">
                         <div class="pi-h">Additional Course Details</div>
-                        <div class="pi-b">
-                            <textarea class="form-control mini-note" id="additional_note"
-                                      style="height: 120px;"></textarea>
+
+                        <div class="pi-b d-flex flex-column" >
+                            <textarea class="form-control mini-note flex-grow-1"
+                              id="additional_note"
+                              style="resize: none; height: 230px;"></textarea>
+
                             <div class="text-end mt-2">
                                 <button class="btn btn-green btn-sm" id="save_note_btn">Save</button>
                             </div>
@@ -1886,7 +1889,27 @@
             $(document).on('click', '.generateChecklist', function () {
                 const cohort = cohortId2();
                 const type = $('#print_list').val();
-                if (!cohort || !type) return;
+
+                if (!cohort) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Cohort Required',
+                        text: 'Please select a cohort before continuing.',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
+
+
+                if (!type) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Checklist Type Required',
+                        text: 'Please select a checklist type before continuing.',
+                        confirmButtonText: 'OK'
+                    });
+                    return;
+                }
 
                 const base = `/crm/training-courses/generate-checklist/${encodeURIComponent(cohort)}`;
 
