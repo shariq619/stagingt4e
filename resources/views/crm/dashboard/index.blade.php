@@ -434,7 +434,7 @@
                                         ? \Carbon\Carbon::parse($cohort->start_date_time)->format('d M Y')
                                         : 'TBC';
                                     $status     = $cohort->status ?? 'N/A';
-                                    $learnersCount = $cohort->learners_count ?? 0;
+                                    $learnersCount = $cohort->crm_learners_count ?? 0;
                                     $initial   = strtoupper(mb_substr($courseName, 0, 1));
                                     $url       = route('crm.training-courses.show', $cohort->id);
                                 @endphp

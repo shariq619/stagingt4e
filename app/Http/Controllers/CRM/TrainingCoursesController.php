@@ -1403,9 +1403,9 @@ class TrainingCoursesController extends Controller
         }
 
         if ($sort === 'az') {
-            $query->orderBy('crs.name', 'asc')->orderBy('c.start_date_time', 'desc');
+            $query->orderBy('crs.name', 'asc')->orderBy('c.start_date_time', 'asc');
         } else {
-            $query->orderBy('c.start_date_time', 'desc');
+            $query->orderBy('c.start_date_time', 'asc');
         }
 
         $rows = $query->limit($limit)->get();

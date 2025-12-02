@@ -22,7 +22,7 @@ class DashboardController extends Controller
             ->get();
 
         $recent_cohorts = Cohort::with('course')
-            ->withCount('learners')
+            ->withCount('crmLearners')
             ->whereNull('deleted_at')
             ->orderByDesc('start_date_time')
             ->take(20)

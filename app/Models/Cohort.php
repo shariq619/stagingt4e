@@ -91,11 +91,14 @@ class Cohort extends Model implements Auditable
 
     public function learners()
     {
+        return $this->belongsToMany(User::class, 'cohort_user', 'cohort_id', 'user_id');
+    }
+
+    public function crmLearners()
+    {
         return $this->belongsToMany(User::class, 'cohort_user', 'cohort_id', 'user_id')
             ->wherePivot('is_reassigned', 0);
     }
-
-
     public function taskSubmissions()
     {
         return $this->hasMany(TaskSubmission::class);
