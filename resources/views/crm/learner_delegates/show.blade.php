@@ -781,6 +781,15 @@
     <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@1.13.10/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(function() {
+
+            function toggleSaveButtonsForTab(tab) {
+                if (tab === 'delegate-details') {
+                    $('#btnSaveTop').removeClass('d-none');
+                } else {
+                    $('#btnSaveTop').addClass('d-none');
+                }
+            }
+
             function toYMD(v) {
                 if (!v) return '';
                 if (/^\d{4}-\d{2}-\d{2}/.test(v)) return v.slice(0, 10);
@@ -841,6 +850,7 @@
             $('[data-tab="' + activeTab + '"]').addClass('active');
             $('.section').removeClass('active');
             $('#section-' + activeTab).addClass('active');
+            toggleSaveButtonsForTab(activeTab);
 
 
             let courseTable = null;
@@ -849,10 +859,13 @@
             $('.mega-tabs .tab').on('click', function(e) {
                 e.preventDefault();
                 const tab = $(this).data('tab');
+
                 $('.mega-tabs .tab').removeClass('active');
                 $(this).addClass('active');
                 $('.section').removeClass('active');
                 $('#section-' + tab).addClass('active');
+
+                toggleSaveButtonsForTab(tab);
 
                 if (tab === 'delegate-courses') {
                     initCourseTable();
@@ -864,6 +877,8 @@
 
                 setQueryParam('tab', tab);
             });
+
+
 
             $('input.fx[data-f="email"]').attr({
                 type: 'email',
