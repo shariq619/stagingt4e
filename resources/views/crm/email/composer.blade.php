@@ -573,15 +573,15 @@
         <div class="page-inner">
             <div class="composer-shell">
                 <div class="composer-head">
-                    <button class="btn-top" id="updateNewLetter">Update Newsletter</button>
+                    <button class="btn-top" id="updateNewLetter">Update Email</button>
                     <button class="btn-top" id="btnAttach">Attach Files</button>
                     <button class="btn-top d-none" id="btnPlainToggle">Plain Text</button>
-                    <button class="btn-top primary d-none" id="btnSendNow">Send Newsletter</button>
+                    <button class="btn-top primary d-none" id="btnSendNow">Send Email</button>
                     <button class="btn-top" style="color:#dc2626" id="btnClearAll">Clear</button>
                 </div>
                 <div class="composer-body">
                     <div class="row-field">
-                        <div class="label-col">Newsletter Name</div>
+                        <div class="label-col">Email Name</div>
                         <div class="value-col">
                             <input class="form-control" id="nl_name" readonly placeholder="Joining Instructions - EFAW Portal">
                         </div>
@@ -1337,7 +1337,7 @@ Please do not reply directly to this message."></textarea>
                 });
                 $('#btnSendNow').on('click', function () {
                     Swal.fire({
-                        title: 'Send this newsletter?',
+                        title: 'Send this email?',
                         text: 'This will send immediately to all mapped recipients.',
                         icon: 'warning',
                         showCancelButton: true,

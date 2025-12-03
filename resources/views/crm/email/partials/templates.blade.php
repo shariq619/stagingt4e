@@ -27,7 +27,7 @@
             <div class="top-bar-actions">
                 <button class="btn-top btn-top-primary" id="tplSaveBtn">
                     <i class="bi bi-save"></i>
-                    <span>Save Newsletter</span>
+                    <span>Save Email</span>
                 </button>
                 <button class="btn-top btn-top-gray" id="tplSaveDraftBtn">
                     <i class="bi bi-file-earmark-text"></i>
@@ -47,7 +47,7 @@
                 </button>
                 <button class="btn-top d-none" id="tplSendBtn">
                     <i class="bi bi-send-fill"></i>
-                    <span>Send Newsletter</span>
+                    <span>Send Email</span>
                 </button>
                 <button class="btn-top btn-top-gray" id="tplClearBtn">
                     <i class="bi bi-x-circle"></i>
@@ -66,7 +66,7 @@
 
                         <div class="row-tight">
                             <div class="col-md-6 form-group">
-                                <label class="form-label-compact">Newsletter Name</label>
+                                <label class="form-label-compact">Email Name</label>
                                 <input class="form-control" id="tpl_newsletter_name" name="newsletter_name"
                                        placeholder="Emergency First Aid reminder batch #42">
                             </div>
@@ -294,7 +294,7 @@ Please do not reply directly to this message."
                             <div class="templates-header">
                                 <div class="templates-header-left">
                                     <div class="templates-title">Templates</div>
-                                    <div class="templates-sub">Saved versions for this newsletter code</div>
+                                    <div class="templates-sub">Saved versions for this email code</div>
                                 </div>
                                 <div class="templates-header-right">
                                     <div class="templates-count-pill">
