@@ -1141,7 +1141,7 @@
                         $slide.addClass('active');
                         var url0 = att.url || att.download_url || att.path || '#';
                         if (url0 && url0 !== '#') {
-                            $openOriginal.removeClass('d-none').attr('href', url0);
+                            $openOriginal.addClass('d-none').attr('href', url0);
                         }
                     }
                     $inner.append($slide);
@@ -1176,7 +1176,7 @@
                     if (!att) return;
                     var url = att.url || att.download_url || att.path || '#';
                     if (url && url !== '#') {
-                        $openOriginal.removeClass('d-none').attr('href', url);
+                        $openOriginal.addClass('d-none').attr('href', url);
                     } else {
                         $openOriginal.addClass('d-none').attr('href', '#');
                     }
