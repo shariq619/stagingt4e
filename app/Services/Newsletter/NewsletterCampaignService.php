@@ -2,7 +2,6 @@
 
 namespace App\Services\Newsletter;
 
-use App\Jobs\DeliverNewsletterJob;
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
 use App\Models\NewsletterCampaign;
@@ -35,10 +34,7 @@ class NewsletterCampaignService
         [$baseSubject, $baseHtml, $baseText] = $this->buildBaseContent($campaign);
         $baseMeta = $this->buildBaseMeta($campaign, $newsletter);
 
-        // batching config
-        $batchSize  = 50; // 50 emails per batch
-        $chunkSize  = 50; // process 50 recipients per DB chunk
-        $batchIndex = 0;  // 0 => immediate, 1 => +5 min, 2 => +10 min, ...
+        $chunkSize = 50;
 
         NewsletterCampaignRecipient::query()
             ->where('campaign_id', $campaign->id)
@@ -52,15 +48,13 @@ class NewsletterCampaignService
                 $baseHtml,
                 $baseText,
                 $baseMeta,
-                $locale,
-                $batchSize,
-                &$batchIndex
+                $locale
             ) {
                 $now = now();
 
-                $normalizedEmails   = [];
-                $recipientEmailMap  = [];
-                $recipientIdsToMarkQueued = [];
+                $normalizedEmails          = [];
+                $recipientEmailMap         = [];
+                $recipientIdsToMarkQueued  = [];
 
                 foreach ($rows as $recipient) {
                     $normalized = $this->normalizeEmail($recipient->email);
@@ -69,20 +63,16 @@ class NewsletterCampaignService
                         continue;
                     }
 
-                    $normalizedEmails[$normalized] = true;
-                    $recipientEmailMap[$recipient->id] = $normalized;
+                    $normalizedEmails[$normalized]        = true;
+                    $recipientEmailMap[$recipient->id]    = $normalized;
                 }
 
                 if (empty($normalizedEmails)) {
                     return;
                 }
 
-                $emails = array_keys($normalizedEmails);
+                $emails  = array_keys($normalizedEmails);
                 $userMap = $this->mapUsersByEmail($emails);
-
-                $dispatchedInChunk = false;
-
-                $dispatchAt = $now->copy()->addMinutes($batchIndex * 5);
 
                 foreach ($rows as $recipient) {
                     $recipientId = $recipient->id;
@@ -92,7 +82,7 @@ class NewsletterCampaignService
                     }
 
                     $emailKey = $recipientEmailMap[$recipientId];
-                    $user = $userMap->get($emailKey);
+                    $user     = $userMap->get($emailKey);
 
                     $this->handleRecipientRow(
                         $campaign,
@@ -104,12 +94,10 @@ class NewsletterCampaignService
                         $baseText,
                         $baseMeta,
                         $locale,
-                        $now,
-                        $dispatchAt
+                        $now
                     );
 
                     $recipientIdsToMarkQueued[] = $recipientId;
-                    $dispatchedInChunk = true;
                 }
 
                 if (!empty($recipientIdsToMarkQueued)) {
@@ -119,10 +107,6 @@ class NewsletterCampaignService
                             'status'     => 'queued',
                             'updated_at' => $now,
                         ]);
-                }
-
-                if ($dispatchedInChunk) {
-                    $batchIndex++;
                 }
             });
     }
@@ -192,8 +176,7 @@ class NewsletterCampaignService
         string $baseText,
         array $baseMeta,
         string $locale,
-        $now,
-        $dispatchAt
+        $now
     ): void {
         $context = $this->builder->build($campaign, $recipient, $user, $locale);
 
@@ -207,6 +190,8 @@ class NewsletterCampaignService
         );
 
         $sendMeta = $baseMeta;
+        $sendMeta['recipient_id'] = $recipient->id;
+        $sendMeta['user_id']      = $user ? $user->id : null;
 
         $send = EmailSend::create([
             'event_key'           => 'newsletter_campaign',
@@ -239,13 +224,5 @@ class NewsletterCampaignService
             'updated_at'    => $now,
         ]);
 
-        dispatch(
-            (new DeliverNewsletterJob(
-                $send->id,
-                $user ? $user->id : null,
-                $recipient->id,
-                $campaign->id
-            ))->delay($dispatchAt)
-        );
     }
 }

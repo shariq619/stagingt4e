@@ -33,6 +33,7 @@
         "stripe/stripe-php": "^16.5",
         "tecnickcom/tcpdf": "^6.9",
         "unisharp/laravel-filemanager": "^2.6",
+        "webklex/laravel-imap": "^6.2",
         "yajra/laravel-datatables-oracle": "^9.0"
     },
     "require-dev": {

@@ -20,6 +20,7 @@ use App\Http\Controllers\CRM\NewsletterController;
 use App\Http\Controllers\CRM\NewsletterCampaignController;
 use App\Http\Controllers\CRM\EmailUtilityController;
 use App\Http\Controllers\CRM\ErrorPageController;
+use App\Services\ImapReplySyncService;
 
 Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], function () {
 
@@ -29,6 +30,12 @@ Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], func
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard.index');
     });
+
+
+    Route::get('emails/sync-replies', function (ImapReplySyncService $service) {
+        $service->sync();
+        return response()->json(['status' => 'ok']);
+    })->name('emails.sync-replies');
 
     Route::prefix('training-courses')->name('training-courses.')->controller(TrainingCoursesController::class)->group(function () {
         Route::post('bulk-update-learner-status/{cohort}', 'bulkUpdateLearnerStatus')->name('bulk_update_learner_status');
@@ -98,6 +105,7 @@ Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], func
             Route::get('{id}/correspondence/dt', 'correspondenceDt')->name('correspondence.dt');
 
             Route::get('{id}/correspondence/{send}', 'showCorrespondence')->name('correspondence.show');
+            Route::get('{delegate}/correspondence/{send}/thread', 'threadJson')->name('correspondence.thread');
 
             Route::get('{id}/detail', 'show')->name('show');
                     Route::get('{id}/detail/json', 'showJson')->name('show.json');

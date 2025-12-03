@@ -4,6 +4,8 @@ namespace App\Jobs;
 
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
+use App\Models\EmailThread;
+use App\Models\EmailMessage;
 use App\Services\Newsletter\Provider\MailProvider;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -26,9 +28,9 @@ class DeliverNewsletterJob implements ShouldQueue
     public function __construct(int $emailSendId, ?int $userId = null, ?int $recipientId = null, ?int $campaignId = null)
     {
         $this->emailSendId = $emailSendId;
-        $this->userId = $userId;
+        $this->userId      = $userId;
         $this->recipientId = $recipientId;
-        $this->campaignId = $campaignId;
+        $this->campaignId  = $campaignId;
     }
 
     public function handle(): void
@@ -38,22 +40,21 @@ class DeliverNewsletterJob implements ShouldQueue
             return;
         }
 
-        $now = now();
+        $now  = now();
         $meta = is_array($send->meta) ? $send->meta : [];
 
         if ($send->status === 'sent') {
             return;
         }
 
-        $recentThreshold = (clone $now)->subDay();
-        if ($send->sent_at && $send->sent_at >= $recentThreshold) {
-            return;
-        }
+        $userId      = $this->userId ?? ($meta['user_id'] ?? null);
+        $recipientId = $this->recipientId ?? ($meta['recipient_id'] ?? null);
+        $campaignId  = $this->campaignId ?? ($meta['campaign_id'] ?? null);
 
         $provider = new MailProvider();
 
         try {
-            $send->attempts = $send->attempts + 1;
+            $send->attempts   = $send->attempts + 1;
             $send->updated_at = $now;
             $send->save();
 
@@ -65,56 +66,89 @@ class DeliverNewsletterJob implements ShouldQueue
                 $meta
             );
 
-            $send->status = 'sent';
-            $send->sent_at = $now;
-            $send->meta = array_merge($meta, $result);
-            $send->updated_at = $now;
+            $send->status              = 'sent';
+            $send->sent_at             = $now;
+            $send->provider_message_id = $result['message_id'] ?? null;
+            $send->meta                = array_merge($meta, $result);
+            $send->updated_at          = $now;
+
+            if (!$send->email_thread_id) {
+                $thread = EmailThread::create([
+                    'subject'            => $send->subject,
+                    'root_message_id'    => $result['message_id'] ?? null,
+                    'created_by_user_id' => $userId,
+                ]);
+                $send->email_thread_id = $thread->id;
+            } else {
+                $thread = $send->thread;
+            }
+
             $send->save();
+
+            if ($thread) {
+                EmailMessage::create([
+                    'email_thread_id' => $thread->id,
+                    'email_send_id'   => $send->id,
+                    'direction'       => 'outbound',
+                    'from_email'      => $meta['from_email'] ?? config('mail.from.address'),
+                    'to_email'        => $send->recipient_email,
+                    'cc'              => $meta['cc'] ?? [],
+                    'bcc'             => $meta['bcc'] ?? [],
+                    'subject'         => $send->subject,
+                    'body_html'       => $send->html_body,
+                    'body_text'       => $send->text_body,
+                    'message_id'      => $result['message_id'] ?? null,
+                    'in_reply_to'     => null,
+                    'sent_at'         => $now,
+                    'received_at'     => null,
+                    'provider'        => $result['provider'] ?? 'smtp',
+                    'raw_headers'     => $result['headers'] ?? null,
+                ]);
+            }
 
             EmailSendEvent::create([
                 'email_send_id' => $send->id,
-                'user_id'       => $this->userId,
+                'user_id'       => $userId,
                 'type'          => 'delivered',
                 'payload'       => $result,
                 'created_at'    => $now,
                 'updated_at'    => $now,
             ]);
 
-            if ($this->recipientId) {
+            if ($recipientId) {
                 DB::table('newsletter_campaign_recipients')
-                    ->where('id', $this->recipientId)
+                    ->where('id', $recipientId)
                     ->update([
                         'status'     => 'sent',
                         'updated_at' => $now,
                     ]);
             }
         } catch (Throwable $e) {
-            $meta['error'] = $e->getMessage();
+            $meta['error']   = $e->getMessage();
 
-            $send->status = 'failed';
-            $send->meta = $meta;
+            $send->status    = 'failed';
+            $send->meta      = $meta;
             $send->updated_at = $now;
             $send->save();
 
             EmailSendEvent::create([
                 'email_send_id' => $send->id,
-                'user_id'       => $this->userId,
+                'user_id'       => $userId ?? null,
                 'type'          => 'failed',
                 'payload'       => ['error' => $e->getMessage()],
                 'created_at'    => $now,
                 'updated_at'    => $now,
             ]);
 
-            if ($this->recipientId) {
+            if ($recipientId) {
                 DB::table('newsletter_campaign_recipients')
-                    ->where('id', $this->recipientId)
+                    ->where('id', $recipientId)
                     ->update([
                         'status'     => 'failed',
                         'updated_at' => $now,
                     ]);
             }
 
-            $campaignId = $this->campaignId ?? ($meta['campaign_id'] ?? null);
             if ($campaignId) {
                 DB::table('newsletter_campaigns')
                     ->where('id', $campaignId)
@@ -124,7 +158,6 @@ class DeliverNewsletterJob implements ShouldQueue
                     ]);
             }
 
-            throw $e;
         }
     }
 }

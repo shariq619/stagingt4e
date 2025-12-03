@@ -4,11 +4,13 @@ namespace App\Http\Controllers\CRM;
 
 use App\Models\Cohort;
 use App\Models\CohortReassignment;
+use App\Models\EmailMessage;
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
 use App\Models\EmailTemplateVersion;
 use App\Models\FrontOrderDetails;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -228,9 +230,11 @@ class LearnerDelegatesController extends BaseUserDirectoryController
             ->orderColumn('date', 's.created_at $1')
             ->make(true);
     }
-    public function showCorrespondence($id, $sendId)
+
+
+    public function showCorrespondence($delegateId, $sendId)
     {
-        $delegateId = (int) $id;
+        $delegateId = (int) $delegateId;
         $sendId     = (int) $sendId;
 
         $delegate = User::findOrFail($delegateId);
@@ -254,27 +258,62 @@ class LearnerDelegatesController extends BaseUserDirectoryController
         $cc  = $meta['cc']  ?? [];
         $bcc = $meta['bcc'] ?? [];
 
-        $fromName  = $meta['from_name']        ?? 'Training 4 Employment';
-        $fromEmail = $meta['from_email']       ?? 'bookings@training4employment.co.uk';
+        $fromName     = $meta['from_name']        ?? 'Training 4 Employment';
+        $fromEmail    = $meta['from_email']       ?? 'bookings@training4employment.co.uk';
         $creatorName  = $meta['created_by_name']  ?? null;
         $creatorEmail = $meta['created_by_email'] ?? null;
 
         $course = $send->course;
+        $thread = $send->thread;
 
         return view('crm.learner_delegates.correspondence_view', [
-            'delegate'      => $delegate,
-            'send'          => $send,
-            'meta'          => $meta,
-            'to'            => $to,
-            'cc'            => $cc,
-            'bcc'           => $bcc,
-            'attachments'   => $attachments,
-            'fromName'      => $fromName,
-            'fromEmail'     => $fromEmail,
-            'creatorName'   => $creatorName,
-            'creatorEmail'  => $creatorEmail,
-            'course'        => $course,
+            'delegate'       => $delegate,
+            'send'           => $send,
+            'meta'           => $meta,
+            'to'             => $to,
+            'cc'             => $cc,
+            'bcc'            => $bcc,
+            'attachments'    => $attachments,
+            'fromName'       => $fromName,
+            'fromEmail'      => $fromEmail,
+            'creatorName'    => $creatorName,
+            'creatorEmail'   => $creatorEmail,
+            'course'         => $course,
+            'thread'         => $thread,
         ]);
     }
 
+    public function threadJson($delegateId, $sendId): JsonResponse
+    {
+        $send = EmailSend::findOrFail((int) $sendId);
+
+        $messages = EmailMessage::query()
+            ->when($send->email_thread_id, function ($q) use ($send) {
+                $q->where('email_thread_id', $send->email_thread_id);
+            }, function ($q) use ($send) {
+                $q->where('email_send_id', $send->id);
+            })
+            ->orderByRaw('COALESCE(sent_at, received_at, created_at) asc')
+            ->get();
+
+        return response()->json([
+            'status'   => 'ok',
+            'messages' => $messages->map(function (EmailMessage $msg) {
+                $timestamp = $msg->sent_at ?? $msg->received_at ?? $msg->created_at;
+
+                return [
+                    'id'         => $msg->id,
+                    'direction'  => $msg->direction,
+                    'from_email' => $msg->from_email,
+                    'to_email'   => $msg->to_email,
+                    'sent_at'    => optional($msg->sent_at)->toIso8601String(),
+                    'received_at'=> optional($msg->received_at)->toIso8601String(),
+                    'created_at' => optional($msg->created_at)->toIso8601String(),
+                    'timestamp'  => $timestamp ? $timestamp->format('d-m-Y H:i') : null,
+                    'body_html'  => $msg->body_html,
+                    'body_text'  => $msg->body_text,
+                ];
+            })->values(),
+        ]);
+    }
 }

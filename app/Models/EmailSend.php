@@ -27,4 +27,15 @@ class EmailSend extends Model
     {
         return $this->belongsTo(Course::class, 'event_course_id');
     }
+
+    public function thread()
+    {
+        return $this->belongsTo(EmailThread::class, 'email_thread_id');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(EmailMessage::class, 'email_send_id');
+    }
+
 }

@@ -1,25 +1,36 @@
-ZIPS/
-/node_modules
-/public/hot
-/public/storage
-/storage/*.key
+# ---------------------------------------
+# Laravel & PHP
+# ---------------------------------------
 /vendor
+/node_modules
 .env
-.env.backup
+.env.*
 .phpunit.result.cache
-docker-compose.override.yml
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-/.idea
-/.vscode
-.htaccess
+composer.phar
+storage/*.key
+
+# Laravel caches & logs
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/bootstrap/cache/*
+
+# ---------------------------------------
+# Public Generated / Uploads
+# ---------------------------------------
+/public/storage
+/public/hot
+
+# Custom uploaded directories
 /public/banner_images
 /public/bundle_image
 /public/CategoryImages
 /public/course_images
 /public/CourseThumbnail
+/public/learners
+/public/learners/*
+/public/frontend/video
 /public/methodologies
 /public/pdfs
 /public/post_image
@@ -27,18 +38,36 @@ yarn-error.log
 /public/ProductImages
 /public/profile_images
 /public/resources
+/public/.htaccess
 
-/public/learners
-/public/learners/*
-/public/frontend/video
-.user.ini
-blogs/
+# ---------------------------------------
+# IDE / System Files
+# ---------------------------------------
+/.idea
+/.vscode
+/.htaccess
+/user.ini
+npm-debug.log
+yarn-error.log
 error_log
+
+# ---------------------------------------
+# Optional Custom Project Folders
+# (Ignore only if not needed in repo)
+# ---------------------------------------
+blogs/
 t4e/
 wp-content/
-/storage/framework/sessions/
-/storage/framework/views/
-/storage/framework/cache/*
-/bootstrap/cache/*
-/storage/logs/app/Http/Controllers/Controller.php
+
+# ---------------------------------------
+# Docker / Homestead
+# ---------------------------------------
+docker-compose.override.yml
+Homestead.json
+Homestead.yaml
+
+# ---------------------------------------
+# Misc
+# ---------------------------------------
+ZIPS/
 config/l5-swagger.php

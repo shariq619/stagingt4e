@@ -9,13 +9,15 @@ class MailProvider
 {
     public function send($to, $subject, $htmlBody, $textBody, array $meta = [])
     {
-        Mail::mailer('ses_newsletter')->send([], [], function ($message) use ($to, $subject, $htmlBody, $textBody, $meta) {
+        $messageId = null;
+        $rawHeaders = null;
+
+        Mail::send([], [], function ($message) use ($to, $subject, $htmlBody, $textBody, $meta, &$messageId, &$rawHeaders) {
             $message->to($to)->subject($subject);
 
             if (!empty($meta['from_email'])) {
                 $fromEmail = $meta['from_email'];
                 $fromName  = $meta['from_name'] ?? config('mail.from.name');
-
                 $message->from($fromEmail, $fromName);
             } else {
                 $message->from(
@@ -77,11 +79,16 @@ class MailProvider
                     }
                 }
             }
+
+            $swift = $message->getSwiftMessage();
+            $messageId = $swift->getId();
+            $rawHeaders = $swift->getHeaders()->toString();
         });
 
         return [
             'provider'   => 'smtp',
-            'message_id' => null,
+            'message_id' => $messageId,
+            'headers'    => $rawHeaders,
         ];
     }
 

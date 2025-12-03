@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\ProcessNewsletterQueueJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -29,6 +30,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('certificates:generate')->everyFifteenMinutes();
         $schedule->command('reminder:cohort-tasks')->dailyAt('09:00');
         $schedule->command('emails:run-time-triggers')->dailyAt('00:00');
+        $schedule->command('emails:sync-replies')->everyFiveMinutes();
+        $schedule->job(new ProcessNewsletterQueueJob())->everyMinute();
 
         //$schedule->command('test:cron')->everyMinute(); // for quick testing
 
