@@ -30,9 +30,8 @@ class ImapReplySyncService
             return;
         }
 
-        $folderName = 'INBOX';
         try {
-            $folder = $client->getFolder($folderName);
+            $folder = $client->getFolder('INBOX');
         } catch (\Throwable $e) {
             return;
         }
@@ -49,13 +48,12 @@ class ImapReplySyncService
 
     protected function handleMessage(string $account, Message $message): void
     {
-        $messageId       = $message->getMessageId();
+        $messageId = $message->getMessageId();
         if (!$messageId) {
             return;
         }
 
-        $existing = EmailMessage::where('message_id', $messageId)->first();
-        if ($existing) {
+        if (EmailMessage::where('message_id', $messageId)->exists()) {
             return;
         }
 
@@ -65,10 +63,15 @@ class ImapReplySyncService
         $toObj           = $message->getTo()[0] ?? null;
         $toEmail         = $toObj ? ($toObj->mail ?? null) : null;
         $inReplyTo       = $message->getInReplyTo();
-        $referencesArray = $message->getReferences() ?? [];
-        $references      = is_array($referencesArray) ? $referencesArray : [];
-        $bodyHtml        = $message->getHTMLBody();
-        $bodyText        = $message->getTextBody() ?? strip_tags($bodyHtml);
+        $referencesArr   = $message->getReferences() ?? [];
+        $references      = is_array($referencesArr) ? $referencesArr : [];
+
+        $bodyHtml = $message->getHTMLBody();
+        if (!$bodyHtml) {
+            $textBody = $message->getTextBody() ?? '';
+            $bodyHtml = $textBody !== '' ? nl2br(e($textBody)) : '';
+        }
+        $bodyText = trim(strip_tags($bodyHtml));
 
         $thread = null;
 
@@ -109,8 +112,7 @@ class ImapReplySyncService
 
         try {
             $message->setFlag('Seen');
-        } catch (\Throwable $e) {
-        }
+        } catch (\Throwable $e) {}
     }
 
     protected function findThreadByMessageId(?string $inReplyTo, array $references)
@@ -148,11 +150,6 @@ class ImapReplySyncService
             return null;
         }
 
-        $query = EmailThread::query()
-            ->where('subject', $subject);
-
-        $thread = $query->first();
-
-        return $thread;
+        return EmailThread::where('subject', $subject)->first();
     }
 }
