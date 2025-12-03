@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Email;
+namespace App\Services;
 
 use App\Models\EmailMessage;
 use App\Models\EmailThread;
