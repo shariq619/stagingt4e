@@ -33,7 +33,7 @@ Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], func
 
 
     Route::get('emails/sync-replies', function (ImapReplySyncService $service) {
-        $service->sync();
+        $service->syncAll();
         return response()->json(['status' => 'ok']);
     })->name('emails.sync-replies');
 
