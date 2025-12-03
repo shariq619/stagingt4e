@@ -12,7 +12,7 @@ class SyncEmailReplies extends Command
 
     public function handle(ImapReplySyncService $service): int
     {
-        $service->sync();
+        $service->syncAll();
         return self::SUCCESS;
     }
 }
