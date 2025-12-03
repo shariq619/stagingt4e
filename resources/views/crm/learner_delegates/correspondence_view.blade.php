@@ -989,7 +989,7 @@
                             .css('margin', '15px')
                             .text('No conversation content available. Showing original email below.');
                         var $original = $('<div/>')
-                            .css('margin-top', '10px')
+                            .css('margin', '15px')
                             .html(@json($send->html_body));
                         $panel.append($empty).append($original);
                         return;
