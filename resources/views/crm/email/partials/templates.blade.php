@@ -7,7 +7,7 @@
                 </div>
                 <div>
                     <div class="email-template-text-title">
-                        Newsletter Composer
+                        Email Composer
                         <span>Templates and recipients</span>
                     </div>
                     <div class="email-template-text-sub">

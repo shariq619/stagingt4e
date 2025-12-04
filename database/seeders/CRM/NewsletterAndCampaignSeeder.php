@@ -57,7 +57,7 @@ class NewsletterAndCampaignSeeder extends Seeder
                 'html_body'=>$html,'text_body'=>$text,
                 'layout_html'=>"<div style='font-family:sans-serif;color:#111827;font-size:14px;line-height:1.6'>{{content}}</div>",
                 'layout_text'=>"{{content}}",
-                'from_name'=>$faker->name(),'from_email'=>'noreply@training4employment.com',
+                'from_name'=> 'Admin','from_email'=>'support@training4employment.co.uk',
                 'created_by_name'=>'Seeder','created_by_email'=>'seeder@training4employment.com',
                 'merge_field'=>null,'to_recipients'=>[],'cc_recipients'=>[],'bcc_recipients'=>[],
                 'attachments'=>[],'active'=>true,
@@ -76,10 +76,7 @@ class NewsletterAndCampaignSeeder extends Seeder
 
         $groupPool = ['Main Batch','Test Group','Follow-Up','Pilot Set','Re-Engagement','Archived'];
         $senderPool = [
-            ['Training Team','training@training4employment.com'],
-            ['Support Desk','support@training4employment.com'],
-            ['No Reply','noreply@training4employment.com'],
-            ['Operations','ops@training4employment.com'],
+            ['Support Desk','support@training4employment.co.uk'],
         ];
 
         $campaignCount = 0;
