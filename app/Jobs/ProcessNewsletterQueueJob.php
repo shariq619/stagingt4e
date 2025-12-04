@@ -16,7 +16,7 @@ class ProcessNewsletterQueueJob implements ShouldQueue
 
     public function handle(): void
     {
-        $maxPerHour = 150;
+        $maxPerHour = 180;
         $perMinute  = max(1, (int) floor($maxPerHour / 60));
 
         DB::transaction(function () use ($perMinute) {

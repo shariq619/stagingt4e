@@ -179,8 +179,8 @@ TEXT;
 
             $template = EmailTemplate::create($templateData);
 
-            $layoutHtml = $payload['version']['layout_html'] ?? null;
-            $layoutText = $payload['version']['layout_text'] ?? null;
+            $layoutHtml = $payload['version']['layout_html'] ?? '{{content}}';
+            $layoutText = $payload['version']['layout_text'] ?? '{{content}}';
             if ($layoutHtml) {
                 $layoutText = $this->htmlToText($layoutHtml);
             }
