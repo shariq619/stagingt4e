@@ -1926,7 +1926,7 @@
                                     var any = false;
                                     $(this).find('.var-row').each(function () {
                                         var c = ($(this).data('code') || '').toLowerCase();
-                                        var d = ($(this).data('desc') || '').toLowerCase();
+                                        var d = ($(this).data('asc') || '').toLowerCase();
                                         var hit = !q || c.includes(q) || d.includes(q);
                                         $(this).css('display', hit ? 'flex' : 'none');
                                         if (hit) any = true;

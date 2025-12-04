@@ -672,7 +672,7 @@
                         this.api().columns.adjust();
                     }
                 },
-                order: [[1, 'desc']],
+                order: [[1, 'asc']],
                 columns: [
                     {data: 'id', name: 'user_audit_logs.id', width: '60px'},
                     {data: 'at', name: 'user_audit_logs.created_at', width: '170px'},

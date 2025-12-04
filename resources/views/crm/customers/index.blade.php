@@ -523,7 +523,7 @@
                     {data: 'address', name: 'users.address', className: 'td-trunc'},
                     {data: 'date', name: 'date', width: '160px'}
                 ],
-                order: [[5, 'desc']],
+                order: [[5, 'asc']],
                 drawCallback: function (s) {
                     this.api().columns.adjust();
                     if (s.json && typeof s.json.total !== 'undefined') {
@@ -564,7 +564,7 @@
                 $('#q').val('');
                 $('#starts').val('');
                 $('.az').removeClass('active');
-                table.search('').order([[5, 'desc']]).page(0).ajax.reload();
+                table.search('').order([[5, 'asc']]).page(0).ajax.reload();
                 closeFinder();
                 if (history.replaceState) history.replaceState({}, document.title, location.pathname);
             });

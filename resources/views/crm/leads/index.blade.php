@@ -1210,7 +1210,7 @@
                         return json.data;
                     }
                 },
-                order: [[1, 'desc']],
+                order: [[1, 'asc']],
                 columns: [
                     {
                         data: null,

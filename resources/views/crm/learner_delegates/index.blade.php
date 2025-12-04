@@ -595,7 +595,7 @@
                     }
                 ],
                 order: [
-                    [5, 'desc']
+                    [5, 'asc']
                 ],
                 drawCallback: function(s) {
                     if (s.json && typeof s.json.total !== 'undefined') {
@@ -639,7 +639,7 @@
                 $('#starts').val('');
                 $('.az').removeClass('active');
                 table.search('').order([
-                    [5, 'desc']
+                    [5, 'asc']
                 ]).page(0).ajax.reload();
                 closeFinder();
                 if (history.replaceState) history.replaceState({}, document.title, location.pathname);

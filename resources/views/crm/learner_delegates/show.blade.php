@@ -1309,7 +1309,7 @@
                         data: function(d) {}
                     },
                     order: [
-                        [2, 'desc']
+                        [2, 'asc']
                     ],
                     columns: [{
                             data: 'course_code',
@@ -1370,7 +1370,7 @@
                         data: function(d) {}
                     },
                     order: [
-                        [0, 'desc']
+                        [0, 'asc']
                     ],
                     columns: [{
                             data: 'date',

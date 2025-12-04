@@ -911,7 +911,7 @@
                         $.extend(d, params());
                     }
                 },
-                order: [[1, 'desc']],
+                order: [[1, 'asc']],
                 columns: [
                     {data: 'course_name', name: 'course_name', orderable: false, searchable: false},
                     {data: 'course_date', name: 'start_date_time'},
@@ -969,7 +969,7 @@
                 const now = new Date();
                 $('#year').val(now.getFullYear());
                 $('#month').val(now.getMonth() + 1);
-                table.search('').order([[1, 'desc']]).page(0).ajax.reload();
+                table.search('').order([[1, 'asc']]).page(0).ajax.reload();
                 $('#totalBadge').text('...');
             });
 

@@ -1461,7 +1461,7 @@
             var finUrl = "{{ route('crm.customers.financials.json', $delegate->id) }}";
             var allTransactions = [];
             var currentSortField = 'date_sort';
-            var currentSortDir = 'desc';
+            var currentSortDir = 'asc';
             var currentPage = 1;
             var perPage = 25;
 
