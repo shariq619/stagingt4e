@@ -1,26 +1,25 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CRM\DashboardController;
-use App\Http\Controllers\CRM\TrainingCoursesController;
-use App\Http\Controllers\CRM\LearnerDelegatesController;
-use App\Http\Controllers\CRM\CustomerController;
-use App\Http\Controllers\CRM\ProductInvoicesController;
-use App\Http\Controllers\CRM\ProductInvoicePaymentsController;
-use App\Http\Controllers\CRM\LookupController;
-use App\Http\Controllers\CRM\CrmStripeController;
 use App\Http\Controllers\CRM\AuditController;
 use App\Http\Controllers\CRM\CohortMiscController;
-use App\Http\Controllers\CRM\EmailAdminController;
-use App\Http\Controllers\CRM\InvoicePDFController;
-use App\Http\Controllers\CRM\UserPostQualificationController;
-use App\Http\Controllers\CRM\LeadController;
+use App\Http\Controllers\CRM\CrmStripeController;
 use App\Http\Controllers\CRM\CustomersController;
-use App\Http\Controllers\CRM\NewsletterController;
-use App\Http\Controllers\CRM\NewsletterCampaignController;
+use App\Http\Controllers\CRM\DashboardController;
+use App\Http\Controllers\CRM\EmailAdminController;
 use App\Http\Controllers\CRM\EmailUtilityController;
 use App\Http\Controllers\CRM\ErrorPageController;
-use App\Services\ImapReplySyncService;
+use App\Http\Controllers\CRM\InvoicePDFController;
+use App\Http\Controllers\CRM\LeadController;
+use App\Http\Controllers\CRM\LearnerDelegatesController;
+use App\Http\Controllers\CRM\LookupController;
+use App\Http\Controllers\CRM\NewsletterCampaignController;
+use App\Http\Controllers\CRM\NewsletterController;
+use App\Http\Controllers\CRM\ProductInvoicePaymentsController;
+use App\Http\Controllers\CRM\ProductInvoicesController;
+use App\Http\Controllers\CRM\TrainingCoursesController;
+use App\Http\Controllers\CRM\UserPostQualificationController;
+use App\Services\Crm\ImapReplySyncService;
+use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'crm', 'as' => 'crm.', 'middleware' => ['auth']], function () {
 

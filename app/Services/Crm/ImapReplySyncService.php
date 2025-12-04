@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Crm;
 
 use App\Models\EmailMessage;
-use App\Models\EmailThread;
 use App\Models\EmailSend;
+use App\Models\EmailThread;
 use Carbon\Carbon;
 use Webklex\IMAP\Facades\Client;
 use Webklex\PHPIMAP\Message;

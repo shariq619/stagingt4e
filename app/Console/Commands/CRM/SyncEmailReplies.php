@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\CRM;
 
+use App\Services\Crm\ImapReplySyncService;
 use Illuminate\Console\Command;
-use App\Services\ImapReplySyncService;
 
 class SyncEmailReplies extends Command
 {

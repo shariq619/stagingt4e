@@ -2,11 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Models\EmailMessage;
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
 use App\Models\EmailThread;
-use App\Models\EmailMessage;
-use App\Services\Newsletter\Provider\MailProvider;
+use App\Services\Crm\Newsletter\Provider\MailProvider;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

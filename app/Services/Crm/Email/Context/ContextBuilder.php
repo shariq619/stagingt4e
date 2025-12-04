@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Email\Context;
+namespace App\Services\Crm\Email\Context;
 
 use App\Models\FrontOrderDetails;
 use App\Models\FrontPayment;

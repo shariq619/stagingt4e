@@ -103,6 +103,5 @@ class EmailSendingService
             $results[] = "Email sent to {$params['email']} (trigger ID {$trigger->id})";
         }
         return $results;
-        dd($results);
     }
 }

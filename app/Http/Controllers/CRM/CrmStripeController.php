@@ -5,7 +5,7 @@ namespace App\Http\Controllers\CRM;
 use App\Http\Controllers\Controller;
 use App\Models\ProductInvoice;
 use App\Models\ProductInvoicePayment;
-use App\Services\CrmStripeService;
+use App\Services\Crm\CrmStripeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 

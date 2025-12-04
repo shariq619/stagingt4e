@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services\Email;
+namespace App\Services\Crm\Email;
 
 use App\Jobs\DeliverEmailJob;
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
 use App\Models\EmailTrigger;
-use App\Services\Email\Context\ContextBuilder;
+use App\Services\Crm\Email\Context\ContextBuilder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use function dispatch;

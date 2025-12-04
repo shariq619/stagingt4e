@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Services\Email\Context;
+namespace App\Services\Crm\Email\Context;
 
-use App\Models\User;
-use App\Models\FrontOrderDetails;
-use App\Models\Course;
 use App\Models\Cohort;
+use App\Models\Course;
+use App\Models\FrontOrderDetails;
 use App\Models\ProductInvoice;
+use App\Models\User;
 
 class TemplateVariableRegistry
 {

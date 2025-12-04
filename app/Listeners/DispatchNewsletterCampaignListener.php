@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\NewsletterCampaignSendRequested;
-use App\Services\Newsletter\NewsletterCampaignService;
+use App\Services\Crm\Newsletter\NewsletterCampaignService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 

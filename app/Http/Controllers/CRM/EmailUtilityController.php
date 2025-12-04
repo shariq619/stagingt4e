@@ -3,18 +3,12 @@
 namespace App\Http\Controllers\CRM;
 
 use App\Http\Controllers\Controller;
-use App\Models\Course;
-use App\Models\FrontOrder;
 use App\Models\FrontOrderDetails;
 use App\Models\Newsletter;
-use App\Models\ProductInvoice;
-use App\Models\User;
-use App\Services\Email\Context\ContextBuilder;
-use App\Services\Email\Context\ModelIntrospector;
-use App\Services\Email\TemplateRenderer;
+use App\Services\Crm\Email\Context\ContextBuilder;
+use App\Services\Crm\Email\TemplateRenderer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 class EmailUtilityController extends Controller
 {

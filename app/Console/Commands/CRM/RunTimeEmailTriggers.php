@@ -4,8 +4,8 @@ namespace App\Console\Commands\CRM;
 
 use App\Models\FrontOrderDetails;
 use App\Models\User;
-use App\Services\Email\EmailService;
-use App\Services\Email\Context\ContextBuilder;
+use App\Services\Crm\Email\Context\ContextBuilder;
+use App\Services\Crm\Email\EmailService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 

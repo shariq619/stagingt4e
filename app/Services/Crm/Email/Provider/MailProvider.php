@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Newsletter\Provider;
+namespace App\Services\Crm\Email\Provider;
 
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -9,22 +9,8 @@ class MailProvider
 {
     public function send($to, $subject, $htmlBody, $textBody, array $meta = [])
     {
-        $messageId = null;
-        $rawHeaders = null;
-
-        Mail::send([], [], function ($message) use ($to, $subject, $htmlBody, $textBody, $meta, &$messageId, &$rawHeaders) {
+        Mail::send([], [], function ($message) use ($to, $subject, $htmlBody, $textBody, $meta) {
             $message->to($to)->subject($subject);
-
-            if (!empty($meta['from_email'])) {
-                $fromEmail = $meta['from_email'];
-                $fromName  = $meta['from_name'] ?? config('mail.from.name');
-                $message->from($fromEmail, $fromName);
-            } else {
-                $message->from(
-                    config('mail.from.address'),
-                    config('mail.from.name')
-                );
-            }
 
             if ($htmlBody) {
                 $message->setBody($htmlBody, 'text/html');
@@ -79,16 +65,11 @@ class MailProvider
                     }
                 }
             }
-
-            $swift = $message->getSwiftMessage();
-            $messageId = $swift->getId();
-            $rawHeaders = $swift->getHeaders()->toString();
         });
 
         return [
             'provider'   => 'smtp',
-            'message_id' => $messageId,
-            'headers'    => $rawHeaders,
+            'message_id' => null,
         ];
     }
 

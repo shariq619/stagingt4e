@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Email;
+namespace App\Services\Crm\Email;
 
 use App\Models\EmailMapping;
 use App\Models\EmailTrigger;

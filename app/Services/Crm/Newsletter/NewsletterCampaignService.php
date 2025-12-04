@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Services\Newsletter;
+namespace App\Services\Crm\Newsletter;
 
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
 use App\Models\NewsletterCampaign;
 use App\Models\NewsletterCampaignRecipient;
 use App\Models\User;
-use App\Services\Email\TemplateRenderer;
-use App\Services\Newsletter\Context\ContextBuilder;
+use App\Services\Crm\Email\TemplateRenderer;
+use App\Services\Crm\Newsletter\Context\ContextBuilder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 

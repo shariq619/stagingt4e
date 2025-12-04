@@ -3,22 +3,22 @@
 namespace App\Http\Controllers\CRM;
 
 use App\Http\Controllers\Controller;
-use App\Services\Email\Context\TemplateVariableRegistry;
+use App\Http\Requests\Crm\Email\StoreDraftTemplateRequest;
+use App\Http\Requests\Crm\Email\StoreMappingRequest;
+use App\Http\Requests\Crm\Email\StoreTemplateRequest;
+use App\Http\Requests\Crm\Email\StoreTriggerRequest;
+use App\Http\Requests\Crm\Email\UpdateTemplateRequest;
+use App\Http\Requests\Crm\Email\UploadAssetRequest;
+use App\Models\EmailMapping;
+use App\Models\EmailTemplate;
+use App\Models\EmailTemplateTranslation;
+use App\Models\EmailTemplateVersion;
+use App\Models\EmailTrigger;
+use App\Services\Crm\Email\Context\TemplateVariableRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use App\Models\EmailTrigger;
-use App\Models\EmailTemplate;
-use App\Models\EmailTemplateVersion;
-use App\Models\EmailTemplateTranslation;
-use App\Models\EmailMapping;
-use App\Http\Requests\Crm\Email\StoreTriggerRequest;
-use App\Http\Requests\Crm\Email\StoreTemplateRequest;
-use App\Http\Requests\Crm\Email\StoreDraftTemplateRequest;
-use App\Http\Requests\Crm\Email\UpdateTemplateRequest;
-use App\Http\Requests\Crm\Email\StoreMappingRequest;
-use App\Http\Requests\Crm\Email\UploadAssetRequest;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class EmailAdminController extends Controller

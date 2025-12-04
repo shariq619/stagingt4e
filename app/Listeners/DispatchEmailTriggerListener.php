@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Events\LearnerStatusUpdated;
-use App\Services\Email\EmailService;
+use App\Services\Crm\Email\EmailService;
 
 class DispatchEmailTriggerListener
 {

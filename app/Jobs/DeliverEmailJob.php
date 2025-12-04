@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
-use App\Services\Email\Provider\MailProvider;
+use App\Services\Crm\Email\Provider\MailProvider;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

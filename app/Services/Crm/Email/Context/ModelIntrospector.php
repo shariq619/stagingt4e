@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Email\Context;
+namespace App\Services\Crm\Email\Context;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;

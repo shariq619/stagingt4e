@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Newsletter\Context;
+namespace App\Services\Crm\Newsletter\Context;
 
 use App\Models\NewsletterCampaign;
 use App\Models\NewsletterCampaignRecipient;

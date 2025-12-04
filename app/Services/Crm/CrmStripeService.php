@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Crm;
 
 use App\Models\CrmStripePaymentLog;
 use App\Models\ProductInvoice;
