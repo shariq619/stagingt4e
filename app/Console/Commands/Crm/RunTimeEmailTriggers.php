@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\CRM;
+namespace App\Console\Commands\Crm;
 
 use App\Models\FrontOrderDetails;
 use App\Models\User;

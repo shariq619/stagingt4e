@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Crm;
 
 use App\Models\EmailMessage;
 use App\Models\EmailSend;

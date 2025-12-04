@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\CRM;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendRawEmailJob;
+use App\Jobs\Crm\SendRawEmailJob;
 use App\Models\Course;
 use App\Models\Lead;
 use App\Models\User;

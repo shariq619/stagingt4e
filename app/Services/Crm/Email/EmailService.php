@@ -2,7 +2,7 @@
 
 namespace App\Services\Crm\Email;
 
-use App\Jobs\DeliverEmailJob;
+use App\Jobs\Crm\DeliverEmailJob;
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
 use App\Models\EmailTrigger;

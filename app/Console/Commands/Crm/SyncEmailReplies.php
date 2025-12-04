@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\CRM;
+namespace App\Console\Commands\Crm;
 
 use App\Services\Crm\ImapReplySyncService;
 use Illuminate\Console\Command;

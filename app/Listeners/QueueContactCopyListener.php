@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Jobs\SendContactCopyJob;
+use App\Jobs\Crm\SendContactCopyJob;
 use App\Models\User;
 use App\Models\UserContact;
 use Illuminate\Mail\Events\MessageSent;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Crm;
 
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;

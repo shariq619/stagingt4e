@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use App\Jobs\ProcessNewsletterQueueJob;
+use App\Jobs\Crm\ProcessNewsletterQueueJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
