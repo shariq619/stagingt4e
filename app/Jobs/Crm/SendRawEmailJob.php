@@ -4,15 +4,13 @@ namespace App\Jobs\Crm;
 
 use App\Models\EmailSend;
 use App\Models\EmailSendEvent;
+use App\Services\Crm\RawEmail\Provider\MailProvider;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Mail\Message;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class SendRawEmailJob implements ShouldQueue
@@ -46,95 +44,50 @@ class SendRawEmailJob implements ShouldQueue
     {
         $metaSeed = [
             'type'              => 'raw_send',
+            'attachments'       => $this->attachments,
             'recipient_user_id' => $this->userId,
         ];
 
         $send = EmailSend::create([
-            'event_key'           => 'raw.send',
-            'event_course_id'     => null,
-            'recipient_email'     => $this->to,
-            'template_code'       => 'raw.send',
-            'template_version_id' => null,
-            'locale'              => 'en',
-            'provider_key'        => 'smtp',
-            'status'              => 'pending',
-            'attempts'            => 0,
-            'subject'             => $this->subject,
-            'html_body'           => $this->html,
-            'text_body'           => null,
-            'context'             => null,
-            'meta'                => $metaSeed,
+            'event_key'       => 'raw.send',
+            'recipient_email' => $this->to,
+            'template_code'   => 'raw.send',
+            'locale'          => 'en',
+            'provider_key'    => 'smtp',
+            'status'          => 'pending',
+            'attempts'        => 0,
+            'subject'         => $this->subject,
+            'html_body'       => $this->html,
+            'meta'            => $metaSeed,
         ]);
 
         try {
-            $send->attempts = ($send->attempts ?? 0) + 1;
+            $send->attempts++;
             $send->save();
 
-            Mail::send([], [], function (Message $m) {
-                $m->to($this->to)
-                    ->subject($this->subject)
-                    ->setBody($this->html, 'text/html');
+            $provider = new MailProvider();
+            $meta     = $send->meta ?? [];
 
-                foreach ($this->attachments as $att) {
-                    if (!is_array($att)) {
-                        continue;
-                    }
-
-                    $filename = $att['original_name'] ?? ($att['name'] ?? 'attachment');
-
-                    if (!empty($att['path'])) {
-                        $disk = $att['disk'] ?? 'public';
-                        if (Storage::disk($disk)->exists($att['path'])) {
-                            $m->attach(
-                                Storage::disk($disk)->path($att['path']),
-                                ['as' => $filename] + (!empty($att['mime']) ? ['mime' => $att['mime']] : [])
-                            );
-                            continue;
-                        }
-                    }
-
-                    if (!empty($att['url']) && preg_match('#^https?://#i', $att['url'])) {
-                        $raw = @file_get_contents($att['url']);
-                        if ($raw !== false) {
-                            $mime = $att['mime'] ?? $this->guessMimeFromName($filename);
-                            $m->attachData($raw, $filename, ['mime' => $mime]);
-                        }
-                        continue;
-                    }
-
-                    if (!empty($att['url']) && strpos($att['url'], '/storage/') === 0) {
-                        $localPath = public_path(ltrim($att['url'], '/'));
-                        if (is_file($localPath)) {
-                            $opts = ['as' => $filename];
-                            if (!empty($att['mime'])) {
-                                $opts['mime'] = $att['mime'];
-                            }
-                            $m->attach($localPath, $opts);
-                        }
-                    }
-                }
-            });
-
-            $meta = is_array($send->meta) ? $send->meta : [];
-            $meta = array_merge($meta, [
-                'provider'          => 'smtp',
-                'to'                => $this->to,
-                'recipient_user_id' => $this->userId,
-            ]);
+            $result = $provider->send(
+                $this->to,
+                $this->subject,
+                $this->html,
+                null,
+                $meta
+            );
 
             $send->status  = 'sent';
             $send->sent_at = now();
-            $send->meta    = $meta;
+            $send->meta    = array_merge($meta, $result);
             $send->save();
 
             EmailSendEvent::create([
                 'email_send_id' => $send->id,
-                'user_id'       => $this->userId,
                 'type'          => 'delivered',
-                'payload'       => $meta,
+                'payload'       => $result,
             ]);
         } catch (Throwable $e) {
-            $meta = is_array($send->meta) ? $send->meta : [];
+            $meta          = $send->meta ?? [];
             $meta['error'] = $e->getMessage();
 
             $send->status = 'failed';
@@ -143,7 +96,6 @@ class SendRawEmailJob implements ShouldQueue
 
             EmailSendEvent::create([
                 'email_send_id' => $send->id,
-                'user_id'       => $this->userId,
                 'type'          => 'failed',
                 'payload'       => ['error' => $e->getMessage()],
             ]);
@@ -155,29 +107,6 @@ class SendRawEmailJob implements ShouldQueue
             ]);
 
             throw $e;
-        }
-    }
-
-    protected function guessMimeFromName(string $filename): string
-    {
-        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-
-        switch ($ext) {
-            case 'jpg':
-            case 'jpeg':
-                return 'image/jpeg';
-            case 'png':
-                return 'image/png';
-            case 'gif':
-                return 'image/gif';
-            case 'pdf':
-                return 'application/pdf';
-            case 'doc':
-                return 'application/msword';
-            case 'docx':
-                return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-            default:
-                return 'application/octet-stream';
         }
     }
 }
