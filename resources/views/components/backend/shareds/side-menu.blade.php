@@ -407,10 +407,68 @@
             </li>
         @endcan
 
+            @if ($user->hasRole('Learner'))
+                @can('see learner-video-feedback')
+                    <li class="nav-item has-treeview {{ Request::is('backend/video-feedback*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Request::is('backend/video-feedback*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-video"></i>
+                            <p>
+                                {{ __('Video Feedback') }}
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+
+                        <ul class="nav nav-treeview">
+
+                            <li class="nav-item">
+                                <a href="{{ route('backend.video-feedback.create') }}"
+                                   class="nav-link {{ Request::is('backend/video-feedback') ? 'active' : '' }}">
+                                    <i class="fas fa-play-circle nav-icon"></i>
+                                    <p>{{ __('Record Feedback') }}</p>
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a href="{{ route('backend.video-feedback.my') }}"
+                                   class="nav-link {{ Request::is('backend/video-feedback/my') ? 'active' : '' }}">
+                                    <i class="fas fa-folder-open nav-icon"></i>
+                                    <p>{{ __('My Videos') }}</p>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </li>
+                @endcan
+            @endif
 
 
 
+        @if ($user->hasRole(['Admin', 'Super Admin']))
+            <li class="nav-item has-treeview
+                {{ Request::is('backend/video-feedback/list') || Request::is('backend/video-feedback/*/view') ? 'menu-open' : '' }}">
+                <a href="#"
+                   class="nav-link
+                    {{ Request::is('backend/video-feedback/list') || Request::is('backend/video-feedback/*/view') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-video"></i>
+                    <p>
+                        {{ __('Learner Videos') }}
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
 
+                <ul class="nav nav-treeview">
+
+                    <li class="nav-item">
+                        <a href="{{ route('backend.video-feedback.index') }}"
+                           class="nav-link {{ Request::is('backend/video-feedback/list') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>{{ __('All Video Feedback') }}</p>
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+        @endif
 
 
 

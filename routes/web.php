@@ -64,6 +64,7 @@ use App\Http\Controllers\Frontend\SubscriberController;
 use App\Http\Controllers\HighfieldQualificationController;
 use App\Http\Controllers\ImpersonateController;
 use App\Http\Controllers\SendLearnerFeedbackController;
+use App\Http\Controllers\Backend\VideoFeedbackController;
 use App\Libraries\ScormApiService;
 use App\Models\Cohort;
 use App\Models\LearnerCertificate;
@@ -774,6 +775,45 @@ Route::get('/impersonate/leave', [ImpersonateController::class, 'leave'])->name(
 
 
 Route::group(['prefix' => 'backend', 'as' => 'backend.', 'middleware' => ['auth', 'forcePasswordChange']], function () {
+
+    Route::group([
+        'prefix' => 'video-feedback',
+        'as'     => 'video-feedback.',
+    ], function () {
+
+        Route::get('/', [VideoFeedbackController::class, 'create'])
+            ->name('create');
+
+        Route::post('/', [VideoFeedbackController::class, 'store'])
+            ->name('store');
+
+        Route::get('/my', [VideoFeedbackController::class, 'my'])
+            ->name('my');
+
+        Route::get('/my/data', [VideoFeedbackController::class, 'myData'])
+            ->name('my.data');
+
+        Route::get('/list', [VideoFeedbackController::class, 'index'])
+            ->name('index');
+
+
+       Route::get('/list/data', [VideoFeedbackController::class, 'adminData'])
+            ->name('index.data')
+            ->middleware('permission:see learner-video-feedback');
+
+        Route::get('/{id}/view', [VideoFeedbackController::class, 'show'])
+            ->name('show')
+            ->middleware('permission:see learner-video-feedback');
+
+        Route::post('/{id}/approve', [VideoFeedbackController::class, 'approve'])
+            ->name('approve')
+            ->middleware('permission:approve learner-video-feedback');
+
+        Route::post('/{id}/reject', [VideoFeedbackController::class, 'reject'])
+            ->name('reject')
+            ->middleware('permission:reject learner-video-feedback');
+    });
+
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index')->middleware('permission:view dashboard');
 
