@@ -115,26 +115,30 @@ class VideoFeedbackController extends Controller
         return view('backend.video_feedback.show', compact('video'));
     }
 
+    protected function updateStatus(VideoTestimonial $v, string $status, ?string $notes = null)
+    {
+        $v->update([
+            'status'       => $status,
+            'reviewed_by'  => Auth::id(),
+            'reviewed_at'  => now(),
+            'review_notes' => $notes,
+        ]);
+    }
+
     public function approve($id)
     {
         $v = VideoTestimonial::findOrFail($id);
-        $v->status = 'approved';
-        $v->reviewed_by = Auth::id();
-        $v->reviewed_at = now();
-        $v->save();
-        return back()->with('success', 'Approved');
+        $this->updateStatus($v, 'approved');
+        return response()->json(['success' => true, 'message' => 'Approved']);
     }
 
     public function reject(Request $request, $id)
     {
         $v = VideoTestimonial::findOrFail($id);
-        $v->status = 'rejected';
-        $v->reviewed_by = Auth::id();
-        $v->reviewed_at = now();
-        $v->review_notes = $request->review_notes ?? null;
-        $v->save();
-        return back()->with('success', 'Rejected');
+        $this->updateStatus($v, 'rejected', $request->review_notes);
+        return response()->json(['success' => true, 'message' => 'Rejected']);
     }
+
 
     public function my()
     {
