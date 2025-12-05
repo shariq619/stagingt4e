@@ -33,7 +33,7 @@
             <div class="vf-card p-3 p-md-4">
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">{{ $video->title ?: __('Untitled video feedback') }}</h5>
+                    <h5 class="mb-0">{{ $video->title ?: __('Video feedback') }}</h5>
                     @php
                         $cls = $video->status === 'approved' ? 'badge-success' :
                                ($video->status === 'rejected' ? 'badge-danger' : 'badge-warning');

@@ -152,7 +152,7 @@ class VideoFeedbackController extends Controller
         $data = $videos->map(function (VideoTestimonial $v) {
             return [
                 'id' => $v->id,
-                'title' => $v->title ?: 'Untitled',
+                'title' => $v->title ?: '-',
                 'message' => $v->message ? Str::limit($v->message, 80) : null,
                 'status' => $v->status,
                 'created_at' => $v->created_at?->format('d M Y, H:i'),
