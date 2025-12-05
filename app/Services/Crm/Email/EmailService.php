@@ -101,12 +101,6 @@ class EmailService
 
         foreach ($recipients as $toEmail) {
 
-//            $idKey = $this->makeIdempotencyKey($eventKey, $toEmail);
-
-//          if ($this->alreadySentRecently($idKey)) {
-//              continue;
-//          }
-
             $sendMeta = [
                 'cc' => $versionMeta['cc'] ?? [],
                 'bcc' => $versionMeta['bcc'] ?? [],
@@ -144,7 +138,6 @@ class EmailService
                 'payload' => ['trigger' => $triggerKey],
             ]);
 
-//          $this->recordIdempotency($idKey, $eventKey, $toEmail);
 
             dispatch(new DeliverEmailJob($send->id, $userId));
         }
@@ -210,18 +203,6 @@ class EmailService
         return $cur;
     }
 
-//    protected function makeIdempotencyKey(string $eventKey, string $email): string
-//    {
-//        return sha1($eventKey . '|' . strtolower($email));
-//    }
-//
-//    protected function alreadySentRecently(string $hash): bool
-//    {
-//        return DB::table('email_idempotency')
-//            ->where('hash', $hash)
-//            ->where('created_at', '>=', now()->subDay())
-//            ->exists();
-//    }
 
     protected function recordIdempotency(string $hash, string $eventKey, string $email): void
     {
