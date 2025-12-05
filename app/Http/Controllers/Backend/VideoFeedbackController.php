@@ -44,7 +44,7 @@ class VideoFeedbackController extends Controller
                 'id' => $v->id,
                 'user_name' => optional($v->user)->name,
                 'user_email' => optional($v->user)->email,
-                'title' => $v->title ?: 'Untitled',
+                'title' => $v->title ?: '-',
                 'message' => $v->message ? Str::limit($v->message, 80) : null,
                 'status' => $v->status,
                 'consent' => $v->consent_given ? 'yes' : 'no',
